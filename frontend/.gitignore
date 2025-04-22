@@ -6,3 +6,12 @@ node_modules/
 /build/
 
 .pnpm-store/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+.env
+.env.*.local
