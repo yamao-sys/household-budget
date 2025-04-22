@@ -5,12 +5,14 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
+    "dev:test": "NODE_ENV=test react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "lint": "eslint './**/*.{js,jsx,ts,tsx,json}'",
     "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx,json}'",
     "format": "prettier  --check './**/*.{ts,tsx}'",
-    "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,json}'"
+    "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,json}'",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@react-router/node": "^7.5.1",
@@ -31,6 +33,7 @@
     "@types/react-dom": "^19.0.1",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "@typescript-eslint/parser": "^8.31.0",
+    "dotenv": "^16.5.0",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-import-resolver-typescript": "^4.3.4",
