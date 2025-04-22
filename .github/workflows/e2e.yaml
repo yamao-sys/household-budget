@@ -1,0 +1,116 @@
+name: E2E
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: mysql:8.0.28
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: household_budget_test
+          TZ: 'Asia/Tokyo'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # - name: Set up Go
+      #   uses: actions/setup-go@v4
+      #   id: setup-go-e2e
+      #   with:
+      #     go-version-file: ./api-server/go.mod
+      #     cache: true
+      #     cache-dependency-path: ./api-server/go.sum
+
+      # - name: Cache Go tools
+      #   uses: actions/cache@v4
+      #   id: cache-go-tools
+      #   with:
+      #     path: |
+      #       ~/go/bin
+      #     key: go-tools-${{ runner.os }}-${{ hashFiles('go.mod') }}-tools
+
+      # - name: go mod tidy
+      #   working-directory: ./api-server
+      #   if: ${{ steps.setup-go-e2e.outputs.cache-hit != 'true' }}
+      #   run: go mod tidy
+
+      # - name: Add go bin to PATH
+      #   if: ${{ steps.cache-go-tools.outputs.cache-hit == 'true' }}
+      #   run: echo "$HOME/go/bin" >> $GITHUB_PATH
+
+      # - name: Install dependencies
+      #   working-directory: ./api-server
+      #   if: ${{ steps.cache-go-tools.outputs.cache-hit != 'true' }}
+      #   run: |
+      #     go mod tidy
+      #     go install github.com/rubenv/sql-migrate/...@latest
+      #     go install github.com/joho/godotenv/cmd/godotenv@latest
+
+      # - name: migrate
+      #   working-directory: ./migrations
+      #   run: make migrate-test
+
+      # - name: Seeding
+      #   working-directory: ./api-server
+      #   run: make test-seed-ci
+
+      # - name: Boot API Server
+      #   working-directory: ./api-server
+      #   run: |
+      #     godotenv -f .env.test go run main.go &
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: ./frontend/pnpm-lock.yaml
+
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: |
+          VERSION=$(yq '.importers.".".devDependencies."@playwright/test".version' frontend/pnpm-lock.yaml)
+          echo "PLAYWRIGHT_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Cache playwright binaries
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: pnpm i
+
+      - run: pnpm playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: ./frontend
+
+      - name: Run Playwright tests
+        working-directory: ./frontend
+        run: pnpm test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

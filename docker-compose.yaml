@@ -1,0 +1,57 @@
+version: '3.9'
+services:
+  # api_server:
+  #   container_name: api_server
+  #   build:
+  #     context: ./api-server
+  #   volumes:
+  #     - ./api-server:/app
+  #   ports:
+  #     - 8080:8080
+  #     - 8083:8083 # テスト用のポート
+  #   depends_on:
+  #     - db
+  #   tty: true # コンテナの永続化
+  #   environment:
+  #     - TZ=Asia/Tokyo
+  #   entrypoint: air -c .air.toml
+
+  # migrations:
+  #   container_name: migrations
+  #   build:
+  #     context: ./migrations
+  #   volumes:
+  #     - ./migrations:/app
+  #   depends_on:
+  #     - db
+  #   tty: true # コンテナの永続化
+  #   environment:
+  #     - TZ=Asia/Tokyo
+
+  # db:
+  #   image: mysql:8.0.28
+  #   container_name: db
+  #   ports:
+  #     - 3306:3306
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: household_budget
+  #     TZ: 'Asia/Tokyo'
+  #   volumes:
+  #     - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
+  #     - ./mysql:/var/lib/mysql
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: frontend
+    ports:
+      - 5173:5173
+      - 5273:5273 # E2Eテスト用のポート
+    volumes:
+      - ./frontend:/app
+    restart: always
+    tty: true
+    stdin_open: true
+    command: 'bash entrypoint.sh'
