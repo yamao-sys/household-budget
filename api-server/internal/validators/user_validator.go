@@ -7,12 +7,12 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
-func ValidateSignUpCompany(input *api.PostUsersSignUpJSONRequestBody) error {
+func ValidateSignUp(input *api.PostUsersSignUpJSONRequestBody) error {
 	return validation.ValidateStruct(input,
 		validation.Field(
 			&input.Name,
-			validation.Required.Error("企業名は必須入力です。"),
-			validation.RuneLength(1, 20).Error("企業名は1 ~ 20文字での入力をお願いします。"),
+			validation.Required.Error("ユーザ名は必須入力です。"),
+			validation.RuneLength(1, 20).Error("ユーザ名は1 ~ 20文字での入力をお願いします。"),
 		),
 		validation.Field(
 			&input.Email,
