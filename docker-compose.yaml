@@ -16,17 +16,18 @@ services:
   #     - TZ=Asia/Tokyo
   #   entrypoint: air -c .air.toml
 
-  # migrations:
-  #   container_name: migrations
-  #   build:
-  #     context: ./migrations
-  #   volumes:
-  #     - ./migrations:/app
-  #   depends_on:
-  #     - db
-  #   tty: true # コンテナの永続化
-  #   environment:
-  #     - TZ=Asia/Tokyo
+  migrations:
+    container_name: migrations
+    build:
+      context: ./migrations
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./migrations:/app
+    depends_on:
+      - db
+    tty: true # コンテナの永続化
+    environment:
+      - TZ=Asia/Tokyo
 
   db:
     image: mysql:8.0.28
