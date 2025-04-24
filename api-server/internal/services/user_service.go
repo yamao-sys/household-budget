@@ -5,7 +5,12 @@ import (
 	"apps/internal/models"
 	"apps/internal/validators"
 	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -13,6 +18,7 @@ import (
 type UserService interface {
 	ValidateSignUp(ctx context.Context, requestParams api.PostUsersSignUpJSONRequestBody) error
 	SignUp(ctx context.Context, requestParams api.PostUsersSignUpJSONRequestBody) error
+	SignIn(ctx context.Context, requestParams api.PostUsersSignInJSONRequestBody) (statusCode int, tokenString string, error error)
 }
 
 type userService struct {
@@ -42,6 +48,36 @@ func (us *userService) SignUp(ctx context.Context, requestParams api.PostUsersSi
 		return err
 	}
 
+	return nil
+}
+
+func (us *userService) SignIn(ctx context.Context, requestParams api.PostUsersSignInJSONRequestBody) (statusCode int, tokenString string, error error) {
+	// NOTE: emailからの取得
+	var user models.User
+	if err := us.db.Where("email = ?", requestParams.Email).First(&user).Error; err != nil {
+		return http.StatusBadRequest, "", fmt.Errorf("メールアドレスまたはパスワードに該当する%sが存在しません。", "ユーザ")
+	}
+
+	// NOTE: パスワードの照合
+	if err := us.compareHashPassword(user.Password, requestParams.Password); err != nil {
+		return http.StatusBadRequest, "", fmt.Errorf("メールアドレスまたはパスワードに該当する%sが存在しません。", "ユーザ")
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+	})
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_TOKEN_KEY")))
+	if err != nil {
+		return http.StatusInternalServerError, "", err
+	}
+	return http.StatusOK, tokenString, nil
+}
+
+// NOTE: パスワードの照合
+func (us *userService) compareHashPassword(hashedPassword, requestPassword string) error {
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(requestPassword)); err != nil {
+		return err
+	}
 	return nil
 }
 
