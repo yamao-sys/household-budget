@@ -1,0 +1,194 @@
+openapi: 3.1.0
+info:
+  title: household budget
+  version: '1.0'
+  summary: ''
+  description: household budget APIs
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /csrf:
+    get:
+      summary: Get Csrf
+      responses:
+        '200':
+          $ref: '#/components/responses/CsrfResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+      operationId: get-csrf
+      security: []
+      tags:
+        - csrf
+  /users/validateSignUp:
+    post:
+      summary: User Validate SignUp
+      responses:
+        '200':
+          $ref: '#/components/responses/UserSignUpResponse'
+        '400':
+          $ref: '#/components/responses/UserSignUpResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+      operationId: post-users-validate_sign_up
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserSignUpInput'
+      tags:
+        - users
+  /users/signUp:
+    post:
+      summary: User SignUp
+      responses:
+        '200':
+          $ref: '#/components/responses/UserSignUpResponse'
+        '400':
+          $ref: '#/components/responses/UserSignUpResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+      operationId: post-users-sign_up
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserSignUpInput'
+      tags:
+        - users
+  /users/signIn:
+    post:
+      summary: User SignIn
+      responses:
+        '200':
+          $ref: '#/components/responses/UserSignInOkResponse'
+        '400':
+          $ref: '#/components/responses/UserSignInBadRequestResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+      operationId: post-supporters-sign_in
+      security: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserSignInInput'
+      tags:
+        - users
+components:
+  schemas:
+    UserSignUpValidationError:
+      title: UserSignUpValidationError
+      type: object
+      properties:
+        name:
+          type: array
+          items:
+            type: string
+        email:
+          type: array
+          items:
+            type: string
+        password:
+          type: array
+          items:
+            type: string
+  requestBodies:
+    UserSignUpInput:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - email
+              - password
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+              password:
+                type: string
+      description: User SignUp Iuput
+    UserSignInInput:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+      description: User SignIn  Input
+  responses:
+    CsrfResponse:
+      description: Csrf response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - csrfToken
+            properties:
+              csrfToken:
+                type: string
+    UserSignUpResponse:
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - code
+              - errors
+            properties:
+              code:
+                type: integer
+              errors:
+                type: object
+                $ref: '#/components/schemas/UserSignUpValidationError'
+    UserSignInOkResponse:
+      description: User SignIn Response
+      content:
+        application/json:
+          schema:
+            type: object
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+    UserSignInBadRequestResponse:
+      description: User SignIn BadRequest Response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - errors
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+    InternalServerErrorResponse:
+      description: Internal Server Error Response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - code
+              - message
+            properties:
+              code:
+                type: integer
+                format: int64
+              message:
+                type: string
+  securitySchemes:
+    authentication:
+      name: token
+      type: apiKey
+      in: cookie
+tags:
+  - name: csrf
+    description: csrf endpoint
+  - name: users
+    description: users endpoint
