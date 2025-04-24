@@ -1,6 +1,11 @@
 package main
 
 import (
+	"apps/api"
+	"apps/database"
+	"apps/internal/handlers"
+	"apps/internal/middlewares"
+	"apps/internal/services"
 	"net/http"
 	"os"
 
@@ -14,12 +19,23 @@ func main() {
 		loadEnv()
 	}
 
+	dbCon := database.Init()
+
+	// NOTE: service層のインスタンス
+	userService := services.NewUserService(dbCon)
+
+	// NOTE: Handlerのインスタンス
+	csrfHandler := handlers.NewCsrfHandler()
+	usersHandler := handlers.NewUsersHandler(userService)
+
 	// NOTE: Handlerをルーティングに追加
-	// e := businessmiddlewares.ApplyMiddlewares(echo.New())
-	e := echo.New()
+	e := middlewares.ApplyMiddlewares(echo.New())
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Household Budget!")
 	})
+	mainHandler := handlers.NewMainHandler(csrfHandler, usersHandler)
+	mainStrictHandler := api.NewStrictHandler(mainHandler, []api.StrictMiddlewareFunc{middlewares.AuthMiddleware})
+	api.RegisterHandlers(e, mainStrictHandler)
 
 	if err := e.Start(":" + os.Getenv("SERVER_PORT")); err != nil && err != http.ErrServerClosed {
 		e.Logger.Errorf("Echo server error: %v", err)
