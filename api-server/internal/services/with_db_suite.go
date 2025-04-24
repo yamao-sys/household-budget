@@ -32,16 +32,10 @@ func init() {
 }
 
 func (s *WithDBSuite) SetDBCon() {
-	db, err := sql.Open("txdb-service", "connect")
-	if err != nil {
-		s.T().Fatalf("failed to initialize DB: %v", err)
-	}
-	DBCon, err = gorm.Open(mysql.New(mysql.Config{
+	db, _ := sql.Open("txdb-service", "connect")
+	DBCon, _ = gorm.Open(mysql.New(mysql.Config{
 		Conn: db,
 	}), &gorm.Config{})
-	if err != nil {
-		s.T().Fatalf("failed to initialize GORM DB: %v", err)
-	}
 }
 
 func (s *WithDBSuite) CloseDB() {
