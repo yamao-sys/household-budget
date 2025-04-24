@@ -61,7 +61,7 @@ paths:
           $ref: '#/components/responses/UserSignInBadRequestResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
-      operationId: post-supporters-sign_in
+      operationId: post-users-sign_in
       security: []
       requestBody:
         $ref: '#/components/requestBodies/UserSignInInput'
