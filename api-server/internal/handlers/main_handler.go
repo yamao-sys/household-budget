@@ -1,0 +1,53 @@
+package handlers
+
+import (
+	api "apps/api"
+	"context"
+)
+
+type MainHandler interface {
+	// handlers /csrf
+	GetCsrf(ctx context.Context, request api.GetCsrfRequestObject) (api.GetCsrfResponseObject, error)
+
+	// User SignIn
+	// (POST /users/signIn)
+	PostUsersSignIn(ctx context.Context, request api.PostUsersSignInRequestObject) (api.PostUsersSignInResponseObject, error)
+	// User SignUp
+	// (POST /users/signUp)
+	PostUsersSignUp(ctx context.Context, request api.PostUsersSignUpRequestObject) (api.PostUsersSignUpResponseObject, error)
+	// User Validate SignUp
+	// (POST /users/validateSignUp)
+	PostUsersValidateSignUp(ctx context.Context, request api.PostUsersValidateSignUpRequestObject) (api.PostUsersValidateSignUpResponseObject, error)
+}
+
+type mainHandler struct {
+	csrfHandler CsrfHandler
+	usersHandler UsersHandler
+}
+
+func NewMainHandler(
+	csrfHandler CsrfHandler,
+	usersHandler UsersHandler,
+) MainHandler {
+	return &mainHandler{csrfHandler, usersHandler}
+}
+
+func (mh *mainHandler) GetCsrf(ctx context.Context, request api.GetCsrfRequestObject) (api.GetCsrfResponseObject, error) {
+	res, err := mh.csrfHandler.GetCsrf(ctx, request)
+	return res, err
+}
+
+func (mh *mainHandler) PostUsersSignIn(ctx context.Context, request api.PostUsersSignInRequestObject) (api.PostUsersSignInResponseObject, error) {
+	res, err := mh.usersHandler.PostUsersSignIn(ctx, request)
+	return res, err
+}
+
+func (mh *mainHandler) PostUsersSignUp(ctx context.Context, request api.PostUsersSignUpRequestObject) (api.PostUsersSignUpResponseObject, error) {
+	res, err := mh.usersHandler.PostUsersSignUp(ctx, request)
+	return res, err
+}
+
+func (mh *mainHandler) PostUsersValidateSignUp(ctx context.Context, request api.PostUsersValidateSignUpRequestObject) (api.PostUsersValidateSignUpResponseObject, error) {
+	res, err := mh.usersHandler.PostUsersValidateSignUp(ctx, request)
+	return res, err
+}
