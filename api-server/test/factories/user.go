@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var CompanyFactory = factory.NewFactory(
+var UserFactory = factory.NewFactory(
 	&models.User{
 		Name: randomdata.RandStringRunes(8),
 		Email: randomdata.Email(),
