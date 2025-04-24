@@ -1,20 +1,21 @@
 version: '3.9'
 services:
-  # api_server:
-  #   container_name: api_server
-  #   build:
-  #     context: ./api-server
-  #   volumes:
-  #     - ./api-server:/app
-  #   ports:
-  #     - 8080:8080
-  #     - 8083:8083 # テスト用のポート
-  #   depends_on:
-  #     - db
-  #   tty: true # コンテナの永続化
-  #   environment:
-  #     - TZ=Asia/Tokyo
-  #   entrypoint: air -c .air.toml
+  api_server:
+    container_name: api_server
+    build:
+      context: ./api-server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./api-server:/app
+    ports:
+      - 8080:8080
+      - 8083:8083 # テスト用のポート
+    depends_on:
+      - db
+    tty: true # コンテナの永続化
+    environment:
+      - TZ=Asia/Tokyo
+    entrypoint: air -c .air.toml
 
   migrations:
     container_name: migrations
