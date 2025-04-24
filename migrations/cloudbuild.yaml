@@ -1,0 +1,44 @@
+substitutions:
+  _REGION: 'asia-northeast1'
+steps:
+  # マイグレーションコンテナのビルド・プッシュ
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        '$_REGION-docker.pkg.dev/${PROJECT_ID}/migrations/latest',
+        '-f',
+        'Dockerfile.deploy',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '$_REGION-docker.pkg.dev/${PROJECT_ID}/migrations/latest']
+
+  # Cloud Run Jobでマイグレーションの実行
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        gcloud run jobs update apply-migration \
+          --image ${_REGION}-docker.pkg.dev/${PROJECT_ID}/migrations/latest \
+          --project ${PROJECT_ID} \
+          --region ${_REGION} \
+          --service-account=storage-writer@it-support-453908.iam.gserviceaccount.com \
+          --update-env-vars="MYSQL_DBNAME=$$MYSQL_DBNAME,MYSQL_USER=$$MYSQL_USER,MYSQL_PASS=$$MYSQL_PASS,MYSQL_HOST=$$MYSQL_HOST,MYSQL_PORT=$$MYSQL_PORT" \
+          --execute-now
+    secretEnv:
+      ['MYSQL_DBNAME', 'MYSQL_USER', 'MYSQL_PASS', 'MYSQL_HOST', 'MYSQL_PORT']
+availableSecrets:
+  secretManager:
+    - versionName: 'projects/${PROJECT_ID}/secrets/MYSQL_DBNAME/versions/1'
+      env: MYSQL_DBNAME
+    - versionName: 'projects/${PROJECT_ID}/secrets/MYSQL_USER/versions/1'
+      env: MYSQL_USER
+    - versionName: 'projects/${PROJECT_ID}/secrets/MYSQL_PASS/versions/1'
+      env: MYSQL_PASS
+    - versionName: 'projects/${PROJECT_ID}/secrets/MYSQL_HOST/versions/1'
+      env: MYSQL_HOST
+    - versionName: 'projects/${PROJECT_ID}/secrets/MYSQL_PORT/versions/1'
+      env: MYSQL_PORT
