@@ -3,7 +3,9 @@ package services
 import (
 	"apps/api"
 	"apps/internal/models"
+	"apps/test/factories"
 	"fmt"
+	"net/http"
 	"testing"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -82,6 +84,34 @@ func (s *TestUserServiceSuite) TestSignUp_SuccessRequiredFields() {
 		fmt.Println("err", err)
 	}
 	assert.True(s.T(), exists)
+}
+
+func (s *TestUserServiceSuite) TestSignIn_StatusOK() {
+	// NOTE: テスト用ユーザの作成
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	requestParams := api.PostUsersSignInJSONRequestBody{Email: "test@example.com", Password: "password"}
+
+	statusCode, tokenString, err := testUserService.SignIn(ctx, requestParams)
+
+	assert.Equal(s.T(), int(http.StatusOK), statusCode)
+	assert.NotNil(s.T(), tokenString)
+	assert.Nil(s.T(), err)
+}
+
+func (s *TestUserServiceSuite) TestSignIn_BadRequest() {
+	// NOTE: テスト用ユーザの作成
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	requestParams := api.PostUsersSignInJSONRequestBody{Email: "test_@example.com", Password: "password"}
+
+	statusCode, tokenString, err := testUserService.SignIn(ctx, requestParams)
+
+	assert.Equal(s.T(), int(http.StatusBadRequest), statusCode)
+	assert.Equal(s.T(), "", tokenString)
+	assert.Equal(s.T(), "メールアドレスまたはパスワードに該当するユーザが存在しません。", err.Error())
 }
 
 func TestUserService(t *testing.T) {
