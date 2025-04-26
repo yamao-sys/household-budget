@@ -45,6 +45,7 @@ steps:
         'JWT_TOKEN_KEY',
         'CLIENT_ORIGIN',
         'APP_ENV',
+        'TZ',
       ]
 availableSecrets:
   secretManager:
@@ -66,3 +67,5 @@ availableSecrets:
       env: CLIENT_ORIGIN
     - versionName: 'projects/${PROJECT_ID}/secrets/APP_ENV/versions/1'
       env: APP_ENV
+    - versionName: 'projects/${PROJECT_ID}/secrets/TZ/versions/1'
+      env: TZ
