@@ -53,6 +53,7 @@ services:
       - 5273:5273 # E2Eテスト用のポート
     volumes:
       - ./frontend:/app
+      - ./api-server/api/:/app/openapi
     restart: always
     tty: true
     stdin_open: true
