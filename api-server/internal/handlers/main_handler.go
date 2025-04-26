@@ -22,6 +22,9 @@ type MainHandler interface {
 	// Get Expenses
 	// (GET /expenses)
 	GetExpenses(ctx context.Context, request api.GetExpensesRequestObject) (api.GetExpensesResponseObject, error)
+	// Post Expense
+	// (POST /expenses)
+	PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error)
 }
 
 type mainHandler struct {
@@ -60,5 +63,10 @@ func (mh *mainHandler) PostUsersValidateSignUp(ctx context.Context, request api.
 
 func (mh *mainHandler) GetExpenses(ctx context.Context, request api.GetExpensesRequestObject) (api.GetExpensesResponseObject, error) {
 	res, err := mh.expensesHandler.GetExpenses(ctx, request)
+	return res, err
+}
+
+func (mh *mainHandler) PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error) {
+	res, err := mh.expensesHandler.PostExpenses(ctx, request)
 	return res, err
 }

@@ -96,6 +96,8 @@ func (s *TestExpenseServiceSuite) TestExpenseCreate_Success() {
 
 	// NOTE: バリデーションエラーがないことの確認
 	assert.Nil(s.T(), validationErr)
+	mappedValidationErr := testExpenseService.MappingValidationErrorStruct(validationErr)
+	assert.Equal(s.T(), api.StoreExpenseValidationError{}, mappedValidationErr)
 
 	// NOTE: DBに保存されていることを確認
 	var exists bool

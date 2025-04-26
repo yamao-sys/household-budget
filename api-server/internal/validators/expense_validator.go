@@ -9,10 +9,6 @@ import (
 func ValidateExpense(input *api.PostExpensesJSONRequestBody) error {
 	return validation.ValidateStruct(input,
 		validation.Field(
-			&input.PaidAt,
-			validation.Required.Error("支出日は必須入力です。"),			
-		),
-		validation.Field(
 			&input.Amount,
 			validation.Required.Error("金額は必須入力です。"),
 		),

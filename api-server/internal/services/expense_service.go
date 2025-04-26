@@ -72,8 +72,6 @@ func (es *expenseService) MappingValidationErrorStruct(err error) api.StoreExpen
 		for field, err := range errors {
 			messages := []string{err.Error()}
 			switch field {
-			case "paidAt":
-				validationError.PaidAt = &messages
 			case "amount":
 				validationError.Amount = &messages
 			case "category":
