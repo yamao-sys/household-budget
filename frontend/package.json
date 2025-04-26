@@ -12,7 +12,8 @@
     "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx,json}'",
     "format": "prettier  --check './**/*.{ts,tsx}'",
     "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,json}'",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "gen:schema": "pnpx tsx /app/generate-api-types.ts /app/openapi/reference.yaml /app/apis/generated/ && pnpm format:fix"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
@@ -24,6 +25,7 @@
     "@react-router/serve": "^7.5.1",
     "date-fns": "^4.1.0",
     "isbot": "^5.1.17",
+    "openapi-fetch": "^0.13.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.5.1"
@@ -49,6 +51,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.0.0",
+    "openapi-typescript": "^7.6.1",
     "prettier": "^3.5.3",
     "react-router-devtools": "^1.1.0",
     "tailwindcss": "^4.0.0",
