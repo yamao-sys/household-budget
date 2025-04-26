@@ -18,18 +18,24 @@ type MainHandler interface {
 	// User Validate SignUp
 	// (POST /users/validateSignUp)
 	PostUsersValidateSignUp(ctx context.Context, request api.PostUsersValidateSignUpRequestObject) (api.PostUsersValidateSignUpResponseObject, error)
+
+	// Get Expenses
+	// (GET /expenses)
+	GetExpenses(ctx context.Context, request api.GetExpensesRequestObject) (api.GetExpensesResponseObject, error)
 }
 
 type mainHandler struct {
 	csrfHandler CsrfHandler
 	usersHandler UsersHandler
+	expensesHandler ExpensesHandler
 }
 
 func NewMainHandler(
 	csrfHandler CsrfHandler,
 	usersHandler UsersHandler,
+	expensesHandler ExpensesHandler,
 ) MainHandler {
-	return &mainHandler{csrfHandler, usersHandler}
+	return &mainHandler{csrfHandler, usersHandler, expensesHandler}
 }
 
 func (mh *mainHandler) GetCsrf(ctx context.Context, request api.GetCsrfRequestObject) (api.GetCsrfResponseObject, error) {
@@ -49,5 +55,10 @@ func (mh *mainHandler) PostUsersSignUp(ctx context.Context, request api.PostUser
 
 func (mh *mainHandler) PostUsersValidateSignUp(ctx context.Context, request api.PostUsersValidateSignUpRequestObject) (api.PostUsersValidateSignUpResponseObject, error) {
 	res, err := mh.usersHandler.PostUsersValidateSignUp(ctx, request)
+	return res, err
+}
+
+func (mh *mainHandler) GetExpenses(ctx context.Context, request api.GetExpensesRequestObject) (api.GetExpensesResponseObject, error) {
+	res, err := mh.expensesHandler.GetExpenses(ctx, request)
 	return res, err
 }

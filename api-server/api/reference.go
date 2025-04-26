@@ -17,8 +17,23 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
+	"github.com/oapi-codegen/runtime"
 	strictecho "github.com/oapi-codegen/runtime/strictmiddleware/echo"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
+
+const (
+	AuthenticationScopes = "authentication.Scopes"
+)
+
+// MonthlyCalenderExpense Monthly Calender Expense
+type MonthlyCalenderExpense struct {
+	Date        openapi_types.Date `json:"date"`
+	ExtendProps struct {
+		Amount int    `json:"amount"`
+		Type   string `json:"type"`
+	} `json:"extendProps"`
+}
 
 // UserSignUpValidationError defines model for UserSignUpValidationError.
 type UserSignUpValidationError struct {
@@ -36,6 +51,11 @@ type CsrfResponse struct {
 type InternalServerErrorResponse struct {
 	Code    int64  `json:"code"`
 	Message string `json:"message"`
+}
+
+// MonthlyCalenderExpenseResponse defines model for MonthlyCalenderExpenseResponse.
+type MonthlyCalenderExpenseResponse struct {
+	Expenses *[]MonthlyCalenderExpense `json:"expenses,omitempty"`
 }
 
 // UserSignInBadRequestResponse defines model for UserSignInBadRequestResponse.
@@ -63,6 +83,12 @@ type UserSignUpInput struct {
 	Email    string `json:"email"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
+}
+
+// GetExpensesParams defines parameters for GetExpenses.
+type GetExpensesParams struct {
+	// BeginningOfMonth 取得対象の月
+	BeginningOfMonth *string `form:"beginningOfMonth,omitempty" json:"beginningOfMonth,omitempty"`
 }
 
 // PostUsersSignInJSONBody defines parameters for PostUsersSignIn.
@@ -99,6 +125,9 @@ type ServerInterface interface {
 	// Get Csrf
 	// (GET /csrf)
 	GetCsrf(ctx echo.Context) error
+	// Get Expenses
+	// (GET /expenses)
+	GetExpenses(ctx echo.Context, params GetExpensesParams) error
 	// User SignIn
 	// (POST /users/signIn)
 	PostUsersSignIn(ctx echo.Context) error
@@ -121,6 +150,26 @@ func (w *ServerInterfaceWrapper) GetCsrf(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GetCsrf(ctx)
+	return err
+}
+
+// GetExpenses converts echo context to params.
+func (w *ServerInterfaceWrapper) GetExpenses(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(AuthenticationScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetExpensesParams
+	// ------------- Optional query parameter "beginningOfMonth" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "beginningOfMonth", ctx.QueryParams(), &params.BeginningOfMonth)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter beginningOfMonth: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetExpenses(ctx, params)
 	return err
 }
 
@@ -180,6 +229,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.GET(baseURL+"/csrf", wrapper.GetCsrf)
+	router.GET(baseURL+"/expenses", wrapper.GetExpenses)
 	router.POST(baseURL+"/users/signIn", wrapper.PostUsersSignIn)
 	router.POST(baseURL+"/users/signUp", wrapper.PostUsersSignUp)
 	router.POST(baseURL+"/users/validateSignUp", wrapper.PostUsersValidateSignUp)
@@ -193,6 +243,10 @@ type CsrfResponseJSONResponse struct {
 type InternalServerErrorResponseJSONResponse struct {
 	Code    int64  `json:"code"`
 	Message string `json:"message"`
+}
+
+type MonthlyCalenderExpenseResponseJSONResponse struct {
+	Expenses *[]MonthlyCalenderExpense `json:"expenses,omitempty"`
 }
 
 type UserSignInBadRequestResponseJSONResponse struct {
@@ -236,6 +290,25 @@ type GetCsrf500JSONResponse struct {
 func (response GetCsrf500JSONResponse) VisitGetCsrfResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetExpensesRequestObject struct {
+	Params GetExpensesParams
+}
+
+type GetExpensesResponseObject interface {
+	VisitGetExpensesResponse(w http.ResponseWriter) error
+}
+
+type GetExpenses200JSONResponse struct {
+	MonthlyCalenderExpenseResponseJSONResponse
+}
+
+func (response GetExpenses200JSONResponse) VisitGetExpensesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -367,6 +440,9 @@ type StrictServerInterface interface {
 	// Get Csrf
 	// (GET /csrf)
 	GetCsrf(ctx context.Context, request GetCsrfRequestObject) (GetCsrfResponseObject, error)
+	// Get Expenses
+	// (GET /expenses)
+	GetExpenses(ctx context.Context, request GetExpensesRequestObject) (GetExpensesResponseObject, error)
 	// User SignIn
 	// (POST /users/signIn)
 	PostUsersSignIn(ctx context.Context, request PostUsersSignInRequestObject) (PostUsersSignInResponseObject, error)
@@ -407,6 +483,31 @@ func (sh *strictHandler) GetCsrf(ctx echo.Context) error {
 		return err
 	} else if validResponse, ok := response.(GetCsrfResponseObject); ok {
 		return validResponse.VisitGetCsrfResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GetExpenses operation middleware
+func (sh *strictHandler) GetExpenses(ctx echo.Context, params GetExpensesParams) error {
+	var request GetExpensesRequestObject
+
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetExpenses(ctx.Request().Context(), request.(GetExpensesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetExpenses")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetExpensesResponseObject); ok {
+		return validResponse.VisitGetExpensesResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -503,19 +604,23 @@ func (sh *strictHandler) PostUsersValidateSignUp(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

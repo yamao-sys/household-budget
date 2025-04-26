@@ -4,7 +4,9 @@ import (
 	api "apps/api"
 	"apps/database"
 	"apps/internal/middlewares"
+	"apps/internal/models"
 	"apps/internal/services"
+	"apps/test/factories"
 	"database/sql"
 
 	"github.com/DATA-DOG/go-txdb"
@@ -70,8 +72,26 @@ func (s *WithDBSuite) initializeHandlers() {
 	userService := services.NewUserService(DBCon)
 	testUsersHandler := NewUsersHandler(userService)
 
-	mainHandler := NewMainHandler(csrfServer, testUsersHandler)
+	expenseService := services.NewExpenseService(DBCon)
+	testExpensesHandler := NewExpensesHandler(expenseService)
 
-	strictHandler := api.NewStrictHandler(mainHandler, nil)
+	mainHandler := NewMainHandler(csrfServer, testUsersHandler, testExpensesHandler)
+
+	strictHandler := api.NewStrictHandler(mainHandler, []api.StrictMiddlewareFunc{middlewares.AuthMiddleware})
 	api.RegisterHandlers(e, strictHandler)
+}
+
+func (s *WithDBSuite) signIn() (user *models.User, cookieString string) {
+	// NOTE: テスト用ユーザの作成
+	user = factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	reqBody := api.UserSignInInput{
+		Email: "test@example.com",
+		Password: "password",
+	}
+	result := testutil.NewRequest().Post("/users/signIn").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
+	cookieString = result.Recorder.Result().Header.Values("Set-Cookie")[0]
+
+	return user, cookieString
 }
