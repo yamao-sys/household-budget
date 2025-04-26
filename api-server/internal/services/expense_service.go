@@ -1,14 +1,19 @@
 package services
 
 import (
+	"apps/api"
 	"apps/internal/models"
+	"apps/internal/validators"
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gorm.io/gorm"
 )
 
 type ExpenseService interface {
 	FetchLists(userID int, beginningOfMonth *string) []models.Expense
+	Create(userID int, requestParams *api.PostExpensesJSONRequestBody) (models.Expense, error)
+	MappingValidationErrorStruct(err error) api.StoreExpenseValidationError
 }
 
 type expenseService struct {
@@ -36,4 +41,47 @@ func (es *expenseService) FetchLists(userID int, beginningOfMonth *string) []mod
 
 	es.db.Where("user_id = ? AND paid_at BETWEEN ? AND ?", userID, startStr, endStr).Find(&expenses)
 	return expenses
+}
+
+func (es *expenseService) Create(userID int, requestParams *api.PostExpensesJSONRequestBody) (models.Expense, error) {
+	validationErr := validators.ValidateExpense(requestParams)
+	if validationErr != nil {
+		return models.Expense{}, validationErr
+	}
+
+	var expense models.Expense
+	expense.UserID = userID
+	expense.PaidAt = requestParams.PaidAt.Time
+	expense.Amount = requestParams.Amount
+	expense.Category = requestParams.Category
+	expense.Description = requestParams.Description
+
+	es.db.Create(&expense)
+
+	return expense, nil
+}
+
+func (es *expenseService) MappingValidationErrorStruct(err error) api.StoreExpenseValidationError {
+	var validationError api.StoreExpenseValidationError
+	if err == nil {
+		return validationError
+	}
+
+	if errors, ok := err.(validation.Errors); ok {
+		// NOTE: レスポンス用の構造体にマッピング
+		for field, err := range errors {
+			messages := []string{err.Error()}
+			switch field {
+			case "paidAt":
+				validationError.PaidAt = &messages
+			case "amount":
+				validationError.Amount = &messages
+			case "category":
+				validationError.Category = &messages
+			case "description":
+				validationError.Description = &messages
+			}
+		}
+	}
+	return validationError
 }
