@@ -81,7 +81,7 @@ paths:
         - schema:
             type: string
           in: query
-          name: month
+          name: beginningOfMonth
           description: 取得対象の月
 components:
   schemas:

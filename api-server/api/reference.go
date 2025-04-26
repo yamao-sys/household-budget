@@ -87,8 +87,8 @@ type UserSignUpInput struct {
 
 // GetExpensesParams defines parameters for GetExpenses.
 type GetExpensesParams struct {
-	// Month 取得対象の月
-	Month *string `form:"month,omitempty" json:"month,omitempty"`
+	// BeginningOfMonth 取得対象の月
+	BeginningOfMonth *string `form:"beginningOfMonth,omitempty" json:"beginningOfMonth,omitempty"`
 }
 
 // PostUsersSignInJSONBody defines parameters for PostUsersSignIn.
@@ -161,11 +161,11 @@ func (w *ServerInterfaceWrapper) GetExpenses(ctx echo.Context) error {
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetExpensesParams
-	// ------------- Optional query parameter "month" -------------
+	// ------------- Optional query parameter "beginningOfMonth" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "month", ctx.QueryParams(), &params.Month)
+	err = runtime.BindQueryParameter("form", true, false, "beginningOfMonth", ctx.QueryParams(), &params.BeginningOfMonth)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter month: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter beginningOfMonth: %s", err))
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -604,23 +604,23 @@ func (sh *strictHandler) PostUsersValidateSignUp(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xXzY7kNBB+lchwDJsGFrTKjV2NVi2EGE3Texn1wZtUd3snsb12ZdjWKAdu3LjBhQsv",
-	"AOIF9mXQIB4DlZ10kk4yk56e5cTNclyV7/vqz75hicq1kiDRsviGGXhbgMXnKhXgNpYWzEJs5FzOpS6Q",
-	"thIlEaRbcq0zkXAUSkZvrJK0Z5Mt5JxW2igNBitPkHOR0QJ3GljMLBohN6wMmebWfq9MOvCxDB0kYSBl",
-	"8WXlo2WxCmsL9foNJMhKMknBJkZogsViRyHwHILAsyjDPbGl/nDEJM/hRMbORXgi8aUO5oXj7bxbraT1",
-	"2F9Ys76oNk6QILFm/Z26Ank/oeboFAqEL6gRk3JziWAkzxZgrsGcGaPMY+BXqTNfK5NzZDETEr98yvYA",
-	"hUTYgCEAOVjLNzCBKPlszk9hW5MLPLvA0QsuWvS/URK32e4Fz0CmYM7eaZAWHkEB8J7cWiDkbvGxgTWL",
-	"2UdR0yQi78BGw0gIY0WTG8N3TpV7eVe+gtpZUHnrUG860XOeXvg+9RjESeMu7V659hh1epJ3cGwnakiM",
-	"sPz26kHsjgKx/0PItsBT8EIsAD95odSVgEHX+3wvO230EcuwX3VNlO7KyQbMK56J1P3U1dBYcR4RO+ei",
-	"+hHhGMn/+GZiblMz75BPOXZ7kNsI+9kI7xBkem6Utn0Jea4KL3xfRL9zX99yX8Pa0YA03eMVyjYoshGY",
-	"QcP+UKWe03YiHcZufOBOrdhmEk+3aI/oIzpDTXyczpCgFpLCCNwtKL+qQBa4BYlV6TgUlE6Jr8uaEUM3",
-	"ShsgWnwNO5+/Qq5VPx+3qrCwVVkavC7SDWDw1fncspDZIs+52VGmNywOD7OQXYOx3tOnT2YkgdIguRYs",
-	"Zp8/oS2SDreOQ0TDnhZkGt/QUePozFMWs5eANN7ZwZXks9lsrM7356LOvaUM2RdTjO66O7SjwOLLVVuQ",
-	"l4BBhRT5xta3GLYio6g9Ocd4ntVnSBzDc0DXai8Pg3P708+373+5/eP9P3/+9tcPv//9648s9HF/W4DZ",
-	"NWHPqa5YeEdzXj1E1nuuFwci9ZP0clX2lNtzd2oVFoyNrBs/rrKVHZDsXFmkCrJ+TrGw9TDZjdNovV2i",
-	"w4dL+RA9BqdxGbKnxxkPXFg+dM62pnwrbZ36Vd42kVjqiZFY6lMiUb+0TopE655xbBy6pv+N+k6xcfWv",
-	"/WyAxdQovOoa/B+NydGolbsjLM4FufatuTAZjUBEHUdRphKebZXF+Nns2YxRm6vsD3s4jYYAZKqVkNh0",
-	"bDcxyvDwtPv5wHEPqlyV/wYAAP//YEliBKIRAAA=",
+	"H4sIAAAAAAAC/+xXzW7jNhB+FWHao7py222x0K0bBAujKDaI670EPjDS2OZGIrnkKF0j0KG33nprL730",
+	"BVr0BfZlihR9jIKkZEmWlchx0tPeCIoz+r5v/sgbSGSupEBBBuIb0PiuQEMvZcrRbcwN6hlfiamYClWQ",
+	"3UqkIBRuyZTKeMKISxG9NVLYPZOsMWd2pbRUqKnyhDnjmV3QRiHEYEhzsYIyBMWM+UHqdM/HMnSQuMYU",
+	"4ovKR8tiEdYW8vItJgSlNUnRJJorCwtiRyHwHILAsyjDLbG5ejpiguV4JGPnIjyS+FwF08Lxdt6NksJ4",
+	"7CdGL8+rjSMkSIxefi+vUNxPqDk6hoLFF9SIrXJTQagFy2aor1Gfai31Y+CXqTNfSp0zghi4oK+fwxYg",
+	"F4Qr1BZAjsawFY4gan0258ewrckFnl3g6AXnLfrfSUHrbHPCMhQp6tP3CoXBR1AAvSe35oS5W3yqcQkx",
+	"fBI1TSLyDky0H4nFWNFkWrONU+Ve3pWvoHYWVN461JtO9JKl575PPQZxq3GXdq9ce4w6Pck7OLQTNSQG",
+	"WL6+ehC7g0Bs/xDCGlmKXogZ0mcnUl5x3Ot6m+9lp40+Yhn2q66J0l052YB5wzKeup+6GhoqzgNi51xU",
+	"P7I4BvI/vhmZ27aZd8injLo9yG2E/WzE94QiPdNSmb6ELJeFF74vot+5r2+5r2HtaI803eMVyjYoa8Mp",
+	"w4b9rko9p+1E2o3d8MAdW7HNJB5v0R7RB3SGmvgwnX2CGkwKzWkzs/lVBbKgNQqqSsehsOmU+LqsGQG5",
+	"UdoAUfxb3Pj85WIp+/m4loXBtczS4LJIV0jBN2dTAyGYIs+Z3thMb1jsHoYQrlEb7+nzZxMrgVQomOIQ",
+	"w5fP7JaVjtaOQ2SHvV1Y0/jGHtWOzjSFGF4h2fEOO1eSLyaToTrfnos695YyhK/GGN11d2hHAeKLRVuQ",
+	"V0hBhZTYytS3GFhYo6g9OYd4ntZnrDia5Uiu1V7sBuf2519uP/x6++eHf//6/e8f//jnt58g9HF/V6De",
+	"NGG/xBUXgovV66UrMQjv6NOLhyh8z01jR69+vl4syp6IWxmccIVBbSLjJpErcmn2qHcmDdliMn5kQdh6",
+	"o2yGabSeMdHuG6Z8iB57B3MZwvPDjPfcXZ46fVsDv5XBTv0qhZtIzNXISMzVMZGoH11HRaJ15Tg0Dl3T",
+	"/0d9p9iw+td+TOBsbBTedA0+RmN0NGrl7giLc2Fd+y5d6MxOQyIVR1EmE5atpaH4xeTFBGybq+x327md",
+	"EgGKVEkuqGnebniU4e5p9/M9xz2oclH+FwAA//8l1+4OrREAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
