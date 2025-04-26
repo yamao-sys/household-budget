@@ -70,7 +70,8 @@ paths:
   /expenses:
     get:
       summary: Get Expenses
-      tags: []
+      tags:
+        - expenses
       responses:
         '200':
           $ref: '#/components/responses/MonthlyCalenderExpenseResponse'
@@ -83,6 +84,18 @@ paths:
           in: query
           name: beginningOfMonth
           description: 取得対象の月
+    post:
+      summary: Post Expense
+      tags:
+        - expenses
+      responses:
+        '200':
+          $ref: '#/components/responses/StoreExpenseResponse'
+      operationId: post-expenses
+      security:
+        - authentication: []
+      requestBody:
+        $ref: '#/components/requestBodies/StoreExpenseInput'
 components:
   schemas:
     UserSignUpValidationError:
@@ -122,6 +135,48 @@ components:
             amount:
               type: integer
       description: Monthly Calender Expense
+    StoreExpenseValidationError:
+      title: StoreExpenseValidationError
+      type: object
+      properties:
+        paidAt:
+          type: array
+          items:
+            type: string
+        amount:
+          type: array
+          items:
+            type: string
+        category:
+          type: array
+          items:
+            type: string
+        description:
+          type: array
+          items:
+            type: string
+    Expense:
+      title: Expense
+      type: object
+      required:
+        - id
+        - paidAt
+        - amount
+        - category
+        - description
+      properties:
+        id:
+          type: string
+        paidAt:
+          type: string
+          format: date
+        amount:
+          type: integer
+        category:
+          type: integer
+        description:
+          type: string
+      description: Expense
   requestBodies:
     UserSignUpInput:
       content:
@@ -154,6 +209,27 @@ components:
               password:
                 type: string
       description: User SignIn  Input
+    StoreExpenseInput:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - paidAt
+              - amount
+              - category
+              - description
+            properties:
+              paidAt:
+                type: string
+                format: date
+              amount:
+                type: integer
+              category:
+                type: integer
+              description:
+                type: string
+      description: Store Expense Input
   responses:
     CsrfResponse:
       description: Csrf response
@@ -215,6 +291,20 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/MonthlyCalenderExpense'
+    StoreExpenseResponse:
+      description: Store Expense Response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - expense
+              - errors
+            properties:
+              expense:
+                $ref: '#/components/schemas/Expense'
+              errors:
+                $ref: '#/components/schemas/StoreExpenseValidationError'
     InternalServerErrorResponse:
       description: Internal Server Error Response
       content:
@@ -240,3 +330,5 @@ tags:
     description: csrf endpoint
   - name: users
     description: users endpoint
+  - name: expenses
+    description: expenses endpoint

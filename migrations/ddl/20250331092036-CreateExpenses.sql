@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS expenses(
 	paid_at DATE NOT NULL,
 	amount INT NOT NULL,
 	category INT NOT NULL,
+	description TEXT NOT NULL,
 	created_at DATETIME NOT NULL,
 	updated_at DATETIME NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
