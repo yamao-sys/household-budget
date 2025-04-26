@@ -67,6 +67,22 @@ paths:
         $ref: '#/components/requestBodies/UserSignInInput'
       tags:
         - users
+  /expenses:
+    get:
+      summary: Get Expenses
+      tags: []
+      responses:
+        '200':
+          $ref: '#/components/responses/MonthlyCalenderExpenseResponse'
+      operationId: get-expenses
+      security:
+        - authentication: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: month
+          description: 取得対象の月
 components:
   schemas:
     UserSignUpValidationError:
@@ -85,6 +101,27 @@ components:
           type: array
           items:
             type: string
+    MonthlyCalenderExpense:
+      title: MonthlyCalenderExpense
+      type: object
+      required:
+        - date
+        - extendProps
+      properties:
+        date:
+          type: string
+          format: date
+        extendProps:
+          type: object
+          required:
+            - type
+            - amount
+          properties:
+            type:
+              type: string
+            amount:
+              type: integer
+      description: Monthly Calender Expense
   requestBodies:
     UserSignUpInput:
       content:
@@ -167,6 +204,17 @@ components:
                 type: array
                 items:
                   type: string
+    MonthlyCalenderExpenseResponse:
+      description: Monthly Calender Expense Response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              expenses:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonthlyCalenderExpense'
     InternalServerErrorResponse:
       description: Internal Server Error Response
       content:
