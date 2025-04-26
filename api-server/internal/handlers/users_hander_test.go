@@ -177,7 +177,7 @@ func (s *TestUsersHandlerSuite) TestPostUserSignIn_StatusForbidden() {
 	assert.Equal(s.T(), http.StatusForbidden, result.Code())
 }
 
-func TestCompaniesHandler(t *testing.T) {
+func TestUsersHandler(t *testing.T) {
 	// テストスイートを実施
 	suite.Run(t, new(TestUsersHandlerSuite))
 }
