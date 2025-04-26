@@ -31,7 +31,7 @@ func AuthMiddleware(f api.StrictHandlerFunc, operationID string) api.StrictHandl
 			return []byte(os.Getenv("JWT_TOKEN_KEY")), nil
 		})
 
-		// NOTE: ログイン種別に応じ、IDをContextにセットする
+		// NOTE: ログインIDをContextにセットする
 		c, err := newWithAuthenticateContext(token, ctx)
 		if err != nil {
 			return nil, echo.ErrUnauthorized
