@@ -11,7 +11,8 @@ import (
 )
 
 type ExpenseService interface {
-	FetchLists(userID int, beginningOfMonth *string) []models.Expense
+	FetchLists(userID int, fromDate string, toDate string) []models.Expense
+	FetchTotalAmount(userID int, fromDate string, toDate string) []TotalAmount
 	Create(userID int, requestParams *api.PostExpensesJSONRequestBody) (models.Expense, error)
 	MappingValidationErrorStruct(err error) api.StoreExpenseValidationError
 }
@@ -20,27 +21,46 @@ type expenseService struct {
 	db *gorm.DB
 }
 
+type TotalAmount struct {
+	PaidAt time.Time
+	TotalAmount int
+}
+
 func NewExpenseService(db *gorm.DB) ExpenseService {
 	return &expenseService{db}
 }
 
-func (es *expenseService) FetchLists(userID int, beginningOfMonth *string) []models.Expense {
+func (es *expenseService) FetchLists(userID int, fromDate string, toDate string) []models.Expense {
 	var expenses []models.Expense
 
-	if beginningOfMonth == nil {
-		es.db.Where("user_id = ?", userID).Find(&expenses)
-		return expenses
-	}
-	// NOTE: 引数のmonthがある場合は月初と月末のBETWEENで検索する
-	start, _ := time.Parse("2006-01-02", *beginningOfMonth)
-	// NOTE: 月末を求める：翌月1日の前日
-	end := start.AddDate(0, 1, 0).Add(-time.Nanosecond)
-	// NOTE: フォーマット（DBのDATE型に合わせて）
-	startStr := start.Format("2006-01-02")
-	endStr := end.Format("2006-01-02")
+	if fromDate != "" && toDate != "" {
+		if fromDate == toDate {
+			date := fromDate
+			es.db.Where("user_id = ? AND paid_at = ?", userID, date).Find(&expenses)
+			return expenses
+		}
 
-	es.db.Where("user_id = ? AND paid_at BETWEEN ? AND ?", userID, startStr, endStr).Find(&expenses)
+		es.db.Where("user_id = ? AND paid_at BETWEEN ? AND ?", userID, fromDate, toDate).Find(&expenses)
+	} else if fromDate != "" && toDate == "" {
+		es.db.Where("user_id = ? AND paid_at >= ?", userID, fromDate).Find(&expenses)
+	} else if fromDate == "" && toDate != "" {
+		es.db.Where("user_id = ? AND paid_at <= ?", userID, toDate).Find(&expenses)
+	} else {
+		es.db.Where("user_id = ?", userID).Find(&expenses)
+	}
+
 	return expenses
+}
+
+func (es *expenseService) FetchTotalAmount(userID int, fromDate string, toDate string) []TotalAmount {
+	var totalAmounts []TotalAmount
+
+	es.db.Model(&models.Expense{}).
+		  Select("paid_at, SUM(amount) AS total_amount").
+		  Group("paid_at").
+		  Where("user_id = ? AND paid_at BETWEEN ? AND ?", userID, fromDate, toDate).
+		  Scan(&totalAmounts)
+	return totalAmounts
 }
 
 func (es *expenseService) Create(userID int, requestParams *api.PostExpensesJSONRequestBody) (models.Expense, error) {

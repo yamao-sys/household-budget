@@ -35,13 +35,9 @@ type Expense struct {
 	PaidAt      openapi_types.Date `json:"paidAt"`
 }
 
-// MonthlyCalenderExpense Monthly Calender Expense
-type MonthlyCalenderExpense struct {
-	Date        openapi_types.Date `json:"date"`
-	ExtendProps struct {
-		Amount int    `json:"amount"`
-		Type   string `json:"type"`
-	} `json:"extendProps"`
+// ExpenseLists Monthly Calender Expense
+type ExpenseLists struct {
+	Expenses []Expense `json:"expenses"`
 }
 
 // StoreExpenseValidationError defines model for StoreExpenseValidationError.
@@ -50,6 +46,15 @@ type StoreExpenseValidationError struct {
 	Category    *[]string `json:"category,omitempty"`
 	Description *[]string `json:"description,omitempty"`
 	PaidAt      *[]string `json:"paidAt,omitempty"`
+}
+
+// TotalAmountLists Total Amount Lists
+type TotalAmountLists struct {
+	Date        openapi_types.Date `json:"date"`
+	ExtendProps struct {
+		TotalAmount int    `json:"totalAmount"`
+		Type        string `json:"type"`
+	} `json:"extendProps"`
 }
 
 // UserSignUpValidationError defines model for UserSignUpValidationError.
@@ -64,15 +69,13 @@ type CsrfResponse struct {
 	CsrfToken string `json:"csrfToken"`
 }
 
+// FetchExpenseListsResponse Monthly Calender Expense
+type FetchExpenseListsResponse = ExpenseLists
+
 // InternalServerErrorResponse defines model for InternalServerErrorResponse.
 type InternalServerErrorResponse struct {
 	Code    int64  `json:"code"`
 	Message string `json:"message"`
-}
-
-// MonthlyCalenderExpenseResponse defines model for MonthlyCalenderExpenseResponse.
-type MonthlyCalenderExpenseResponse struct {
-	Expenses *[]MonthlyCalenderExpense `json:"expenses,omitempty"`
 }
 
 // StoreExpenseResponse defines model for StoreExpenseResponse.
@@ -81,6 +84,11 @@ type StoreExpenseResponse struct {
 
 	// Expense Expense
 	Expense Expense `json:"expense"`
+}
+
+// TotalAmountListsResponse defines model for TotalAmountListsResponse.
+type TotalAmountListsResponse struct {
+	TotalAmounts []TotalAmountLists `json:"totalAmounts"`
 }
 
 // UserSignInBadRequestResponse defines model for UserSignInBadRequestResponse.
@@ -120,8 +128,11 @@ type UserSignUpInput struct {
 
 // GetExpensesParams defines parameters for GetExpenses.
 type GetExpensesParams struct {
-	// BeginningOfMonth 取得対象の月
-	BeginningOfMonth *string `form:"beginningOfMonth,omitempty" json:"beginningOfMonth,omitempty"`
+	// FromDate 取得対象の日付FROM
+	FromDate *string `form:"fromDate,omitempty" json:"fromDate,omitempty"`
+
+	// ToDate 取得対象の日付TO
+	ToDate *string `form:"toDate,omitempty" json:"toDate,omitempty"`
 }
 
 // PostExpensesJSONBody defines parameters for PostExpenses.
@@ -130,6 +141,15 @@ type PostExpensesJSONBody struct {
 	Category    int                `json:"category"`
 	Description string             `json:"description"`
 	PaidAt      openapi_types.Date `json:"paidAt"`
+}
+
+// GetExpensesTotalAmountsParams defines parameters for GetExpensesTotalAmounts.
+type GetExpensesTotalAmountsParams struct {
+	// FromDate 取得対象の日付FROM
+	FromDate string `form:"fromDate" json:"fromDate"`
+
+	// ToDate 取得対象の日付TO
+	ToDate string `form:"toDate" json:"toDate"`
 }
 
 // PostUsersSignInJSONBody defines parameters for PostUsersSignIn.
@@ -175,6 +195,9 @@ type ServerInterface interface {
 	// Post Expense
 	// (POST /expenses)
 	PostExpenses(ctx echo.Context) error
+	// Get Expenses TotalAmounts
+	// (GET /expenses/totalAmounts)
+	GetExpensesTotalAmounts(ctx echo.Context, params GetExpensesTotalAmountsParams) error
 	// User SignIn
 	// (POST /users/signIn)
 	PostUsersSignIn(ctx echo.Context) error
@@ -208,11 +231,18 @@ func (w *ServerInterfaceWrapper) GetExpenses(ctx echo.Context) error {
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetExpensesParams
-	// ------------- Optional query parameter "beginningOfMonth" -------------
+	// ------------- Optional query parameter "fromDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "beginningOfMonth", ctx.QueryParams(), &params.BeginningOfMonth)
+	err = runtime.BindQueryParameter("form", true, false, "fromDate", ctx.QueryParams(), &params.FromDate)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter beginningOfMonth: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
+	}
+
+	// ------------- Optional query parameter "toDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "toDate", ctx.QueryParams(), &params.ToDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
@@ -228,6 +258,33 @@ func (w *ServerInterfaceWrapper) PostExpenses(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.PostExpenses(ctx)
+	return err
+}
+
+// GetExpensesTotalAmounts converts echo context to params.
+func (w *ServerInterfaceWrapper) GetExpensesTotalAmounts(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(AuthenticationScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetExpensesTotalAmountsParams
+	// ------------- Required query parameter "fromDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "fromDate", ctx.QueryParams(), &params.FromDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
+	}
+
+	// ------------- Required query parameter "toDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "toDate", ctx.QueryParams(), &params.ToDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetExpensesTotalAmounts(ctx, params)
 	return err
 }
 
@@ -289,6 +346,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/csrf", wrapper.GetCsrf)
 	router.GET(baseURL+"/expenses", wrapper.GetExpenses)
 	router.POST(baseURL+"/expenses", wrapper.PostExpenses)
+	router.GET(baseURL+"/expenses/totalAmounts", wrapper.GetExpensesTotalAmounts)
 	router.POST(baseURL+"/users/signIn", wrapper.PostUsersSignIn)
 	router.POST(baseURL+"/users/signUp", wrapper.PostUsersSignUp)
 	router.POST(baseURL+"/users/validateSignUp", wrapper.PostUsersValidateSignUp)
@@ -299,13 +357,11 @@ type CsrfResponseJSONResponse struct {
 	CsrfToken string `json:"csrfToken"`
 }
 
+type FetchExpenseListsResponseJSONResponse ExpenseLists
+
 type InternalServerErrorResponseJSONResponse struct {
 	Code    int64  `json:"code"`
 	Message string `json:"message"`
-}
-
-type MonthlyCalenderExpenseResponseJSONResponse struct {
-	Expenses *[]MonthlyCalenderExpense `json:"expenses,omitempty"`
 }
 
 type StoreExpenseResponseJSONResponse struct {
@@ -313,6 +369,10 @@ type StoreExpenseResponseJSONResponse struct {
 
 	// Expense Expense
 	Expense Expense `json:"expense"`
+}
+
+type TotalAmountListsResponseJSONResponse struct {
+	TotalAmounts []TotalAmountLists `json:"totalAmounts"`
 }
 
 type UserSignInBadRequestResponseJSONResponse struct {
@@ -369,7 +429,7 @@ type GetExpensesResponseObject interface {
 }
 
 type GetExpenses200JSONResponse struct {
-	MonthlyCalenderExpenseResponseJSONResponse
+	FetchExpenseListsResponseJSONResponse
 }
 
 func (response GetExpenses200JSONResponse) VisitGetExpensesResponse(w http.ResponseWriter) error {
@@ -392,6 +452,25 @@ type PostExpenses200JSONResponse struct {
 }
 
 func (response PostExpenses200JSONResponse) VisitPostExpensesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetExpensesTotalAmountsRequestObject struct {
+	Params GetExpensesTotalAmountsParams
+}
+
+type GetExpensesTotalAmountsResponseObject interface {
+	VisitGetExpensesTotalAmountsResponse(w http.ResponseWriter) error
+}
+
+type GetExpensesTotalAmounts200JSONResponse struct {
+	TotalAmountListsResponseJSONResponse
+}
+
+func (response GetExpensesTotalAmounts200JSONResponse) VisitGetExpensesTotalAmountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
@@ -531,6 +610,9 @@ type StrictServerInterface interface {
 	// Post Expense
 	// (POST /expenses)
 	PostExpenses(ctx context.Context, request PostExpensesRequestObject) (PostExpensesResponseObject, error)
+	// Get Expenses TotalAmounts
+	// (GET /expenses/totalAmounts)
+	GetExpensesTotalAmounts(ctx context.Context, request GetExpensesTotalAmountsRequestObject) (GetExpensesTotalAmountsResponseObject, error)
 	// User SignIn
 	// (POST /users/signIn)
 	PostUsersSignIn(ctx context.Context, request PostUsersSignInRequestObject) (PostUsersSignInResponseObject, error)
@@ -631,6 +713,31 @@ func (sh *strictHandler) PostExpenses(ctx echo.Context) error {
 	return nil
 }
 
+// GetExpensesTotalAmounts operation middleware
+func (sh *strictHandler) GetExpensesTotalAmounts(ctx echo.Context, params GetExpensesTotalAmountsParams) error {
+	var request GetExpensesTotalAmountsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetExpensesTotalAmounts(ctx.Request().Context(), request.(GetExpensesTotalAmountsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetExpensesTotalAmounts")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetExpensesTotalAmountsResponseObject); ok {
+		return validResponse.VisitGetExpensesTotalAmountsResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // PostUsersSignIn operation middleware
 func (sh *strictHandler) PostUsersSignIn(ctx echo.Context) error {
 	var request PostUsersSignInRequestObject
@@ -721,26 +828,28 @@ func (sh *strictHandler) PostUsersValidateSignUp(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYzY7jRBB+FavhaNYBFrTybXcVrSKEdjQhexnl0GNXkt6xu3u72wPRyAdu3LjBhQsv",
-	"AOIF9mXQIB4Ddbd/2n+JnWT3xM2yq8r1fVX9VdkPKGIpZxSokih8QALeZSDVCxYTMDeWigmY/8CBSlhQ",
-	"nil9M2JUATWXmPOERFgRRoO3klF9T0Y7SLG+4oJxEKqIhVOWWS+154BCRKiCLQiU+yjCCrZM7PufxiAj",
-	"Qbh+i2MglSB0q59zTOLnJvKGiRQrFKIYK0B+2zT3DUQiIEbhTennl6k5eTRfuq4isdu3ECmU5+20LFVe",
-	"wZVnycp9tJIglmRLF/Rc/iDFJBnAL+X3TMQ9D1uIbQzHYwwyDcGzGLwusBX/cMAoTuFMxCaEfybwFfcW",
-	"mcFtokvOqLS5v5Ric13cOIOCSIrNd+wO6HFAtekYCDo/r8xYM7egCgTFyRLEPYi5EExcIn8WQ+P8Eaq+",
-	"flofQOcwpyAl3sIIoDpmbT8GbQnOs+g8A8+7duB/y6jaJfuXOAEagyiO6wUYABvJXBMFqbn4VMAGheiT",
-	"oJbZwAaQQX8mOscCJhYC7w0rR3EXsbwyWCVDLnRXyy8BWHN7FKX70jc4IbEJbuqicypYOxalIqctZ8V9",
-	"v8xmulC7DNVa/QLH13YWXpSpqjE6gtapeQPmeHCuVtcgBlC+vjsJ3aQkqjf4aAc4BkvEEtRnLxm7I9Ab",
-	"ulKEvDFoLihUXV0a1891Mp1u7pevCbUzIYoX6Tzm9eFoGs6rtv9YGxaJL7p4kRj507YvohJoIG+xOaTs",
-	"XfKGtLLDpkFyHJoWMQU0vhKMy2lbr71zbA6apxVLPY3UNC+ydJNyCBxgqYfPQ8p9AOVYiWt25HivVqeO",
-	"d6x7dYIKl7QdIqOHu2GVGF5+xyMpt+Ip2Ot1+QT0w3D6mlFClAmi9kutZEV7ZGoHVBUibbLQRzGyE6BE",
-	"hJRZa+tEOPkG9lYpCd2w7lnesUzCjiWxd5vFW1De86uFRD6SWZpi3VkI1SjaxshH9yCkjfT5k5mmgHGg",
-	"mBMUoi+f6FuaOrUzGAK9eOsL7Ro+aFNh4CxiFKJXoPSqjVqfB1/MZkMTpbILGt8QuY++GuN0aI93q4DC",
-	"m7VLyCtQXpGpwltZflGgtXYK3C12COe8tNHkCJyCMkP9pl2cx59/eXz/6+Of7//96/e/f/zjn99+Qr6t",
-	"+7sMjMgXZb+FLaGU0O3rjZEn5B/YCNanMHxk62/x1e3Xm3XeIdGhoSSyYm+tzxyTPfxdMekSWP9w2Q+j",
-	"cP7JBN0fMvkphPR+C0ymQYNxxmcPDbqnMglCBtKsg0b/BonROiPt3ngKN+1fLScx07sd5z56Os255wPi",
-	"Q59sZ+t2imHY71RixUdWYsXPqUT5b+isSjh7/9Q6NF0/DvuGsWH27+0EheXYKrxpOvxfjdHVKJk7UBYT",
-	"Qoe2AywTiV4UlOJhECQswsmOSRU+mz2bIS19hX970ukB6gGNOSPmO6aYa2au5n7b2ry8x9wm1bUv5bTH",
-	"pVLafJ3/FwAA///MGoxEzBcAAA==",
+	"H4sIAAAAAAAC/+xYzW7jNhB+FYHtUV2l7bZY6JZNswujXSSIk70EPnClsc2NRHJJKq0R6NAn6K3baw+9",
+	"tui5wL5Mm6KPUZCULOrPlmwnp73ZEjmc75uZbzi6QxFLOaNAlUThHRLwLgOpnrOYgHkwVUzA6Q8cqIQJ",
+	"5ZnSDyNGFVDzE3OekAgrwmjwVjKqn8loCSnWv7hgHIQqbOGUZXaXWnFAISJUwQIEyn0UYQULJlbdb2OQ",
+	"kSBcn+IskEoQutDvOSbxsbE8ZyLFCoUoxgqQ31ya+wYiERCj8Lrc55euOX7UD52tLbE3byFSKM+bblmq",
+	"vIIrz5KV++hKgpiSBZ3QffmDFJOkB7+U3zMRd7xsILY2nB1DkGkInsXgtYFd8YcDRnEKeyI2Jvw9gV9x",
+	"b5IZ3Ma65IxK6/uJFPOL4sEeFERSzC/ZDdDtgKqlQyBo/7zSY83cC1DRssjS74hUcifvPxUwRyH6JKj0",
+	"I7BvZeAa73LJeLAuFLPMu3A8nFAFguJkCuIWxKkQTByCYRZDTSEIVV8/rSTCkZsUpMQLGBAKbbNaPyQe",
+	"JTjPovMMvBp8V3IPgBv0AXJbzNxDX+OExMa4cU77BPbNwMi3Vad47pfejNdTl6FLpnBybCR79wyus6Qq",
+	"k+Y/UZBuJa3ph/atgIWFwKsWD7VThnBgTvDsjo5KqXrLcxxf2N590JRZ09AS4I04R0TZ7S0ViB6UZzc7",
+	"oRvlxPoEHy0Bx2CJmIL67ISxGwKdptf6kNca4wFlq61Swwq7cqZV1t1iNiJ2xkRxkPbjtFKJ+sLTdf0/",
+	"1o2QxAe9KJIY+eNui0QlUEPeYNNHtTbZouwVo2qZrLwTnACNdaPo4bDQ1uGqtRbpbUVcGm7DsT53YNrU",
+	"RjbMA0Nlpp4Vw3c1smX4xipfRihhSdYmMjq4a3WTVk60u0ErG0w2b09v3dEV0PhcMC43dsPu8rNPtl2P",
+	"zFu/Zq1DVup7Cn9d95z8a3HUwWO/4vUPHsMzopxIxuRQNarskEX9cLqolBBlgqjVVBd7UWaZWgJVRcMx",
+	"Xuhkimw3KxEhZUaKyhFOvoWVVX1C56ydjUuWSViyJPbeZPEClHd8PtEBkVmaYl2hCFUomouRj25BSGvp",
+	"8ydHmgLGgWJOUIi+fKIfaerU0mAI9NCjf+it4Z1eKgycSYxC9BKUHnNQYzT74uioTwvX64La/Jb76Ksh",
+	"mzZNKG4UUHg9cwl5CcorPFV4IctpDs30psBV8j6cp+UaTY7AKShzQbluBuf+p5/vP7y//+PDf3/++veP",
+	"v//7/rd//vrlxcXZK+Tb8L/LwPStIvpzwdJvbOn1X278QadcnvWcodjWE2a7hLB/om3Eol0L17O8FSCH",
+	"4jJIVSvU9cxkR2zOmXSDU31IW/UDcL61Be0PbfkuXHQOj6Np0GCcC0cHDW6+Bs3haVvyXrrrHy6Rq7ai",
+	"RAaPkdjDT9wp0Xvn3r3y3GuEoyfamQQhA2mGJNNJe8tAdyxpp6ldKqH5wXSnOuicGXMfPR23uWOsfuge",
+	"4cyiTjAM+61IXPGBkbji+0Si/MK7VyScaXhsHOpbH4d9w1g/+7f2LgbToVF4Xd/wMRqDo1EytyEsxoQ2",
+	"bTtIJhJ95VSKh0GQsAgnSyZV+Ozo2RHSOljsb4q+vop5QGPOiJnuC3U3N7R2izCHdyy3TrXXl3LasWWt",
+	"tPks/z8AAP//0vLBy5IbAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
