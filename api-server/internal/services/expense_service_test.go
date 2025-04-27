@@ -29,49 +29,168 @@ func (s *TestExpenseServiceSuite) TearDownTest() {
 	s.CloseDB()
 }
 
-func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithoutBeginngOfMonth() {
+func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithFromDateAndToDate_Same() {
 	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
 	DBCon.Create(&user)
-	expense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Expense)
-	DBCon.Create(&expense)
+
+	minOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&minOutOfRangePaidAtExpense)
+	inRangePaidAtExpense1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpense1)
+	inRangePaidAtExpense2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpense2)
+	maxOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&maxOutOfRangePaidAtExpense)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherInRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&otherInRangePaidAtExpense)
+
+	fromDate := "2025-04-01"
+	toDate := "2025-04-01"
+	fetchedExpenses := testExpenseService.FetchLists(user.ID,fromDate, toDate)
+
+	// NOTE: 指定した日付の指定したユーザのIDに紐づく支出情報のみ取得されること
+	assert.Equal(s.T(), 2, len(fetchedExpenses))
+	assert.Equal(s.T(), inRangePaidAtExpense1.ID, fetchedExpenses[0].ID)
+	assert.Equal(s.T(), inRangePaidAtExpense2.ID, fetchedExpenses[1].ID)
+}
+
+func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithFromDateAndToDate_Different() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	minOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 30, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&minOutOfRangePaidAtExpense)
+	minInRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&minInRangePaidAtExpense)
+	inRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpense)
+	maxInRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&maxInRangePaidAtExpense)
+	maxOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&maxOutOfRangePaidAtExpense)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherInRangePaidAtExpenseExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&otherInRangePaidAtExpenseExpense)
+
+	fromDate := "2025-03-31"
+	toDate := "2025-04-02"
+	fetchedExpenses := testExpenseService.FetchLists(user.ID,fromDate, toDate)
+
+	// NOTE: 指定した期間の指定したユーザのIDに紐づく支出情報のみ取得されること
+	assert.Equal(s.T(), 3, len(fetchedExpenses))
+	assert.Equal(s.T(), minInRangePaidAtExpense.ID, fetchedExpenses[0].ID)
+	assert.Equal(s.T(), inRangePaidAtExpense.ID, fetchedExpenses[1].ID)
+	assert.Equal(s.T(), maxInRangePaidAtExpense.ID, fetchedExpenses[2].ID)
+}
+
+func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithFromDateAndWithoutToDate() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	minOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&minOutOfRangePaidAtExpense)
+	minInRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&minInRangePaidAtExpense)
+	inRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpense)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherInRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&otherInRangePaidAtExpense)
+
+	fromDate := "2025-04-01"
+	fetchedExpenses := testExpenseService.FetchLists(user.ID, fromDate, "")
+
+	// NOTE: 指定した期間の指定したユーザのIDに紐づく支出情報のみ取得されること
+	assert.Equal(s.T(), 2, len(fetchedExpenses))
+	assert.Equal(s.T(), minInRangePaidAtExpense.ID, fetchedExpenses[0].ID)
+	assert.Equal(s.T(), inRangePaidAtExpense.ID, fetchedExpenses[1].ID)
+}
+
+func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithoutFromDateAndWithToDate() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	inRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpense)
+	maxInRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&maxInRangePaidAtExpense)
+	maxOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&maxOutOfRangePaidAtExpense)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherInRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&otherInRangePaidAtExpense)
+
+	toDate := "2025-04-01"
+	fetchedExpenses := testExpenseService.FetchLists(user.ID, "", toDate)
+
+	// NOTE: 指定した期間の指定したユーザのIDに紐づく支出情報のみ取得されること
+	assert.Equal(s.T(), 2, len(fetchedExpenses))
+	assert.Equal(s.T(), inRangePaidAtExpense.ID, fetchedExpenses[0].ID)
+	assert.Equal(s.T(), maxInRangePaidAtExpense.ID, fetchedExpenses[1].ID)
+}
+
+func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithoutFromDateAndToDate() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+	expense1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Expense)
+	DBCon.Create(&expense1)
+	expense2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Expense)
+	DBCon.Create(&expense2)
 
 	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
 	DBCon.Create(&otherUser)
 	otherExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser}).(*models.Expense)
 	DBCon.Create(&otherExpense)
 
-	fetchedExpenses := testExpenseService.FetchLists(user.ID, nil)
+	fetchedExpenses := testExpenseService.FetchLists(user.ID, "", "")
 
-	// NOTE: 指定したユーザのIDに紐づく支出情報のみ取得されること
-	assert.Equal(s.T(), 1, len(fetchedExpenses))
-	assert.Equal(s.T(), expense.ID, fetchedExpenses[0].ID)
+	// NOTE: 期間に関係なく指定したユーザのIDに紐づく支出情報のみ取得されること
+	assert.Equal(s.T(), 2, len(fetchedExpenses))
+	assert.Equal(s.T(), expense1.ID, fetchedExpenses[0].ID)
+	assert.Equal(s.T(), expense2.ID, fetchedExpenses[1].ID)
 }
 
-func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithBeginngOfMonth() {
+func (s *TestExpenseServiceSuite) TestExpenseFetchTotalAmount() {
 	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
 	DBCon.Create(&user)
 
-	beginningOfMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
-	DBCon.Create(&beginningOfMonthExpense)
-	endOfMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 30, 0, 0, 0, 0, time.Local)}).(*models.Expense)
-	DBCon.Create(&endOfMonthExpense)
-	endOfPreviousMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
-	DBCon.Create(&endOfPreviousMonthExpense)
-	beginningOfNextMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 5, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
-	DBCon.Create(&beginningOfNextMonthExpense)
+	minOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&minOutOfRangePaidAtExpense)
+	inRangePaidAtExpenseFrom1_1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom1_1)
+	inRangePaidAtExpenseFrom1_2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom1_2)
+	inRangePaidAtExpenseFrom2_1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom2_1)
+	inRangePaidAtExpenseFrom2_2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom2_2)
+	maxOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&maxOutOfRangePaidAtExpense)
 
 	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
 	DBCon.Create(&otherUser)
 	otherBeginningOfMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
 	DBCon.Create(&otherBeginningOfMonthExpense)
 
-	beginningOfMonth := "2025-04-01"
-	fetchedExpenses := testExpenseService.FetchLists(user.ID, &beginningOfMonth)
+	fromDate := "2025-04-01"
+	toDate := "2025-04-02"
+	totalAmounts := testExpenseService.FetchTotalAmount(user.ID, fromDate, toDate)
 
-	// NOTE: 指定したユーザのIDに紐づく支出情報のみ取得されること
-	assert.Equal(s.T(), 2, len(fetchedExpenses))
-	assert.Equal(s.T(), beginningOfMonthExpense.ID, fetchedExpenses[0].ID)
-	assert.Equal(s.T(), endOfMonthExpense.ID, fetchedExpenses[1].ID)
+	// NOTE: 指定した期間で指定したユーザのIDに紐づく日ごとの支出合計のみ取得されること
+	assert.Equal(s.T(), 2, len(totalAmounts))
+	assert.Equal(s.T(), time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local).Format("2006-01-02"), totalAmounts[0].PaidAt.Format("2006-01-02"))
+	assert.Equal(s.T(), inRangePaidAtExpenseFrom1_1.Amount+inRangePaidAtExpenseFrom1_2.Amount, totalAmounts[0].TotalAmount)
+	assert.Equal(s.T(), time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local).Format("2006-01-02"), totalAmounts[1].PaidAt.Format("2006-01-02"))
+	assert.Equal(s.T(), inRangePaidAtExpenseFrom2_1.Amount+inRangePaidAtExpenseFrom2_2.Amount, totalAmounts[1].TotalAmount)
 }
 
 func (s *TestExpenseServiceSuite) TestExpenseCreate_Success() {
