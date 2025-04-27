@@ -74,7 +74,7 @@ paths:
         - expenses
       responses:
         '200':
-          $ref: '#/components/responses/MonthlyCalenderExpenseResponse'
+          $ref: '#/components/responses/FetchExpenseListsResponse'
       operationId: get-expenses
       security:
         - authentication: []
@@ -82,8 +82,13 @@ paths:
         - schema:
             type: string
           in: query
-          name: beginningOfMonth
-          description: 取得対象の月
+          name: fromDate
+          description: 取得対象の日付FROM
+        - schema:
+            type: string
+          in: query
+          name: toDate
+          description: 取得対象の日付TO
     post:
       summary: Post Expense
       tags:
@@ -96,6 +101,30 @@ paths:
         - authentication: []
       requestBody:
         $ref: '#/components/requestBodies/StoreExpenseInput'
+  /expenses/totalAmounts:
+    get:
+      summary: Get Expenses TotalAmounts
+      tags:
+        - expenses
+      responses:
+        '200':
+          $ref: '#/components/responses/TotalAmountListsResponse'
+      operationId: get-expenses-total-amounts
+      security:
+        - authentication: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fromDate
+          description: 取得対象の日付FROM
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: toDate
+          description: 取得対象の日付TO
+          required: true
 components:
   schemas:
     UserSignUpValidationError:
@@ -114,8 +143,8 @@ components:
           type: array
           items:
             type: string
-    MonthlyCalenderExpense:
-      title: MonthlyCalenderExpense
+    TotalAmountLists:
+      title: TotalAmountLists
       type: object
       required:
         - date
@@ -128,12 +157,23 @@ components:
           type: object
           required:
             - type
-            - amount
+            - totalAmount
           properties:
             type:
               type: string
-            amount:
+            totalAmount:
               type: integer
+      description: Total Amount Lists
+    ExpenseLists:
+      title: ExpenseLists
+      type: object
+      required:
+        - expenses
+      properties:
+        expenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
       description: Monthly Calender Expense
     StoreExpenseValidationError:
       title: StoreExpenseValidationError
@@ -280,17 +320,25 @@ components:
                 type: array
                 items:
                   type: string
-    MonthlyCalenderExpenseResponse:
-      description: Monthly Calender Expense Response
+    FetchExpenseListsResponse:
+      description: Fetch Expense Lists Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExpenseLists'
+    TotalAmountListsResponse:
+      description: Total Amount Lists Response
       content:
         application/json:
           schema:
             type: object
+            required:
+              - totalAmounts
             properties:
-              expenses:
+              totalAmounts:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MonthlyCalenderExpense'
+                  $ref: '#/components/schemas/TotalAmountLists'
     StoreExpenseResponse:
       description: Store Expense Response
       content:
