@@ -25,51 +25,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - name: Set up Go
-      #   uses: actions/setup-go@v4
-      #   id: setup-go-e2e
-      #   with:
-      #     go-version-file: ./api-server/go.mod
-      #     cache: true
-      #     cache-dependency-path: ./api-server/go.sum
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        id: setup-go-e2e
+        with:
+          go-version-file: ./api-server/go.mod
+          cache: true
+          cache-dependency-path: ./api-server/go.sum
 
-      # - name: Cache Go tools
-      #   uses: actions/cache@v4
-      #   id: cache-go-tools
-      #   with:
-      #     path: |
-      #       ~/go/bin
-      #     key: go-tools-${{ runner.os }}-${{ hashFiles('go.mod') }}-tools
+      - name: Cache Go tools
+        uses: actions/cache@v4
+        id: cache-go-tools
+        with:
+          path: |
+            ~/go/bin
+          key: go-tools-${{ runner.os }}-${{ hashFiles('go.mod') }}-tools
 
-      # - name: go mod tidy
-      #   working-directory: ./api-server
-      #   if: ${{ steps.setup-go-e2e.outputs.cache-hit != 'true' }}
-      #   run: go mod tidy
+      - name: go mod tidy
+        working-directory: ./api-server
+        if: ${{ steps.setup-go-e2e.outputs.cache-hit != 'true' }}
+        run: go mod tidy
 
-      # - name: Add go bin to PATH
-      #   if: ${{ steps.cache-go-tools.outputs.cache-hit == 'true' }}
-      #   run: echo "$HOME/go/bin" >> $GITHUB_PATH
+      - name: Add go bin to PATH
+        if: ${{ steps.cache-go-tools.outputs.cache-hit == 'true' }}
+        run: echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # - name: Install dependencies
-      #   working-directory: ./api-server
-      #   if: ${{ steps.cache-go-tools.outputs.cache-hit != 'true' }}
-      #   run: |
-      #     go mod tidy
-      #     go install github.com/rubenv/sql-migrate/...@latest
-      #     go install github.com/joho/godotenv/cmd/godotenv@latest
+      - name: Install dependencies
+        working-directory: ./api-server
+        if: ${{ steps.cache-go-tools.outputs.cache-hit != 'true' }}
+        run: |
+          go mod tidy
+          go install github.com/rubenv/sql-migrate/...@latest
+          go install github.com/joho/godotenv/cmd/godotenv@latest
 
-      # - name: migrate
-      #   working-directory: ./migrations
-      #   run: make migrate-test
+      - name: migrate
+        working-directory: ./migrations
+        run: make migrate-test
 
       # - name: Seeding
       #   working-directory: ./api-server
       #   run: make test-seed-ci
 
-      # - name: Boot API Server
-      #   working-directory: ./api-server
-      #   run: |
-      #     godotenv -f .env.test go run main.go &
+      - name: Boot API Server
+        working-directory: ./api-server
+        run: |
+          godotenv -f .env.test go run cmd/main.go &
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4

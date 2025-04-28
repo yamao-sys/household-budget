@@ -12,9 +12,10 @@ import (
 func ApplyMiddlewares(e *echo.Echo) *echo.Echo {
 	// NOTE: CORSの設定
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{os.Getenv("BUSINESS_CLIENT_ORIGIN")},
+		AllowOrigins: []string{os.Getenv("CLIENT_ORIGIN")},
 		AllowMethods: []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodDelete},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowHeaders, echo.HeaderXCSRFToken},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowHeaders, echo.HeaderXCSRFToken, echo.HeaderAccessControlAllowCredentials, echo.HeaderAccessControlAllowOrigin},
+		AllowCredentials: true,
 	}))
 
 	// NOTE: CSRF対策
