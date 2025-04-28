@@ -51,10 +51,10 @@ func (uh *usersHandler) PostUsersSignUp(ctx context.Context, request api.PostUse
 		validationError := uh.mappingValidationErrorStruct(err)
 	
 		res := &api.UserSignUpResponse{
-			Code: http.StatusBadRequest,
+			Code: http.StatusOK,
 			Errors: validationError,
 		}
-		return api.PostUsersSignUp400JSONResponse{Code: res.Code, Errors: res.Errors}, nil
+		return api.PostUsersSignUp200JSONResponse{UserSignUpResponseJSONResponse: api.UserSignUpResponseJSONResponse{Code: res.Code, Errors: res.Errors}}, nil
 	}
 
 	signUpErr := uh.userService.SignUp(ctx, *request.Body)

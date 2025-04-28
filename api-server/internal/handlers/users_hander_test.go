@@ -112,6 +112,33 @@ func (s *TestUsersHandlerSuite) TestPostUserSignUp_SuccessRequiredFields() {
 	assert.True(s.T(), exists)
 }
 
+func (s *TestUsersHandlerSuite) TestPostUserSignUp_ValidationErrorRequiredFields() {
+	reqBody := api.UserSignUpInput{
+		Name: "",
+		Email: "",
+		Password: "",
+	}
+	result := testutil.NewRequest().Post("/users/signUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
+	assert.Equal(s.T(), http.StatusOK, result.Code())
+
+	var res api.UserSignUpResponseJSONResponse
+	err := result.UnmarshalBodyToObject(&res)
+	assert.NoError(s.T(), err, "error unmarshaling response")
+
+	assert.Equal(s.T(), int(http.StatusOK), res.Code)
+	assert.Equal(s.T(), &[]string{"ユーザ名は必須入力です。"}, res.Errors.Name)
+	assert.Equal(s.T(), &[]string{"Emailは必須入力です。"}, res.Errors.Email)
+	assert.Equal(s.T(), &[]string{"パスワードは必須入力です。"}, res.Errors.Password)
+
+	// NOTE: ユーザが作成されていないことを確認
+	var exists bool
+	DBCon.Model(&models.User{}).Select("count(*) > 0").Find(&exists)
+	if err != nil {
+		fmt.Println("err", err)
+	}
+	assert.False(s.T(), exists)
+}
+
 func (s *TestUsersHandlerSuite) TestPostUserSignUp_StatusForbidden() {
 	reqBody := api.UserSignUpInput{
 		Name: "test_name",
