@@ -85,6 +85,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/expenses/totalAmounts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Expenses TotalAmounts */
+    get: operations["get-expenses-total-amounts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -96,16 +113,23 @@ export interface components {
       password?: string[];
     };
     /**
-     * MonthlyCalenderExpense
-     * @description Monthly Calender Expense
+     * TotalAmountLists
+     * @description Total Amount Lists
      */
-    MonthlyCalenderExpense: {
+    TotalAmountLists: {
       /** Format: date */
       date: Date;
       extendProps: {
         type: string;
-        amount: number;
+        totalAmount: number;
       };
+    };
+    /**
+     * ExpenseLists
+     * @description Monthly Calender Expense
+     */
+    ExpenseLists: {
+      expenses: components["schemas"]["Expense"][];
     };
     /** StoreExpenseValidationError */
     StoreExpenseValidationError: {
@@ -171,14 +195,23 @@ export interface components {
         };
       };
     };
-    /** @description Monthly Calender Expense Response */
-    MonthlyCalenderExpenseResponse: {
+    /** @description Fetch Expense Lists Response */
+    FetchExpenseListsResponse: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/json": components["schemas"]["ExpenseLists"];
+      };
+    };
+    /** @description Total Amount Lists Response */
+    TotalAmountListsResponse: {
       headers: {
         [name: string]: unknown;
       };
       content: {
         "application/json": {
-          expenses?: components["schemas"]["MonthlyCalenderExpense"][];
+          totalAmounts: components["schemas"]["TotalAmountLists"][];
         };
       };
     };
@@ -305,8 +338,10 @@ export interface operations {
   "get-expenses": {
     parameters: {
       query?: {
-        /** @description 取得対象の月 */
-        beginningOfMonth?: string;
+        /** @description 取得対象の日付FROM */
+        fromDate?: string;
+        /** @description 取得対象の日付TO */
+        toDate?: string;
       };
       header?: never;
       path?: never;
@@ -314,7 +349,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      200: components["responses"]["MonthlyCalenderExpenseResponse"];
+      200: components["responses"]["FetchExpenseListsResponse"];
     };
   };
   "post-expenses": {
@@ -327,6 +362,23 @@ export interface operations {
     requestBody?: components["requestBodies"]["StoreExpenseInput"];
     responses: {
       200: components["responses"]["StoreExpenseResponse"];
+    };
+  };
+  "get-expenses-total-amounts": {
+    parameters: {
+      query: {
+        /** @description 取得対象の日付FROM */
+        fromDate: string;
+        /** @description 取得対象の日付TO */
+        toDate: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: components["responses"]["TotalAmountListsResponse"];
     };
   };
 }
