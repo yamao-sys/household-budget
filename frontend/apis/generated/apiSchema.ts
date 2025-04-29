@@ -67,6 +67,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/users/checkSignedIn": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** User CheckSignedIn */
+    get: operations["get-users-check_signed_in"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/expenses": {
     parameters: {
       query?: never;
@@ -333,6 +350,28 @@ export interface operations {
       200: components["responses"]["UserSignInOkResponse"];
       400: components["responses"]["UserSignInBadRequestResponse"];
       500: components["responses"]["InternalServerErrorResponse"];
+    };
+  };
+  "get-users-check_signed_in": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description is signed in */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            isSignedIn: boolean;
+          };
+        };
+      };
     };
   };
   "get-expenses": {
