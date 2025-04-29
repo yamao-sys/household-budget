@@ -1,15 +1,17 @@
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { getCheckSignedIn } from "~/apis/users.api";
 import { NAVIGATION_PAGE_LIST } from "../routes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { HeaderNavigation } from "../HeaderNavigation";
 
 export default function AuthGuardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
     async function init() {
-      const isSignedIn = await getCheckSignedIn();
+      setIsSignedIn(await getCheckSignedIn());
 
       if (location.pathname === NAVIGATION_PAGE_LIST.signInPage) {
         if (isSignedIn) {
@@ -24,11 +26,13 @@ export default function AuthGuardLayout() {
       }
     }
     init();
-  }, [navigate, location]);
+  }, [navigate, location, isSignedIn]);
 
   return (
     <>
-      <Outlet />
+      <HeaderNavigation isSignedIn={isSignedIn}>
+        <Outlet />
+      </HeaderNavigation>
     </>
   );
 }
