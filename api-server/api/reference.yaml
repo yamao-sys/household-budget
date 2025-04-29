@@ -76,7 +76,12 @@ paths:
           content:
             application/json:
               schema:
-                type: boolean
+                type: object
+                required:
+                  - isSignedIn
+                properties:
+                  isSignedIn:
+                    type: boolean
       operationId: get-users-check_signed_in
       security:
         - authentication: []
