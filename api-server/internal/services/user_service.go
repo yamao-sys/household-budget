@@ -19,6 +19,7 @@ type UserService interface {
 	ValidateSignUp(ctx context.Context, requestParams api.PostUsersSignUpJSONRequestBody) error
 	SignUp(ctx context.Context, requestParams api.PostUsersSignUpJSONRequestBody) error
 	SignIn(ctx context.Context, requestParams api.PostUsersSignInJSONRequestBody) (statusCode int, tokenString string, error error)
+	ExistsUser(id int) bool
 }
 
 type userService struct {
@@ -71,6 +72,12 @@ func (us *userService) SignIn(ctx context.Context, requestParams api.PostUsersSi
 		return http.StatusInternalServerError, "", err
 	}
 	return http.StatusOK, tokenString, nil
+}
+
+func (us *userService) ExistsUser(id int) bool {
+	var exists bool
+	us.db.Model(&models.User{}).Select("count(*) > 0").Where("id = ?", id).Find(&exists)
+	return exists
 }
 
 // NOTE: パスワードの照合
