@@ -67,6 +67,21 @@ paths:
         $ref: '#/components/requestBodies/UserSignInInput'
       tags:
         - users
+  /users/checkSignedIn:
+    get:
+      summary: User CheckSignedIn
+      responses:
+        '200':
+          description: is signed in
+          content:
+            application/json:
+              schema:
+                type: boolean
+      operationId: get-users-check_signed_in
+      security:
+        - authentication: []
+      tags:
+        - users
   /expenses:
     get:
       summary: Get Expenses

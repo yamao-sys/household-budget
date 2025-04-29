@@ -198,6 +198,9 @@ type ServerInterface interface {
 	// Get Expenses TotalAmounts
 	// (GET /expenses/totalAmounts)
 	GetExpensesTotalAmounts(ctx echo.Context, params GetExpensesTotalAmountsParams) error
+	// User CheckSignedIn
+	// (GET /users/checkSignedIn)
+	GetUsersCheckSignedIn(ctx echo.Context) error
 	// User SignIn
 	// (POST /users/signIn)
 	PostUsersSignIn(ctx echo.Context) error
@@ -288,6 +291,17 @@ func (w *ServerInterfaceWrapper) GetExpensesTotalAmounts(ctx echo.Context) error
 	return err
 }
 
+// GetUsersCheckSignedIn converts echo context to params.
+func (w *ServerInterfaceWrapper) GetUsersCheckSignedIn(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(AuthenticationScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetUsersCheckSignedIn(ctx)
+	return err
+}
+
 // PostUsersSignIn converts echo context to params.
 func (w *ServerInterfaceWrapper) PostUsersSignIn(ctx echo.Context) error {
 	var err error
@@ -347,6 +361,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/expenses", wrapper.GetExpenses)
 	router.POST(baseURL+"/expenses", wrapper.PostExpenses)
 	router.GET(baseURL+"/expenses/totalAmounts", wrapper.GetExpensesTotalAmounts)
+	router.GET(baseURL+"/users/checkSignedIn", wrapper.GetUsersCheckSignedIn)
 	router.POST(baseURL+"/users/signIn", wrapper.PostUsersSignIn)
 	router.POST(baseURL+"/users/signUp", wrapper.PostUsersSignUp)
 	router.POST(baseURL+"/users/validateSignUp", wrapper.PostUsersValidateSignUp)
@@ -471,6 +486,22 @@ type GetExpensesTotalAmounts200JSONResponse struct {
 }
 
 func (response GetExpensesTotalAmounts200JSONResponse) VisitGetExpensesTotalAmountsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetUsersCheckSignedInRequestObject struct {
+}
+
+type GetUsersCheckSignedInResponseObject interface {
+	VisitGetUsersCheckSignedInResponse(w http.ResponseWriter) error
+}
+
+type GetUsersCheckSignedIn200JSONResponse bool
+
+func (response GetUsersCheckSignedIn200JSONResponse) VisitGetUsersCheckSignedInResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
@@ -613,6 +644,9 @@ type StrictServerInterface interface {
 	// Get Expenses TotalAmounts
 	// (GET /expenses/totalAmounts)
 	GetExpensesTotalAmounts(ctx context.Context, request GetExpensesTotalAmountsRequestObject) (GetExpensesTotalAmountsResponseObject, error)
+	// User CheckSignedIn
+	// (GET /users/checkSignedIn)
+	GetUsersCheckSignedIn(ctx context.Context, request GetUsersCheckSignedInRequestObject) (GetUsersCheckSignedInResponseObject, error)
 	// User SignIn
 	// (POST /users/signIn)
 	PostUsersSignIn(ctx context.Context, request PostUsersSignInRequestObject) (PostUsersSignInResponseObject, error)
@@ -738,6 +772,29 @@ func (sh *strictHandler) GetExpensesTotalAmounts(ctx echo.Context, params GetExp
 	return nil
 }
 
+// GetUsersCheckSignedIn operation middleware
+func (sh *strictHandler) GetUsersCheckSignedIn(ctx echo.Context) error {
+	var request GetUsersCheckSignedInRequestObject
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetUsersCheckSignedIn(ctx.Request().Context(), request.(GetUsersCheckSignedInRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetUsersCheckSignedIn")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetUsersCheckSignedInResponseObject); ok {
+		return validResponse.VisitGetUsersCheckSignedInResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // PostUsersSignIn operation middleware
 func (sh *strictHandler) PostUsersSignIn(ctx echo.Context) error {
 	var request PostUsersSignInRequestObject
@@ -828,28 +885,29 @@ func (sh *strictHandler) PostUsersValidateSignUp(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYzW7jNhB+FYHtUV2l7bZY6JZNswujXSSIk70EPnClsc2NRHJJKq0R6NAn6K3baw+9",
-	"tui5wL5Mm6KPUZCULOrPlmwnp73ZEjmc75uZbzi6QxFLOaNAlUThHRLwLgOpnrOYgHkwVUzA6Q8cqIQJ",
-	"5ZnSDyNGFVDzE3OekAgrwmjwVjKqn8loCSnWv7hgHIQqbOGUZXaXWnFAISJUwQIEyn0UYQULJlbdb2OQ",
-	"kSBcn+IskEoQutDvOSbxsbE8ZyLFCoUoxgqQ31ya+wYiERCj8Lrc55euOX7UD52tLbE3byFSKM+bblmq",
-	"vIIrz5KV++hKgpiSBZ3QffmDFJOkB7+U3zMRd7xsILY2nB1DkGkInsXgtYFd8YcDRnEKeyI2Jvw9gV9x",
-	"b5IZ3Ma65IxK6/uJFPOL4sEeFERSzC/ZDdDtgKqlQyBo/7zSY83cC1DRssjS74hUcifvPxUwRyH6JKj0",
-	"I7BvZeAa73LJeLAuFLPMu3A8nFAFguJkCuIWxKkQTByCYRZDTSEIVV8/rSTCkZsUpMQLGBAKbbNaPyQe",
-	"JTjPovMMvBp8V3IPgBv0AXJbzNxDX+OExMa4cU77BPbNwMi3Vad47pfejNdTl6FLpnBybCR79wyus6Qq",
-	"k+Y/UZBuJa3ph/atgIWFwKsWD7VThnBgTvDsjo5KqXrLcxxf2N590JRZ09AS4I04R0TZ7S0ViB6UZzc7",
-	"oRvlxPoEHy0Bx2CJmIL67ISxGwKdptf6kNca4wFlq61Swwq7cqZV1t1iNiJ2xkRxkPbjtFKJ+sLTdf0/",
-	"1o2QxAe9KJIY+eNui0QlUEPeYNNHtTbZouwVo2qZrLwTnACNdaPo4bDQ1uGqtRbpbUVcGm7DsT53YNrU",
-	"RjbMA0Nlpp4Vw3c1smX4xipfRihhSdYmMjq4a3WTVk60u0ErG0w2b09v3dEV0PhcMC43dsPu8rNPtl2P",
-	"zFu/Zq1DVup7Cn9d95z8a3HUwWO/4vUPHsMzopxIxuRQNarskEX9cLqolBBlgqjVVBd7UWaZWgJVRcMx",
-	"Xuhkimw3KxEhZUaKyhFOvoWVVX1C56ydjUuWSViyJPbeZPEClHd8PtEBkVmaYl2hCFUomouRj25BSGvp",
-	"8ydHmgLGgWJOUIi+fKIfaerU0mAI9NCjf+it4Z1eKgycSYxC9BKUHnNQYzT74uioTwvX64La/Jb76Ksh",
-	"mzZNKG4UUHg9cwl5CcorPFV4IctpDs30psBV8j6cp+UaTY7AKShzQbluBuf+p5/vP7y//+PDf3/++veP",
-	"v//7/rd//vrlxcXZK+Tb8L/LwPStIvpzwdJvbOn1X278QadcnvWcodjWE2a7hLB/om3Eol0L17O8FSCH",
-	"4jJIVSvU9cxkR2zOmXSDU31IW/UDcL61Be0PbfkuXHQOj6Np0GCcC0cHDW6+Bs3haVvyXrrrHy6Rq7ai",
-	"RAaPkdjDT9wp0Xvn3r3y3GuEoyfamQQhA2mGJNNJe8tAdyxpp6ldKqH5wXSnOuicGXMfPR23uWOsfuge",
-	"4cyiTjAM+61IXPGBkbji+0Si/MK7VyScaXhsHOpbH4d9w1g/+7f2LgbToVF4Xd/wMRqDo1EytyEsxoQ2",
-	"bTtIJhJ95VSKh0GQsAgnSyZV+Ozo2RHSOljsb4q+vop5QGPOiJnuC3U3N7R2izCHdyy3TrXXl3LasWWt",
-	"tPks/z8AAP//0vLBy5IbAAA=",
+	"H4sIAAAAAAAC/+xYwW7jNhN+FYH/f1RXabstFrpl0+zCaBcJ4mQvgQ+MNLa5kUgtSaU1Ah36BL11e+2h",
+	"1xY9F9iXaVP0MQqSkkVJlC3ZTk692RJnON/3DWc4ukcRSzNGgUqBwnvE4X0OQr5kMQH9YCoZh9PvMqAC",
+	"JjTLpXoYMSqB6p84yxISYUkYDd4JRtUzES0hxepXxlkGXJa+cMpyYyVXGaAQESphARwVPoqwhAXjK/fb",
+	"GETESaZ2sRYIyQldqPcZJvGx9jxnPMUShSjGEpDfXlr4GiLhEKPwurLzq9CsOJqbztae2M07iCQqinZY",
+	"hiqv5MozZBU+uhLAp2RBJ3Rf/iDFJOnBL8S3jMeOly3ExodlMQSZguAZDF4X2FX2eMAoTmFPxNqFvyfw",
+	"q8yb5Bq39i4yRoWJ/UTw+UX5YA8KIsHnl+wW6HZA9dIhEFR8XhWxYu4VyGhZZuk3REixU/T/5zBHIfpf",
+	"UNePwLwVge3cFZKOYH1Q9DLvwopwQiVwipMp8Dvgp5wzfgiGWQyNCkGo/PJ5XSKscpOCEHgBA6RQPuv1",
+	"Q/SowHkGnafhNeDbJfcAuEFtILZpZm/6Fick1s51cComMG8GKt+tOuVzv4pmfD21GbpkEifHumTvnsFN",
+	"lmTtUv8nEtKtpLXjULGVsDDneNXhobHLEA70Dp6xcJyUure8xPGF6d0HTZk1DZ0CvBHnCJXt3lKD6EF5",
+	"drsTulFBrHfw0RJwDIaIKchPThi7JeB0va4PRaMxHrBsdavUsINdB9M51u5iNkI77aLcSMVxWleJ5sLT",
+	"9fl/qhshiQ96USQx8sfdFolMoIG8xaaPGm2yQ9kbRuUyWXknOAEaq0bRw2FZW4dXrXWR3naIK8ddOCZm",
+	"B6ZNbWTDPDC0zDSzYrhVK1uGG9b5MqISVmRtIsPBXaebdHKi2w062aCzeXt6q44ugcbnnGViYzd0Hz/z",
+	"ZNv1SL/1G94cZaVpU8Zrh2flX4cjB4/9Fa9/8BieEdVEMiaH6lFlhyzqh+OiUkCUcyJXU3XYy2OWyyVQ",
+	"WTYcHYVKpsh0swoRknqkqAPJyNewMlWf0DnrZuOS5QKWLIm9mzxegPSOzydKEJGnKVYnFKEaRXsx8tEd",
+	"cGE8ffrsSFHAMqA4IyhEnz9TjxR1cqkxBGroUT+UaXivlnINZxKjEL0GqcYc1BrNPjs66quF63VBY34r",
+	"fPTFEKNNE4qtAgqvZzYhr0F6ZaQSL0Q1zaGZMgrsSt6H87Rao8jhOAWpLyjXbXEefvjx4eOHh98+/vP7",
+	"z39+/+vfH37564+fXl2cvUG+kf99DrpvlerPOUu/Mkev/3LjD9rl8qxnD8m27jDbRcL+ibalRfcsXM+K",
+	"jkAWxZVIdStU55kJhzbnTNji1B/SVv0ArG9tQfdDW7ELF87hcTQNCox14XDQYOdr0B6etiXvpb3+8RK5",
+	"biuS5/AUiT18x50SvXfu3SvPvZYcPWrnArgIoiVEt6odQTyhm7RWbUucNFa7IY+d4m4YSwBT1zxChCf0",
+	"Zh6h4znRQ2A74ooMjb7BhNDjor5T9BYETYKZK3epCe1PxztVBOf0XPjo+ThjxweGx+6W1lS+VYmrbKAS",
+	"V9k+SlTfuvdSwvouMFaHpunTsK8Z62f/ztxKYTpUhbdNg//UGKxGxdwGWbQL5dr00pwn6vItZRYGQcIi",
+	"nCyZkOGLoxdHSFW/0r7d/tSl1AMaZ4zo7xxln9N31W6z1Js7lpuguuurxuIwWfecYlb8GwAA//9G0zf9",
+	"nBwAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
