@@ -204,6 +204,25 @@ func (s *TestUsersHandlerSuite) TestPostUserSignIn_StatusForbidden() {
 	assert.Equal(s.T(), http.StatusForbidden, result.Code())
 }
 
+func (s *TestUsersHandlerSuite) TestGetUsersCheckSignedIn_isSignedIn_StatusOk() {
+	_, cookieString := s.signIn()
+
+	result := testutil.NewRequest().Get("/users/checkSignedIn").WithHeader("Cookie", csrfTokenCookie+"; "+cookieString).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
+	assert.Equal(s.T(), http.StatusOK, result.Code())
+
+	var res api.GetUsersCheckSignedIn200JSONResponse
+	err := result.UnmarshalBodyToObject(&res)
+	assert.NoError(s.T(), err, "error unmarshaling response")
+	
+	assert.Equal(s.T(), api.GetUsersCheckSignedIn200JSONResponse(true), res)
+}
+
+func (s *TestUsersHandlerSuite) TestGetUsersCheckSignedIn_isNotSignedIn_StatusOk() {
+	result := testutil.NewRequest().Get("/users/checkSignedIn").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
+	
+	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
+}
+
 func TestUsersHandler(t *testing.T) {
 	// テストスイートを実施
 	suite.Run(t, new(TestUsersHandlerSuite))

@@ -114,6 +114,26 @@ func (s *TestUserServiceSuite) TestSignIn_BadRequest() {
 	assert.Equal(s.T(), "メールアドレスまたはパスワードに該当するユーザが存在しません。", err.Error())
 }
 
+func (s *TestUserServiceSuite) TestExistsUser_True_StatusOK() {
+	// NOTE: テスト用ユーザの作成
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	exists := testUserService.ExistsUser(user.ID)
+
+	assert.True(s.T(), exists)
+}
+
+func (s *TestUserServiceSuite) TestExistsUser_False_StatusOK() {
+	// NOTE: テスト用ユーザの作成
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	exists := testUserService.ExistsUser(user.ID+1)
+
+	assert.False(s.T(), exists)
+}
+
 func TestUserService(t *testing.T) {
 	// テストスイートを実行
 	suite.Run(t, new(TestUserServiceSuite))
