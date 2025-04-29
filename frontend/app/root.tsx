@@ -27,8 +27,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className='p-4 md:p-16'>
-          <BaseContainer containerWidth='w-4/5 md:w-3/5'>{children}</BaseContainer>
+        <div className='p-6'>
+          <BaseContainer containerWidth='w-4/5'>{children}</BaseContainer>
         </div>
         <ScrollRestoration />
         <Scripts />
