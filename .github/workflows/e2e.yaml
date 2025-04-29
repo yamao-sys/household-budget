@@ -62,9 +62,9 @@ jobs:
         working-directory: ./migrations
         run: make migrate-test
 
-      # - name: Seeding
-      #   working-directory: ./api-server
-      #   run: make test-seed-ci
+      - name: Seeding
+        working-directory: ./api-server
+        run: make test-seed-ci
 
       - name: Boot API Server
         working-directory: ./api-server
