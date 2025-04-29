@@ -34,3 +34,14 @@ export async function postUserSignIn(input: UserSignInInput) {
 
   return "";
 }
+
+export async function getCheckSignedIn() {
+  const { data, response } = await client.GET("/users/checkSignedIn", {
+    ...(await getRequestHeaders()),
+  });
+  if (data === undefined || response.status === 401) {
+    return false;
+  }
+
+  return data.isSignedIn;
+}
