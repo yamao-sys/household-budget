@@ -9,8 +9,8 @@ import interactionPlugin, { type DateClickArg } from "@fullcalendar/interaction"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { DatesSetArg } from "@fullcalendar/core";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import type { TotalAmountLists } from "~/types";
-import { getTotalAmounts } from "~/apis/expenses.api";
+import type { Expense, TotalAmountLists } from "~/types";
+import { getExpenses, getTotalAmounts } from "~/apis/expenses.api";
 
 export const MonthlyBudgetCalender: React.FC = () => {
   /**
@@ -22,8 +22,10 @@ export const MonthlyBudgetCalender: React.FC = () => {
   const [events, setEvents] = useState<TotalAmountLists>([]);
   const [inView, setInView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDateExpenses, setSelectedDateExpenses] = useState<Expense[]>([]);
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
+  // NOTE: 月が変更された時の処理
   const handleDatesSet = async (arg: DatesSetArg) => {
     const selectedMonthBeginningDate = arg.view.currentStart;
     const currentEnd = arg.view.currentEnd;
@@ -39,12 +41,17 @@ export const MonthlyBudgetCalender: React.FC = () => {
     setEvents(fetchedTotalAmounts);
   };
 
-  const handleDateClick = (arg: DateClickArg) => {
+  // NOTE: 日が選択された時の処理
+  const handleDateClick = async (arg: DateClickArg) => {
+    // NOTE: 選択月以外の日付のクリックは無効にする
     if (arg.date.getMonth() !== currentMonthDate.getMonth()) return;
 
-    setSelectedDate(arg.date.toLocaleDateString("ja-jp", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-"));
+    const date = arg.date.toLocaleDateString("ja-jp", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-");
+    setSelectedDateExpenses(await getExpenses(date, date));
+    setSelectedDate(date);
     setInView(true);
   };
+
   const formElement = (
     <div className={inView ? "opacity-100 visible fixed top-1/8 left-1/4 font-bold bg-white w-1/2 flex justify-center items-center z-50" : "hidden"}>
       <div className='bg-white p-4 rounded shadow-lg w-full max-h-[90vh] overflow-hidden flex flex-col relative'>
@@ -68,11 +75,11 @@ export const MonthlyBudgetCalender: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((e, idx) => (
+              {selectedDateExpenses.map((expense, idx) => (
                 <tr key={idx}>
-                  <td className='w-1/4 py-2 px-2 border border-gray-300'>¥10,000</td>
-                  <td className='w-2/4 py-2 px-2 border border-gray-300'>西友</td>
-                  <td className='w-1/4 py-2 px-2 border border-gray-300'>日用品</td>
+                  <td className='w-1/4 py-2 px-2 border border-gray-300'>¥{expense.amount}</td>
+                  <td className='w-2/4 py-2 px-2 border border-gray-300 break-words'>{expense.description}</td>
+                  <td className='w-1/4 py-2 px-2 border border-gray-300 break-words'>{expense.category}</td>
                 </tr>
               ))}
             </tbody>

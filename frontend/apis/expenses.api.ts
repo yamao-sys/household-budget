@@ -8,24 +8,24 @@ const client = createClient<paths>({
   credentials: "include",
 });
 
-// export async function getExpenses(fromDate: string, toDate: string) {
-//   const params: operations["get-expenses"]["parameters"] = { query: {} };
-//   if (!!fromDate) {
-//     params.query = { ...params.query, fromDate };
-//   }
-//   if (!!toDate) {
-//     params.query = { ...params.query, toDate };
-//   }
+export async function getExpenses(fromDate: string, toDate: string) {
+  const params: operations["get-expenses"]["parameters"] = { query: {} };
+  if (!!fromDate) {
+    params.query = { ...params.query, fromDate };
+  }
+  if (!!toDate) {
+    params.query = { ...params.query, toDate };
+  }
 
-//   const { data } = await client.GET("/expenses", {
-//     ...(await getRequestHeaders()),
-//     ...params,
-//   });
+  const { data } = await client.GET("/expenses", {
+    ...(await getRequestHeaders()),
+    params,
+  });
 
-//   const emptyExpenses: Expense[] = [];
+  const emptyExpenses: Expense[] = [];
 
-//   return data?.expenses ?? emptyExpenses;
-// }
+  return data?.expenses ?? emptyExpenses;
+}
 
 export async function getTotalAmounts(fromDate: string, toDate: string) {
   const params: operations["get-expenses-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
