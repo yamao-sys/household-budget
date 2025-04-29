@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"apps/api"
+	"apps/internal/helpers"
 	"apps/internal/services"
 	"context"
 	"net/http"
@@ -19,6 +20,9 @@ type UsersHandler interface {
 	// User Validate SignUp
 	// (POST /users/validateSignUp)
 	PostUsersValidateSignUp(ctx context.Context, request api.PostUsersValidateSignUpRequestObject) (api.PostUsersValidateSignUpResponseObject, error)
+	// User CheckSignedIn
+	// (GET /users/checkSignedIn)
+	GetUsersCheckSignedIn(ctx context.Context, request api.GetUsersCheckSignedInRequestObject) (api.GetUsersCheckSignedInResponseObject, error)
 }
 
 type usersHandler struct {
@@ -98,6 +102,11 @@ func (uh *usersHandler) PostUsersSignIn(ctx context.Context, request api.PostUse
 			SetCookie: cookie.String(),
 		},
 	}}, nil
+}
+
+func (uh *usersHandler) GetUsersCheckSignedIn(ctx context.Context, request api.GetUsersCheckSignedInRequestObject) (api.GetUsersCheckSignedInResponseObject, error) {
+	userID, _ := helpers.ExtractUserID(ctx)
+	return api.GetUsersCheckSignedIn200JSONResponse(uh.userService.ExistsUser(userID)), nil
 }
 
 func (uh *usersHandler) mappingValidationErrorStruct(err error) api.UserSignUpValidationError {

@@ -18,6 +18,9 @@ type MainHandler interface {
 	// User Validate SignUp
 	// (POST /users/validateSignUp)
 	PostUsersValidateSignUp(ctx context.Context, request api.PostUsersValidateSignUpRequestObject) (api.PostUsersValidateSignUpResponseObject, error)
+	// User CheckSignedIn
+	// (GET /users/checkSignedIn)
+	GetUsersCheckSignedIn(ctx context.Context, request api.GetUsersCheckSignedInRequestObject) (api.GetUsersCheckSignedInResponseObject, error)
 
 	// Get Expenses
 	// (GET /expenses)
@@ -61,6 +64,11 @@ func (mh *mainHandler) PostUsersSignUp(ctx context.Context, request api.PostUser
 
 func (mh *mainHandler) PostUsersValidateSignUp(ctx context.Context, request api.PostUsersValidateSignUpRequestObject) (api.PostUsersValidateSignUpResponseObject, error) {
 	res, err := mh.usersHandler.PostUsersValidateSignUp(ctx, request)
+	return res, err
+}
+
+func (mh *mainHandler) GetUsersCheckSignedIn(ctx context.Context, request api.GetUsersCheckSignedInRequestObject) (api.GetUsersCheckSignedInResponseObject, error) {
+	res, err := mh.usersHandler.GetUsersCheckSignedIn(ctx, request)
 	return res, err
 }
 
