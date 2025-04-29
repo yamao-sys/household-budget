@@ -9,6 +9,8 @@ import interactionPlugin, { type DateClickArg } from "@fullcalendar/interaction"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { DatesSetArg } from "@fullcalendar/core";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import type { TotalAmountLists } from "~/types";
+import { getTotalAmounts } from "~/apis/expenses.api";
 
 export const MonthlyBudgetCalender: React.FC = () => {
   /**
@@ -17,18 +19,24 @@ export const MonthlyBudgetCalender: React.FC = () => {
    */
   const ref = React.createRef<any>();
 
-  const events = [
-    { title: "支出 ¥1200", date: "2025-04-01", extendedProps: { type: "expense", amount: 1200 } },
-    // { title: "収入 ¥3200", date: "2025-04-01", extendedProps: { type: "income", amount: 3000 } },
-    { title: "支出 ¥10000", date: "2025-04-15", extendedProps: { type: "expense", amount: 10000 } },
-  ];
-
+  const [events, setEvents] = useState<TotalAmountLists>([]);
   const [inView, setInView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
-  const handleDatesSet = (arg: DatesSetArg) => {
-    setCurrentMonthDate(arg.view.currentStart);
+  const handleDatesSet = async (arg: DatesSetArg) => {
+    const selectedMonthBeginningDate = arg.view.currentStart;
+    const currentEnd = arg.view.currentEnd;
+    currentEnd.setDate(currentEnd.getDate() - 1);
+    const selectedMonthEndDate = currentEnd;
+
+    // TODO: ここをTanstack Query等を使用してキャッシュする
+    const fetchedTotalAmounts = await getTotalAmounts(
+      selectedMonthBeginningDate.toLocaleDateString("ja-jp", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-"),
+      selectedMonthEndDate.toLocaleDateString("ja-jp", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-"),
+    );
+    setCurrentMonthDate(selectedMonthBeginningDate);
+    setEvents(fetchedTotalAmounts);
   };
 
   const handleDateClick = (arg: DateClickArg) => {
@@ -93,11 +101,11 @@ export const MonthlyBudgetCalender: React.FC = () => {
         initialView='dayGridMonth' // NOTE: カレンダーの初期表示設定
         events={events}
         eventContent={(arg) => {
-          const { type, amount } = arg.event.extendedProps;
+          const { extendProps } = arg.event.extendedProps;
           return (
             <div className='text-xs bg-white p-1 rounded shadow-md'>
-              <span className={type === "income" ? "text-green-600 font-bold" : "text-red-600"}>
-                {type === "income" ? "収入: " : "支出: "}¥{amount}
+              <span className={extendProps.type === "income" ? "text-green-600 font-bold" : "text-red-600"}>
+                {extendProps.type === "income" ? "収入: " : "支出: "}¥{extendProps.totalAmount}
               </span>
             </div>
           );
