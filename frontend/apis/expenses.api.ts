@@ -1,7 +1,7 @@
 import createClient from "openapi-fetch";
 import type { operations, paths } from "./generated/apiSchema";
 import { getRequestHeaders } from "./csrf.api";
-import type { Expense } from "~/types";
+import type { Expense, StoreExpenseInput } from "~/types";
 
 const client = createClient<paths>({
   baseUrl: `${import.meta.env.VITE_API_ENDPOINT_URI}/`,
@@ -45,4 +45,31 @@ export async function getTotalAmounts(fromDate: string, toDate: string) {
   }
 
   return data.totalAmounts;
+}
+
+export async function postCreateExpense(input: StoreExpenseInput) {
+  const { data } = await client.POST("/expenses", {
+    ...(await getRequestHeaders()),
+    body: input,
+    bodySerializer() {
+      const reqBody: { [key: string]: string | number } = {};
+      for (const [key, value] of Object.entries(input)) {
+        if (value instanceof Date) {
+          reqBody[key] = value.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-");
+        } else if (["amount"].includes(key)) {
+          if (value) {
+            reqBody[key] = Number(value);
+          }
+        } else {
+          reqBody[key] = value;
+        }
+      }
+      return JSON.stringify(reqBody);
+    },
+  });
+  if (!data) {
+    throw new Error();
+  }
+
+  return data;
 }
