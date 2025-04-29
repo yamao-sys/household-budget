@@ -7,6 +7,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin, { type DateClickArg } from "@fullcalendar/interaction";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { DatesSetArg } from "@fullcalendar/core";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 export const MonthlyBudgetCalender: React.FC = () => {
@@ -24,8 +25,15 @@ export const MonthlyBudgetCalender: React.FC = () => {
 
   const [inView, setInView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+  const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
+
+  const handleDatesSet = (arg: DatesSetArg) => {
+    setCurrentMonthDate(arg.view.currentStart);
+  };
 
   const handleDateClick = (arg: DateClickArg) => {
+    if (arg.date.getMonth() !== currentMonthDate.getMonth()) return;
+
     setSelectedDate(arg.date.toLocaleDateString("ja-jp", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-"));
     setInView(true);
   };
@@ -77,7 +85,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
   );
 
   return (
-    <div className='w-4/5 mx-auto mt-10'>
+    <div className='mx-auto mt-10'>
       {formElement}
       <FullCalendar
         locale='ja'
@@ -113,6 +121,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
         ref={ref}
         dateClick={handleDateClick}
         height='auto'
+        datesSet={handleDatesSet}
       />
     </div>
   );
