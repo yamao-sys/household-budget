@@ -15,9 +15,9 @@ export const NAVIGATION_PAGE_LIST = {
 };
 
 export default [
-  index("routes/home.tsx"),
-  route(NAVIGATION_PATH_LIST.signUpPage, "sign_up/page.tsx"),
-  layout("./layouts/AuthGuardLayout.tsx", [
+  layout("./Layout.tsx", [
+    index("routes/home.tsx"),
+    route(NAVIGATION_PATH_LIST.signUpPage, "sign_up/page.tsx"),
     route(NAVIGATION_PATH_LIST.signInPage, "sign_in/page.tsx"),
     route(NAVIGATION_PATH_LIST.monthlyBudgetPage, "monthly_budget/page.tsx"),
   ]),

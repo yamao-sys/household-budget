@@ -1,10 +1,10 @@
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { getCheckSignedIn } from "~/apis/users.api";
-import { NAVIGATION_PAGE_LIST } from "../routes";
+import { NAVIGATION_PAGE_LIST } from "./routes";
 import { useEffect, useState } from "react";
-import { HeaderNavigation } from "../HeaderNavigation";
+import { HeaderNavigation } from "./HeaderNavigation";
 
-export default function AuthGuardLayout() {
+export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSignedIn, setIsSignedIn] = useState(false);
