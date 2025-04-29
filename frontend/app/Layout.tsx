@@ -11,22 +11,27 @@ export default function Layout() {
 
   useEffect(() => {
     async function init() {
-      setIsSignedIn(await getCheckSignedIn());
+      const checkedSignedIn = await getCheckSignedIn();
 
+      let toNavigatePath = "";
       if (location.pathname === NAVIGATION_PAGE_LIST.signInPage) {
-        if (isSignedIn) {
-          navigate(NAVIGATION_PAGE_LIST.monthlyBudgetPage);
-          return;
+        if (checkedSignedIn) {
+          toNavigatePath = NAVIGATION_PAGE_LIST.monthlyBudgetPage;
         }
-      } else {
-        if (!isSignedIn) {
-          navigate(NAVIGATION_PAGE_LIST.signInPage);
-          return;
+      }
+      if (location.pathname !== NAVIGATION_PAGE_LIST.signUpPage && location.pathname !== NAVIGATION_PAGE_LIST.signInPage) {
+        if (!checkedSignedIn) {
+          toNavigatePath = NAVIGATION_PAGE_LIST.signInPage;
         }
+      }
+
+      setIsSignedIn(checkedSignedIn);
+      if (toNavigatePath !== "") {
+        navigate(toNavigatePath);
       }
     }
     init();
-  }, [navigate, location, isSignedIn]);
+  }, [location, setIsSignedIn]);
 
   return (
     <>
