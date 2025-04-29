@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 // NOTE: FullCalendarコンポーネント。
 import FullCalendar from "@fullcalendar/react";
 // NOTE: FullCalendarで月表示を可能にするモジュール。
@@ -177,9 +177,36 @@ export const MonthlyBudgetCalender: React.FC = () => {
     </div>
   );
 
+  // NOTE: 表示中の月の収支集計
+  const summary = useMemo(() => {
+    let totalIncome = 0;
+    let totalExpense = 0;
+    if (!events) return { totalIncome, totalExpense };
+
+    for (const e of events) {
+      if (e.extendProps.type === "income") {
+        totalIncome += e.extendProps.totalAmount;
+      } else if (e.extendProps.type === "expense") {
+        totalExpense += e.extendProps.totalAmount;
+      }
+    }
+    return { totalIncome, totalExpense };
+  }, [events]);
+
   return (
-    <div className='mx-auto mt-10'>
+    <div className='mx-auto mt-4'>
       {formElement}
+      {/* 合計表示 */}
+      <div className='mb-4 p-4 bg-gray-100 rounded-lg shadow text-sm'>
+        <div className='flex justify-between'>
+          {/* <div className="text-green-700">収入合計: ¥{summary.totalIncome.toLocaleString()}</div> */}
+          <div className='text-red-700'>支出合計: ¥{summary.totalExpense.toLocaleString()}</div>
+        </div>
+        {/* <div className="mt-2 font-bold">
+          残高: ¥{(summary.totalIncome - summary.totalExpense).toLocaleString()}
+        </div> */}
+      </div>
+
       <FullCalendar
         locale='ja'
         plugins={[dayGridPlugin, interactionPlugin]}
