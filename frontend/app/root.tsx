@@ -1,8 +1,12 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation, useNavigate } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import BaseContainer from "~/components/BaseContainer";
+import { getCheckSignedIn } from "~/apis/users.api";
+import { useEffect, useState } from "react";
+import { NAVIGATION_PAGE_LIST } from "./routes";
+import { HeaderNavigation } from "./HeaderNavigation";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -18,6 +22,34 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    async function init() {
+      const checkedSignedIn = await getCheckSignedIn();
+
+      let toNavigatePath = "";
+      if (location.pathname === NAVIGATION_PAGE_LIST.signInPage) {
+        if (checkedSignedIn) {
+          toNavigatePath = NAVIGATION_PAGE_LIST.monthlyBudgetPage;
+        }
+      }
+      if (location.pathname !== NAVIGATION_PAGE_LIST.signUpPage && location.pathname !== NAVIGATION_PAGE_LIST.signInPage) {
+        if (!checkedSignedIn) {
+          toNavigatePath = NAVIGATION_PAGE_LIST.signInPage;
+        }
+      }
+
+      setIsSignedIn(checkedSignedIn);
+      if (toNavigatePath !== "") {
+        navigate(toNavigatePath);
+      }
+    }
+    init();
+  }, [location, setIsSignedIn]);
+
   return (
     <html lang='en'>
       <head>
@@ -27,8 +59,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className='p-4 md:p-16'>
-          <BaseContainer containerWidth='w-4/5 md:w-3/5'>{children}</BaseContainer>
+        <div className='p-6'>
+          <HeaderNavigation isSignedIn={isSignedIn}>
+            <BaseContainer containerWidth='w-4/5'>{children}</BaseContainer>
+          </HeaderNavigation>
         </div>
         <ScrollRestoration />
         <Scripts />

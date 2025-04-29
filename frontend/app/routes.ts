@@ -1,4 +1,4 @@
-import { type RouteConfig, index, layout, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 const NAVIGATION_PATH_LIST = {
   top: "/",
@@ -17,8 +17,6 @@ export const NAVIGATION_PAGE_LIST = {
 export default [
   index("routes/home.tsx"),
   route(NAVIGATION_PATH_LIST.signUpPage, "sign_up/page.tsx"),
-  layout("./layouts/AuthGuardLayout.tsx", [
-    route(NAVIGATION_PATH_LIST.signInPage, "sign_in/page.tsx"),
-    route(NAVIGATION_PATH_LIST.monthlyBudgetPage, "monthly_budget/page.tsx"),
-  ]),
+  route(NAVIGATION_PATH_LIST.signInPage, "sign_in/page.tsx"),
+  route(NAVIGATION_PATH_LIST.monthlyBudgetPage, "monthly_budget/page.tsx"),
 ] satisfies RouteConfig;
