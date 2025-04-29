@@ -214,7 +214,7 @@ func (s *TestUsersHandlerSuite) TestGetUsersCheckSignedIn_isSignedIn_StatusOk() 
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 	
-	assert.Equal(s.T(), api.GetUsersCheckSignedIn200JSONResponse(true), res)
+	assert.True(s.T(), res.IsSignedIn)
 }
 
 func (s *TestUsersHandlerSuite) TestGetUsersCheckSignedIn_isNotSignedIn_StatusOk() {

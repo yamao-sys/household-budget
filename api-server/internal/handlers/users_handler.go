@@ -106,7 +106,7 @@ func (uh *usersHandler) PostUsersSignIn(ctx context.Context, request api.PostUse
 
 func (uh *usersHandler) GetUsersCheckSignedIn(ctx context.Context, request api.GetUsersCheckSignedInRequestObject) (api.GetUsersCheckSignedInResponseObject, error) {
 	userID, _ := helpers.ExtractUserID(ctx)
-	return api.GetUsersCheckSignedIn200JSONResponse(uh.userService.ExistsUser(userID)), nil
+	return api.GetUsersCheckSignedIn200JSONResponse{IsSignedIn: uh.userService.ExistsUser(userID)}, nil
 }
 
 func (uh *usersHandler) mappingValidationErrorStruct(err error) api.UserSignUpValidationError {
