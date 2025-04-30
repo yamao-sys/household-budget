@@ -119,6 +119,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/expenses/categoryTotalAmounts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Expenses Category TotalAmounts */
+    get: operations["get-expenses-category-total-amounts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -140,6 +157,14 @@ export interface components {
         type: string;
         totalAmount: number;
       };
+    };
+    /**
+     * CategoryTotalAmountLists
+     * @description Total Amount Lists
+     */
+    CategoryTotalAmountLists: {
+      category: number;
+      totalAmount: number;
     };
     /**
      * ExpenseLists
@@ -229,6 +254,17 @@ export interface components {
       content: {
         "application/json": {
           totalAmounts: components["schemas"]["TotalAmountLists"][];
+        };
+      };
+    };
+    /** @description Category Total Amount Lists Response */
+    CategoryTotalAmountListsResponse: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/json": {
+          totalAmounts: components["schemas"]["CategoryTotalAmountLists"][];
         };
       };
     };
@@ -418,6 +454,23 @@ export interface operations {
     requestBody?: never;
     responses: {
       200: components["responses"]["TotalAmountListsResponse"];
+    };
+  };
+  "get-expenses-category-total-amounts": {
+    parameters: {
+      query: {
+        /** @description 取得対象の日付FROM */
+        fromDate: string;
+        /** @description 取得対象の日付TO */
+        toDate: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: components["responses"]["CategoryTotalAmountListsResponse"];
     };
   };
 }
