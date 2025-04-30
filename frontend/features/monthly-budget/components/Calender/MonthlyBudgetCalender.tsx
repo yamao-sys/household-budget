@@ -191,9 +191,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
           </div>
 
           <div className='w-full flex justify-center'>
-            <div className='mt-16'>
-              <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='登録する' onClick={handleCreateExpense} />
-            </div>
+            <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='登録する' onClick={handleCreateExpense} />
           </div>
         </div>
       </div>
