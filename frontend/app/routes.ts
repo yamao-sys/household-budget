@@ -5,6 +5,7 @@ const NAVIGATION_PATH_LIST = {
   signUpPage: "sign_up",
   signInPage: "sign_in",
   monthlyBudgetPage: "monthly_budget",
+  monthlyBudgetDetailPage: "monthly_budget/:month",
 };
 
 export const NAVIGATION_PAGE_LIST = {
@@ -19,4 +20,5 @@ export default [
   route(NAVIGATION_PATH_LIST.signUpPage, "sign_up/page.tsx"),
   route(NAVIGATION_PATH_LIST.signInPage, "sign_in/page.tsx"),
   route(NAVIGATION_PATH_LIST.monthlyBudgetPage, "monthly_budget/page.tsx"),
+  route(NAVIGATION_PATH_LIST.monthlyBudgetDetailPage, "monthly_budget/[month]/page.tsx"),
 ] satisfies RouteConfig;
