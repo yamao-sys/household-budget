@@ -10,6 +10,8 @@ export type Expense = components["schemas"]["Expense"];
 
 export type TotalAmountLists = components["responses"]["TotalAmountListsResponse"]["content"]["application/json"]["totalAmounts"];
 
+export type CategoryTotalAmountLists = components["responses"]["CategoryTotalAmountListsResponse"]["content"]["application/json"]["totalAmounts"];
+
 export type ExpenseLists = components["schemas"]["ExpenseLists"];
 
 export type StoreExpenseInput = components["requestBodies"]["StoreExpenseInput"]["content"]["application/json"];
