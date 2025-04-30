@@ -73,7 +73,7 @@ func (es *expenseService) Create(userID int, requestParams *api.PostExpensesJSON
 	expense.UserID = userID
 	expense.PaidAt = requestParams.PaidAt.Time
 	expense.Amount = requestParams.Amount
-	expense.Category = requestParams.Category
+	expense.Category = models.Category(requestParams.Category)
 	expense.Description = requestParams.Description
 
 	es.db.Create(&expense)
