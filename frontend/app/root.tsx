@@ -59,7 +59,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className='p-6'>
+        <div>
           <HeaderNavigation isSignedIn={isSignedIn}>
             <BaseContainer containerWidth='w-4/5'>{children}</BaseContainer>
           </HeaderNavigation>
