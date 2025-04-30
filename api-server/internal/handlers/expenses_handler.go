@@ -52,7 +52,7 @@ func (eh *expensesHandler) GetExpenses(ctx context.Context, request api.GetExpen
 	for _, expense := range fetchedExpenses {
 		expenses = append(expenses, api.Expense{
 			Amount: expense.Amount,
-			Category: expense.Category,
+			Category: int(expense.Category),
 			Description: expense.Description,
 			Id: strconv.Itoa(int(expense.ID)),
 			PaidAt: openapi_types.Date{Time: expense.PaidAt},
@@ -94,7 +94,7 @@ func (eh *expensesHandler) PostExpenses(ctx context.Context, request api.PostExp
 			Id: strconv.Itoa(createdExpense.ID),
 			PaidAt: openapi_types.Date{Time: createdExpense.PaidAt},
 			Amount: createdExpense.Amount,
-			Category: createdExpense.Category,
+			Category: int(createdExpense.Category),
 			Description: createdExpense.Description,
 		},
 	}}, nil

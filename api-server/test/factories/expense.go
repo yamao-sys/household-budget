@@ -11,7 +11,7 @@ import (
 var ExpenseFactory = factory.NewFactory(
 	&models.Expense{
 		Amount: randomdata.Number(10000),
-		Category: randomdata.Number(1),
+		Category: models.Category(randomdata.Number(0, 8)),
 		Description: randomdata.RandStringRunes(100),
 	},
 ).Attr("PaidAt", func(args factory.Args) (interface{}, error) {

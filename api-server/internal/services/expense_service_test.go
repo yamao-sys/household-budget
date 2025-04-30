@@ -210,7 +210,7 @@ func (s *TestExpenseServiceSuite) TestExpenseCreate_Success() {
 	assert.Equal(s.T(), user.ID, createdExpense.UserID)
 	assert.Equal(s.T(), requestParams.PaidAt.Format("2006-01-02"), createdExpense.PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), requestParams.Amount, createdExpense.Amount)
-	assert.Equal(s.T(), requestParams.Category, createdExpense.Category)
+	assert.Equal(s.T(), models.Category(requestParams.Category), createdExpense.Category)
 	assert.Equal(s.T(), requestParams.Description, createdExpense.Description)
 
 	// NOTE: バリデーションエラーがないことの確認

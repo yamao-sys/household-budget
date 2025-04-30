@@ -62,13 +62,13 @@ func (s *TestExpensesHandlerSuite) TestGetExpenses_WithFromDateAndToDate_Same_St
 	assert.Equal(s.T(), strconv.Itoa(inRangePaidAtExpense1.ID), res.Expenses[0].Id)
 	assert.Equal(s.T(), inRangePaidAtExpense1.PaidAt.Format("2006-01-02"), res.Expenses[0].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), inRangePaidAtExpense1.Amount, res.Expenses[0].Amount)
-	assert.Equal(s.T(), inRangePaidAtExpense1.Category, res.Expenses[0].Category)
+	assert.Equal(s.T(), int(inRangePaidAtExpense1.Category), res.Expenses[0].Category)
 	assert.Equal(s.T(), inRangePaidAtExpense1.Description, res.Expenses[0].Description)
 
 	assert.Equal(s.T(), strconv.Itoa(inRangePaidAtExpense2.ID), res.Expenses[1].Id)
 	assert.Equal(s.T(), inRangePaidAtExpense2.PaidAt.Format("2006-01-02"), res.Expenses[1].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), inRangePaidAtExpense2.Amount, res.Expenses[1].Amount)
-	assert.Equal(s.T(), inRangePaidAtExpense2.Category, res.Expenses[1].Category)
+	assert.Equal(s.T(), int(inRangePaidAtExpense2.Category), res.Expenses[1].Category)
 	assert.Equal(s.T(), inRangePaidAtExpense2.Description, res.Expenses[1].Description)
 }
 
@@ -102,19 +102,19 @@ func (s *TestExpensesHandlerSuite) TestGetExpenses_WithFromDateAndToDate_Differe
 	assert.Equal(s.T(), strconv.Itoa(minInRangePaidAtExpense.ID), res.Expenses[0].Id)
 	assert.Equal(s.T(), minInRangePaidAtExpense.PaidAt.Format("2006-01-02"), res.Expenses[0].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), minInRangePaidAtExpense.Amount, res.Expenses[0].Amount)
-	assert.Equal(s.T(), minInRangePaidAtExpense.Category, res.Expenses[0].Category)
+	assert.Equal(s.T(), int(minInRangePaidAtExpense.Category), res.Expenses[0].Category)
 	assert.Equal(s.T(), minInRangePaidAtExpense.Description, res.Expenses[0].Description)
 
 	assert.Equal(s.T(), strconv.Itoa(inRangePaidAtExpense.ID), res.Expenses[1].Id)
 	assert.Equal(s.T(), inRangePaidAtExpense.PaidAt.Format("2006-01-02"), res.Expenses[1].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), inRangePaidAtExpense.Amount, res.Expenses[1].Amount)
-	assert.Equal(s.T(), inRangePaidAtExpense.Category, res.Expenses[1].Category)
+	assert.Equal(s.T(), int(inRangePaidAtExpense.Category), res.Expenses[1].Category)
 	assert.Equal(s.T(), inRangePaidAtExpense.Description, res.Expenses[1].Description)
 
 	assert.Equal(s.T(), strconv.Itoa(maxInRangePaidAtExpense.ID), res.Expenses[2].Id)
 	assert.Equal(s.T(), maxInRangePaidAtExpense.PaidAt.Format("2006-01-02"), res.Expenses[2].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), maxInRangePaidAtExpense.Amount, res.Expenses[2].Amount)
-	assert.Equal(s.T(), maxInRangePaidAtExpense.Category, res.Expenses[2].Category)
+	assert.Equal(s.T(), int(maxInRangePaidAtExpense.Category), res.Expenses[2].Category)
 	assert.Equal(s.T(), maxInRangePaidAtExpense.Description, res.Expenses[2].Description)
 }
 
@@ -144,13 +144,13 @@ func (s *TestExpensesHandlerSuite) TestGetExpenses_WithFromDateAndWithoutToDate_
 	assert.Equal(s.T(), strconv.Itoa(minInRangePaidAtExpense.ID), res.Expenses[0].Id)
 	assert.Equal(s.T(), minInRangePaidAtExpense.PaidAt.Format("2006-01-02"), res.Expenses[0].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), minInRangePaidAtExpense.Amount, res.Expenses[0].Amount)
-	assert.Equal(s.T(), minInRangePaidAtExpense.Category, res.Expenses[0].Category)
+	assert.Equal(s.T(), int(minInRangePaidAtExpense.Category), res.Expenses[0].Category)
 	assert.Equal(s.T(), minInRangePaidAtExpense.Description, res.Expenses[0].Description)
 
 	assert.Equal(s.T(), strconv.Itoa(inRangePaidAtExpense.ID), res.Expenses[1].Id)
 	assert.Equal(s.T(), inRangePaidAtExpense.PaidAt.Format("2006-01-02"), res.Expenses[1].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), inRangePaidAtExpense.Amount, res.Expenses[1].Amount)
-	assert.Equal(s.T(), inRangePaidAtExpense.Category, res.Expenses[1].Category)
+	assert.Equal(s.T(), int(inRangePaidAtExpense.Category), res.Expenses[1].Category)
 	assert.Equal(s.T(), inRangePaidAtExpense.Description, res.Expenses[1].Description)
 }
 
@@ -180,13 +180,13 @@ func (s *TestExpensesHandlerSuite) TestGetExpenses_WithoutFromDateAndWithToDate_
 	assert.Equal(s.T(), strconv.Itoa(inRangePaidAtExpense.ID), res.Expenses[0].Id)
 	assert.Equal(s.T(), inRangePaidAtExpense.PaidAt.Format("2006-01-02"), res.Expenses[0].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), inRangePaidAtExpense.Amount, res.Expenses[0].Amount)
-	assert.Equal(s.T(), inRangePaidAtExpense.Category, res.Expenses[0].Category)
+	assert.Equal(s.T(), int(inRangePaidAtExpense.Category), res.Expenses[0].Category)
 	assert.Equal(s.T(), inRangePaidAtExpense.Description, res.Expenses[0].Description)
 
 	assert.Equal(s.T(), strconv.Itoa(maxInRangePaidAtExpense.ID), res.Expenses[1].Id)
 	assert.Equal(s.T(), maxInRangePaidAtExpense.PaidAt.Format("2006-01-02"), res.Expenses[1].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), maxInRangePaidAtExpense.Amount, res.Expenses[1].Amount)
-	assert.Equal(s.T(), maxInRangePaidAtExpense.Category, res.Expenses[1].Category)
+	assert.Equal(s.T(), int(maxInRangePaidAtExpense.Category), res.Expenses[1].Category)
 	assert.Equal(s.T(), maxInRangePaidAtExpense.Description, res.Expenses[1].Description)
 }
 
@@ -214,13 +214,13 @@ func (s *TestExpensesHandlerSuite) TestGetExpenses_WithoutFromDateAndToDate_Stat
 	assert.Equal(s.T(), strconv.Itoa(expense1.ID), res.Expenses[0].Id)
 	assert.Equal(s.T(), expense1.PaidAt.Format("2006-01-02"), res.Expenses[0].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), expense1.Amount, res.Expenses[0].Amount)
-	assert.Equal(s.T(), expense1.Category, res.Expenses[0].Category)
+	assert.Equal(s.T(), int(expense1.Category), res.Expenses[0].Category)
 	assert.Equal(s.T(), expense1.Description, res.Expenses[0].Description)
 
 	assert.Equal(s.T(), strconv.Itoa(expense2.ID), res.Expenses[1].Id)
 	assert.Equal(s.T(), expense2.PaidAt.Format("2006-01-02"), res.Expenses[1].PaidAt.Format("2006-01-02"))
 	assert.Equal(s.T(), expense2.Amount, res.Expenses[1].Amount)
-	assert.Equal(s.T(), expense2.Category, res.Expenses[1].Category)
+	assert.Equal(s.T(), int(expense2.Category), res.Expenses[1].Category)
 	assert.Equal(s.T(), expense2.Description, res.Expenses[1].Description)
 }
 
