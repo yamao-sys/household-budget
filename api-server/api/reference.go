@@ -26,6 +26,12 @@ const (
 	AuthenticationScopes = "authentication.Scopes"
 )
 
+// CategoryTotalAmountLists Total Amount Lists
+type CategoryTotalAmountLists struct {
+	Category    int `json:"category"`
+	TotalAmount int `json:"totalAmount"`
+}
+
 // Expense Expense
 type Expense struct {
 	Amount      int                `json:"amount"`
@@ -62,6 +68,11 @@ type UserSignUpValidationError struct {
 	Email    *[]string `json:"email,omitempty"`
 	Name     *[]string `json:"name,omitempty"`
 	Password *[]string `json:"password,omitempty"`
+}
+
+// CategoryTotalAmountListsResponse defines model for CategoryTotalAmountListsResponse.
+type CategoryTotalAmountListsResponse struct {
+	TotalAmounts []CategoryTotalAmountLists `json:"totalAmounts"`
 }
 
 // CsrfResponse defines model for CsrfResponse.
@@ -143,6 +154,15 @@ type PostExpensesJSONBody struct {
 	PaidAt      openapi_types.Date `json:"paidAt"`
 }
 
+// GetExpensesCategoryTotalAmountsParams defines parameters for GetExpensesCategoryTotalAmounts.
+type GetExpensesCategoryTotalAmountsParams struct {
+	// FromDate 取得対象の日付FROM
+	FromDate string `form:"fromDate" json:"fromDate"`
+
+	// ToDate 取得対象の日付TO
+	ToDate string `form:"toDate" json:"toDate"`
+}
+
 // GetExpensesTotalAmountsParams defines parameters for GetExpensesTotalAmounts.
 type GetExpensesTotalAmountsParams struct {
 	// FromDate 取得対象の日付FROM
@@ -195,6 +215,9 @@ type ServerInterface interface {
 	// Post Expense
 	// (POST /expenses)
 	PostExpenses(ctx echo.Context) error
+	// Get Expenses Category TotalAmounts
+	// (GET /expenses/categoryTotalAmounts)
+	GetExpensesCategoryTotalAmounts(ctx echo.Context, params GetExpensesCategoryTotalAmountsParams) error
 	// Get Expenses TotalAmounts
 	// (GET /expenses/totalAmounts)
 	GetExpensesTotalAmounts(ctx echo.Context, params GetExpensesTotalAmountsParams) error
@@ -261,6 +284,33 @@ func (w *ServerInterfaceWrapper) PostExpenses(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.PostExpenses(ctx)
+	return err
+}
+
+// GetExpensesCategoryTotalAmounts converts echo context to params.
+func (w *ServerInterfaceWrapper) GetExpensesCategoryTotalAmounts(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(AuthenticationScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetExpensesCategoryTotalAmountsParams
+	// ------------- Required query parameter "fromDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "fromDate", ctx.QueryParams(), &params.FromDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
+	}
+
+	// ------------- Required query parameter "toDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "toDate", ctx.QueryParams(), &params.ToDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetExpensesCategoryTotalAmounts(ctx, params)
 	return err
 }
 
@@ -360,12 +410,17 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/csrf", wrapper.GetCsrf)
 	router.GET(baseURL+"/expenses", wrapper.GetExpenses)
 	router.POST(baseURL+"/expenses", wrapper.PostExpenses)
+	router.GET(baseURL+"/expenses/categoryTotalAmounts", wrapper.GetExpensesCategoryTotalAmounts)
 	router.GET(baseURL+"/expenses/totalAmounts", wrapper.GetExpensesTotalAmounts)
 	router.GET(baseURL+"/users/checkSignedIn", wrapper.GetUsersCheckSignedIn)
 	router.POST(baseURL+"/users/signIn", wrapper.PostUsersSignIn)
 	router.POST(baseURL+"/users/signUp", wrapper.PostUsersSignUp)
 	router.POST(baseURL+"/users/validateSignUp", wrapper.PostUsersValidateSignUp)
 
+}
+
+type CategoryTotalAmountListsResponseJSONResponse struct {
+	TotalAmounts []CategoryTotalAmountLists `json:"totalAmounts"`
 }
 
 type CsrfResponseJSONResponse struct {
@@ -467,6 +522,25 @@ type PostExpenses200JSONResponse struct {
 }
 
 func (response PostExpenses200JSONResponse) VisitPostExpensesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetExpensesCategoryTotalAmountsRequestObject struct {
+	Params GetExpensesCategoryTotalAmountsParams
+}
+
+type GetExpensesCategoryTotalAmountsResponseObject interface {
+	VisitGetExpensesCategoryTotalAmountsResponse(w http.ResponseWriter) error
+}
+
+type GetExpensesCategoryTotalAmounts200JSONResponse struct {
+	CategoryTotalAmountListsResponseJSONResponse
+}
+
+func (response GetExpensesCategoryTotalAmounts200JSONResponse) VisitGetExpensesCategoryTotalAmountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
@@ -643,6 +717,9 @@ type StrictServerInterface interface {
 	// Post Expense
 	// (POST /expenses)
 	PostExpenses(ctx context.Context, request PostExpensesRequestObject) (PostExpensesResponseObject, error)
+	// Get Expenses Category TotalAmounts
+	// (GET /expenses/categoryTotalAmounts)
+	GetExpensesCategoryTotalAmounts(ctx context.Context, request GetExpensesCategoryTotalAmountsRequestObject) (GetExpensesCategoryTotalAmountsResponseObject, error)
 	// Get Expenses TotalAmounts
 	// (GET /expenses/totalAmounts)
 	GetExpensesTotalAmounts(ctx context.Context, request GetExpensesTotalAmountsRequestObject) (GetExpensesTotalAmountsResponseObject, error)
@@ -743,6 +820,31 @@ func (sh *strictHandler) PostExpenses(ctx echo.Context) error {
 		return err
 	} else if validResponse, ok := response.(PostExpensesResponseObject); ok {
 		return validResponse.VisitPostExpensesResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GetExpensesCategoryTotalAmounts operation middleware
+func (sh *strictHandler) GetExpensesCategoryTotalAmounts(ctx echo.Context, params GetExpensesCategoryTotalAmountsParams) error {
+	var request GetExpensesCategoryTotalAmountsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetExpensesCategoryTotalAmounts(ctx.Request().Context(), request.(GetExpensesCategoryTotalAmountsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetExpensesCategoryTotalAmounts")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetExpensesCategoryTotalAmountsResponseObject); ok {
+		return validResponse.VisitGetExpensesCategoryTotalAmountsResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -887,29 +989,30 @@ func (sh *strictHandler) PostUsersValidateSignUp(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYz27jNhN/FYHfd1RXabstFrpl0+zCaBcJ4mQvgQ+MNLa5kUguSaU1Ah36BL11e+2h",
-	"1xY9F9iXaVP0MQqSkkX9syXbyak3m5oZzu83wxkO71HEUs4oUCVReI8EvM9AqpcsJmAWpooJOP2OA5Uw",
-	"oTxTejFiVAE1PzHnCYmwIowG7ySjek1GS0ix/sUF4yBUYQunLLNaasUBhYhQBQsQKPdRhBUsmFh1f41B",
-	"RoJwvYsjIJUgdKG/c0ziY2N5zkSKFQpRjBUgvyma+wYiERCj8LrU80vXHD/qm87WltjNO4gUyvOmW5Yq",
-	"r+DKs2TlPrqSIKZkQSd0X/4gxSTpwS/lt0zEHR8biK0NR2MIMg3Bsxi8NrAr/njAKE5hT8TGhL8n8Cvu",
-	"TTKD21iXnFFpfT+RYn5RLOxBQSTF/JLdAt0OqBIdAkH755Uea+ZegYqWRZZ+Q6SSO3n/fwFzFKL/BVX9",
-	"COxXGbjGu1wyHqwPihHzLhwPJ1SBoDiZgrgDcSoEE4dgmMVQqxCEqi+fVyXCKTcpSIkXMCAU2mYlPyQe",
-	"JTjPovMMvBp8t+QeADfoDeS2mLmbvsUJiY1x45z2CeyXgZFvV51i3S+9GV9PXYYumcLJsSnZu2dwnSVV",
-	"mTT/iYJ0K2lNP7RvBSwsBF61eKjtMoQDs4NnNTpOStVbXuL4wvbug6bMmoZWAd6Ic0SU3d5SgehBeXa7",
-	"E7pRTqx38NEScAyWiCmoT04YuyXQaXpdH/JaYzxg2WpXqWEHu3Kmday7i9mI2BkTxUbaj9OqStQFT9fn",
-	"/6luhCQ+6EWRxMgfd1skKoEa8gabPqq1yRZlbxhVy2TlneAEaKwbRQ+HRW0dXrXWRXrbIS4Nt+FYnzsw",
-	"bWojG+aBoWWmnhXDtRrZMlyxypcRlbAkaxMZHdy1ukkrJ9rdoJUNJpu3p7fu6ApofC4Ylxu7Yffxsyvb",
-	"rkfmq1+z1lFW6jqFv657Tv61OOrgsb/i9Q8ewzOinEjG5FA1quyQRf1wuqiUEGWCqNVUH/bimGVqCVQV",
-	"Dcd4oZMpst2sRISUGSkqRzj5Gla26hM6Z+1sXLJMwpIlsXeTxQtQ3vH5RAdEZmmK9QlFqELRFEY+ugMh",
-	"raVPnx1pChgHijlBIfr8mV7S1KmlwRDooUf/0KrhvRYVBs4kRiF6DUqPOagxmn12dNRXC9dyQW1+y330",
-	"xRClTROKGwUUXs9cQl6D8gpPFV7IcppDM60UuJW8D+dpKaPJETgFZS4o183gPPzw48PHDw+/ffzn95//",
-	"/P7Xvz/88tcfP726OHuDfBv+9xmYvlVEfy5Y+pU9ev2XG3/QLpdnPXsotnWH2S4h7J9oG7Fon4XrWd4K",
-	"kENxGaSqFerzzGRHbM6ZdINTPaSt+gE4b21B+6Et34WLzuFxNA0ajHPh6KDBzdegOTxtS95LV/7xErlq",
-	"K0pk8BSJPXzHnRK9d+7dK8+9Rjh6op1JEDKIlhDd6nYE8YRuirVuW/KkJt0Nece5iEjXi4LeG8YSwLR9",
-	"fa+Eh8w1RHrSyHuEjufWDJNN5CWphsUao9KMnQZgb2ExZNr5dJfa0nyC3qmydE7huY+ej1PueKh47K7r",
-	"TPdbI3HFB0biiu8TifLNfK9IOO8LY+NQV30a9g1j/ezf2dstTIdG4W1d4b9oDI5GydyGsBgT2rTtyZlI",
-	"9CVeKR4GQcIinCyZVOGLoxdHSFe/Qr/ZRvXl1gMac0bMe0nRL82dt910zeYd4taptnzZoDpU1r0rn+X/",
-	"BgAA//8XEObu5BwAAA==",
+	"H4sIAAAAAAAC/+xZzW7jNhB+FYHtUV2l7bZY+JZ1swujXSSIk70EPjDS2OZGIrUkldYIdOgT9NbttYde",
+	"W/RcYF+mTdHHKEhJFvVP2U6wh73JEjmc7/uGMxz6DvksihkFKgWa3CEObxMQ8jkLCOgXc8k4nPwQAxUw",
+	"o3Ei1UufUQlUP+I4DomPJWHUeyMYVe+Ev4YIq6eYsxi4zG3hiCXZLLmJAU0QoRJWwFHqIh9LWDG+af8a",
+	"gPA5idUqxgAhOaEr9T3GJDjWlpeMR1iiCQqwBOTWh6auhkg4BGhyVcxzC9cMP6qLLraW2PUb8CVK07pb",
+	"GVVOzpWTkZW66FIAn5MVndF9+YMIk7ADvxDfMx60fKwhzmwYM2yQKQhOhsFpAruMHw4YxRHsiVibcPcE",
+	"fhk7s0Tj1tZFzKjIfJ/mAXPBJA6PdRh9R4QU5/mgPWiRpUn9m0iI9MOnHJZogj7xys3rZUaE1+WPIi3H",
+	"iznHmwZPldVsyClWcvRSTjbV0Ys5W/Spi6aCLw/Ahi/48oLdAB2WvBxqhUPwpcMNh1+A9Nf5Pt5dyz6R",
+	"TONtLmkPtqmkSemMSuAUh3Pgt8BPOGf8EAyzACo5lFD59dMyiRoJOQIh8AospFA2y/E2ehTgnAydo+FV",
+	"4JtF6QC4QS0wuLHMRV/jkATauHZO+QTZF0vlm3k5f+8W3oyvOCZDH0o2evgsNJB8yur7HAfn2enmoCGz",
+	"paFRonpxjlDZrL4liA6Upzc7oRvlxHYFF60BB5ARMQf52ZSxGwKtprf5Ia0cHQ6YtppZym5jl840tnV7",
+	"MhuhnTaRL9R3WlDfhuJaHV6qwHvPzMZOahtQh1aee82JCiORIRjlvuF6gwYXnZTJsIrqZJvmHqs1IMFB",
+	"OwYSIHdc25DTVyLvYqsjEF4xKtfhxpniEGig6mEHh3kJsU/O21o0lKsKw004nRHQVy17GkPbbFqNCvtZ",
+	"tWixn1jGy4iEX5DVR0YLdwdJDjqah8NbHVwk0OCMs1j0Fv2OLKPfDJ0C9ddmZqllz+qc3F/TPSP+bLJQ",
+	"d2Lv7kDtI6JoTcfEUNmz7hBF3XDaqBTgJ5zIzVxt9nybJXINVOZ1VXuhgsnPinaBCEndOZWOxORb2GTF",
+	"jdAla0bjmiUC1iwMnOskWIF0js9mShCRRBFWOxShEkV9MHLRLXCRWfr8yZGigMVAcUzQBH35RL1S1Mm1",
+	"xuCp3k49qKmTOzWUazizAE3QS5Cqm0O1Hv2Lo6OuXLgd51Xa1NRFX9lM6mvETBXQ5GphEvISpJN7KvFK",
+	"FE0rWqhJnpnJu3CeFGMUORxHIPU57Kouzv1PP9+/f3f/x/v//vz17x9///fdb//89cuL89NXyM3kf5uA",
+	"rlu5+kvOom+yrdd9hnOtVrk47VhDssEVFrtI2N2417Ro7oWrRdoQyKC4EKkshWo/M9GizRkTpjjljeqm",
+	"G4Bx6eo1b1zTXbho7ZFH06DAGAeOFhrMePX85hnRKoinbfMeLrDLMiN5Ao8R6PYr7hT4g5eQe8W/U73p",
+	"K/UZCgc5Mgw+yr+b/A8ku53aiQAuPH8N/o06nUAwo31aq1OMmFZGt0Pe8TaACNOLnN5rxkLAtNnNlYNt",
+	"unkiHKHHO4SO51ZfodSRF6RqFiuMCn3ZogF21hlNZnYrs0upqf81tVOhab17Sl30dNzkluu5hz6EGXda",
+	"g0pcxpZKXMb7KFH8l7aXEsat2lgdqlMfh33NWDf7t1mzA3NbFV5XJ3xUw1qNgrkeWbQJZTqryQkPVU8n",
+	"ZTzxvJD5OFwzISfPjp4dIZX98vn1Mqp6HQdoEDOir8/yeqlboGbR1Yu3DM+cao4vClTLlG3tShfp/wEA",
+	"AP//qGl5NvwgAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
