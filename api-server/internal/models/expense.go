@@ -7,7 +7,7 @@ import (
 type Category int
 
 const (
-    CategoryFood Category = iota
+    CategoryFood Category = iota + 1
     CategoryDailyGoods
     CategoryExtra
 	CategoryEntertainment
