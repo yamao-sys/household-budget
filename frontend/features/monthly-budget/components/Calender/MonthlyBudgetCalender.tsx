@@ -15,6 +15,9 @@ import BaseFormInput from "~/components/BaseFormInput";
 import BaseButton from "~/components/BaseButton";
 import { EXPENSE_CATEGORY } from "~/const/expense";
 import BaseFormSelect from "~/components/BaseFormSelect";
+import { Link } from "react-router";
+import { NAVIGATION_PAGE_LIST } from "~/app/routes";
+import { getMonthString } from "~/lib/date";
 
 const INITIAL_STORE_EXPENSE_INPUT = {
   paidAt: new Date(),
@@ -218,9 +221,12 @@ export const MonthlyBudgetCalender: React.FC = () => {
       {formElement}
       {/* 合計表示 */}
       <div className='mb-4 p-4 bg-gray-100 rounded-lg shadow text-sm'>
-        <div className='flex justify-between'>
+        <div className='flex'>
           {/* <div className="text-green-700">収入合計: ¥{summary.totalIncome.toLocaleString()}</div> */}
-          <div className='text-red-700'>支出合計: ¥{summary.totalExpense.toLocaleString()}</div>
+          <div className='text-red-700 mr-4'>支出合計: ¥{summary.totalExpense.toLocaleString()}</div>
+          <div className='text-blue-700 underline'>
+            <Link to={`${NAVIGATION_PAGE_LIST.monthlyBudgetPage}/${getMonthString(currentMonthDate)}`}>支出詳細へ</Link>
+          </div>
         </div>
         {/* <div className="mt-2 font-bold">
           残高: ¥{(summary.totalIncome - summary.totalExpense).toLocaleString()}
