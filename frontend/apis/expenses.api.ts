@@ -56,7 +56,7 @@ export async function postCreateExpense(input: StoreExpenseInput) {
       for (const [key, value] of Object.entries(input)) {
         if (value instanceof Date) {
           reqBody[key] = value.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-");
-        } else if (["amount"].includes(key)) {
+        } else if (["amount", "category"].includes(key)) {
           if (value) {
             reqBody[key] = Number(value);
           }
