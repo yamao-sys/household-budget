@@ -277,6 +277,47 @@ func (s *TestExpensesHandlerSuite) TestGetExpensesTotalAmounts_StatusUnauthorize
 	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
 }
 
+func (s *TestExpensesHandlerSuite) TestGetExpensesCategoryTotalAmounts_StatusOk() {
+	user, cookieString := s.signIn()
+
+	minOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryFood, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&minOutOfRangePaidAtExpense)
+	inRangePaidAtExpenseFrom1_1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryFood, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom1_1)
+	inRangePaidAtExpenseFrom1_2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryDailyGoods, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom1_2)
+	inRangePaidAtExpenseFrom2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryFood, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom2)
+	maxOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryDailyGoods, "PaidAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&maxOutOfRangePaidAtExpense)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherBeginningOfMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "Category": models.CategoryFood, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&otherBeginningOfMonthExpense)
+
+	result := testutil.NewRequest().Get("/expenses/categoryTotalAmounts?fromDate=2025-04-01&toDate=2025-04-02").WithHeader("Cookie", csrfTokenCookie+"; "+cookieString).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
+	assert.Equal(s.T(), http.StatusOK, result.Code())
+
+	var res api.GetExpensesCategoryTotalAmounts200JSONResponse
+	err := result.UnmarshalBodyToObject(&res)
+	assert.NoError(s.T(), err, "error unmarshaling response")
+
+	assert.Equal(s.T(), 2, len(res.TotalAmounts))
+	assert.Equal(s.T(), int(models.CategoryFood), res.TotalAmounts[0].Category)
+	assert.Equal(s.T(), inRangePaidAtExpenseFrom1_1.Amount+inRangePaidAtExpenseFrom2.Amount, res.TotalAmounts[0].TotalAmount)
+	assert.Equal(s.T(), int(models.CategoryDailyGoods), res.TotalAmounts[1].Category)
+	assert.Equal(s.T(), inRangePaidAtExpenseFrom1_2.Amount, res.TotalAmounts[1].TotalAmount)
+}
+
+func (s *TestExpensesHandlerSuite) TestGetExpensesCategoryTotalAmounts_StatusUnauthorized() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	result := testutil.NewRequest().Get("/expenses/categoryTotalAmounts?fromDate=2025-04-01&toDate=2025-04-02").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
+	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
+}
+
 func (s *TestExpensesHandlerSuite) TestPostExpenses_Success_StatusOk() {
 	user, cookieString := s.signIn()
 

@@ -145,6 +145,30 @@ paths:
           name: toDate
           description: 取得対象の日付TO
           required: true
+  /expenses/categoryTotalAmounts:
+    get:
+      summary: Get Expenses Category TotalAmounts
+      tags:
+        - expenses
+      responses:
+        '200':
+          $ref: '#/components/responses/CategoryTotalAmountListsResponse'
+      operationId: get-expenses-category-total-amounts
+      security:
+        - authentication: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fromDate
+          description: 取得対象の日付FROM
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: toDate
+          description: 取得対象の日付TO
+          required: true
 components:
   schemas:
     UserSignUpValidationError:
@@ -183,6 +207,18 @@ components:
               type: string
             totalAmount:
               type: integer
+      description: Total Amount Lists
+    CategoryTotalAmountLists:
+      title: CategoryTotalAmountLists
+      type: object
+      required:
+        - category
+        - totalAmount
+      properties:
+        category:
+          type: integer
+        totalAmount:
+          type: integer
       description: Total Amount Lists
     ExpenseLists:
       title: ExpenseLists
@@ -359,6 +395,19 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/TotalAmountLists'
+    CategoryTotalAmountListsResponse:
+      description: Category Total Amount Lists Response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - totalAmounts
+            properties:
+              totalAmounts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryTotalAmountLists'
     StoreExpenseResponse:
       description: Store Expense Response
       content:

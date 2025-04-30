@@ -18,6 +18,9 @@ type ExpensesHandler interface {
 	// Get Expenses TotalAmounts
 	// (GET /expenses/totalAmounts)
 	GetExpensesTotalAmounts(ctx context.Context, request api.GetExpensesTotalAmountsRequestObject) (api.GetExpensesTotalAmountsResponseObject, error)
+	// Get Expenses CategoryTotalAmounts
+	// (GET /expenses/categoryTotalAmounts)
+	GetExpensesCategoryTotalAmounts(ctx context.Context, request api.GetExpensesCategoryTotalAmountsRequestObject) (api.GetExpensesCategoryTotalAmountsResponseObject, error)
 	// Post Expense
 	// (POST /expenses)
 	PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error)
@@ -80,6 +83,23 @@ func (eh *expensesHandler) GetExpensesTotalAmounts(ctx context.Context, request 
 		})
 	}
 	return api.GetExpensesTotalAmounts200JSONResponse{TotalAmountListsResponseJSONResponse: api.TotalAmountListsResponseJSONResponse{TotalAmounts: resTotalAmounts}}, nil
+}
+
+func (eh *expensesHandler) GetExpensesCategoryTotalAmounts(ctx context.Context, request api.GetExpensesCategoryTotalAmountsRequestObject) (api.GetExpensesCategoryTotalAmountsResponseObject, error) {
+	userID, _ := helpers.ExtractUserID(ctx)
+	fromDate := request.Params.FromDate
+	toDate := request.Params.ToDate
+
+	categoryTotalAmounts := eh.expenseService.FetchCategoryTotalAmount(userID, fromDate, toDate)
+
+	var resCategoryTotalAmounts []api.CategoryTotalAmountLists
+	for _, categoryTotalAmount := range categoryTotalAmounts {
+		resCategoryTotalAmounts = append(resCategoryTotalAmounts, api.CategoryTotalAmountLists{
+			Category: int(categoryTotalAmount.Category),
+			TotalAmount: categoryTotalAmount.TotalAmount,
+		})
+	}
+	return api.GetExpensesCategoryTotalAmounts200JSONResponse{CategoryTotalAmountListsResponseJSONResponse: api.CategoryTotalAmountListsResponseJSONResponse{TotalAmounts: resCategoryTotalAmounts}}, nil
 }
 
 func (eh *expensesHandler) PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error) {

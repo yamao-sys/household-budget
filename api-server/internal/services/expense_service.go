@@ -13,6 +13,7 @@ import (
 type ExpenseService interface {
 	FetchLists(userID int, fromDate string, toDate string) []models.Expense
 	FetchTotalAmount(userID int, fromDate string, toDate string) []TotalAmount
+	FetchCategoryTotalAmount(userID int, fromDate string, toDate string) []CategoryTotalAmount
 	Create(userID int, requestParams *api.PostExpensesJSONRequestBody) (models.Expense, error)
 	MappingValidationErrorStruct(err error) api.StoreExpenseValidationError
 }
@@ -23,6 +24,11 @@ type expenseService struct {
 
 type TotalAmount struct {
 	PaidAt time.Time
+	TotalAmount int
+}
+
+type CategoryTotalAmount struct {
+	Category models.Category
 	TotalAmount int
 }
 
@@ -61,6 +67,17 @@ func (es *expenseService) FetchTotalAmount(userID int, fromDate string, toDate s
 		  Where("user_id = ? AND paid_at BETWEEN ? AND ?", userID, fromDate, toDate).
 		  Scan(&totalAmounts)
 	return totalAmounts
+}
+
+func (es *expenseService) FetchCategoryTotalAmount(userID int, fromDate string, toDate string) []CategoryTotalAmount {
+	var categoryTotalAmounts []CategoryTotalAmount
+	
+	es.db.Model(&models.Expense{}).
+		  Select("category, SUM(amount) AS total_amount").
+		  Group("category").
+		  Where("user_id = ? AND paid_at BETWEEN ? AND ?", userID, fromDate, toDate).
+		  Scan(&categoryTotalAmounts)
+	return categoryTotalAmounts
 }
 
 func (es *expenseService) Create(userID int, requestParams *api.PostExpensesJSONRequestBody) (models.Expense, error) {
