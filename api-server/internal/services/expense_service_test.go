@@ -193,6 +193,38 @@ func (s *TestExpenseServiceSuite) TestExpenseFetchTotalAmount() {
 	assert.Equal(s.T(), inRangePaidAtExpenseFrom2_1.Amount+inRangePaidAtExpenseFrom2_2.Amount, totalAmounts[1].TotalAmount)
 }
 
+func (s *TestExpenseServiceSuite) TestExpenseFetchCategoryTotalAmount() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	minOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryFood, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&minOutOfRangePaidAtExpense)
+	inRangePaidAtExpenseFrom1_1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryFood, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom1_1)
+	inRangePaidAtExpenseFrom1_2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryDailyGoods, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom1_2)
+	inRangePaidAtExpenseFrom2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryFood, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&inRangePaidAtExpenseFrom2)
+	maxOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "Category": models.CategoryDailyGoods, "PaidAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&maxOutOfRangePaidAtExpense)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherBeginningOfMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "Category": models.CategoryFood, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	DBCon.Create(&otherBeginningOfMonthExpense)
+
+	fromDate := "2025-04-01"
+	toDate := "2025-04-02"
+	totalAmounts := testExpenseService.FetchCategoryTotalAmount(user.ID, fromDate, toDate)
+
+	// NOTE: 指定した期間で指定したユーザのIDに紐づくカテゴリごとの支出合計のみ取得されること
+	assert.Equal(s.T(), 2, len(totalAmounts))
+	assert.Equal(s.T(), models.CategoryFood, totalAmounts[0].Category)
+	assert.Equal(s.T(), inRangePaidAtExpenseFrom1_1.Amount+inRangePaidAtExpenseFrom2.Amount, totalAmounts[0].TotalAmount)
+	assert.Equal(s.T(), models.CategoryDailyGoods, totalAmounts[1].Category)
+	assert.Equal(s.T(), inRangePaidAtExpenseFrom1_2.Amount, totalAmounts[1].TotalAmount)
+}
+
 func (s *TestExpenseServiceSuite) TestExpenseCreate_Success() {
 	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
 	DBCon.Create(&user)
