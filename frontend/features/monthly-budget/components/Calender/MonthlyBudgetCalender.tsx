@@ -121,7 +121,11 @@ export const MonthlyBudgetCalender: React.FC = () => {
   };
 
   const formElement = (
-    <div className={inView ? "opacity-100 visible fixed top-1/8 left-1/4 font-bold bg-white w-1/2 flex justify-center items-center z-50" : "hidden"}>
+    <div
+      role='dialog'
+      aria-modal='true'
+      className={inView ? "opacity-100 visible fixed top-1/8 left-1/4 font-bold bg-white w-1/2 flex justify-center items-center z-50" : "hidden"}
+    >
       <div className='bg-white p-4 rounded shadow-lg w-full max-h-[90vh] overflow-hidden flex flex-col relative'>
         <button
           onClick={() => setInView(false)}
@@ -221,7 +225,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
       <div className='mb-4 p-4 bg-gray-100 rounded-lg shadow text-sm'>
         <div className='flex'>
           {/* <div className="text-green-700">収入合計: ¥{summary.totalIncome.toLocaleString()}</div> */}
-          <div className='text-red-700 mr-4'>支出合計: ¥{summary.totalExpense.toLocaleString()}</div>
+          <div className='text-red-700 mr-4'>{`支出合計: ¥${summary.totalExpense.toLocaleString()}`}</div>
           <div className='text-blue-700 underline'>
             <Link to={`${NAVIGATION_PAGE_LIST.monthlyBudgetPage}/${getMonthString(currentMonthDate)}`}>支出詳細へ</Link>
           </div>
@@ -241,7 +245,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
           return (
             <div className='text-xs bg-white p-1 rounded shadow-md'>
               <span className={extendProps.type === "income" ? "text-green-600 font-bold" : "text-red-600"}>
-                {extendProps.type === "income" ? "収入: " : "支出: "}¥{extendProps.totalAmount}
+                {`${extendProps.type === "income" ? "収入: " : "支出: "}¥${extendProps.totalAmount}`}
               </span>
             </div>
           );

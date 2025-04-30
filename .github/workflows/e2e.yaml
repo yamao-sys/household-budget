@@ -71,6 +71,20 @@ jobs:
         run: |
           godotenv -f .env.test go run cmd/main.go &
 
+      - name: Install Japanese language pack and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y language-pack-ja fontconfig fonts-ipafont
+
+      - name: Verify Japanese fonts
+        run: |
+          fc-list :lang=ja
+
+      - name: Set Japanese locale
+        run: |
+          sudo update-locale LANG=ja_JP.UTF-8
+          export LANG=ja_JP.UTF-8
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -111,6 +125,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: e2e-test-results
+          path: ./frontend/test-results/
           retention-days: 30
