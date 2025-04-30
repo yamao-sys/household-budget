@@ -13,8 +13,8 @@ test.describe("/sign_in", () => {
       expect(dialog.message()).toContain("ログインしました");
       await dialog.accept();
     });
-    await page.waitForURL("/");
-    await expect(page).toHaveURL("/");
+    await page.waitForURL("/monthly_budget");
+    await expect(page).toHaveURL("/monthly_budget");
   });
 
   test("異常系", async ({ page }) => {
@@ -37,7 +37,7 @@ test.describe("/sign_in", () => {
       expect(dialog.message()).toContain("ログインしました");
       await dialog.accept();
     });
-    await page.waitForURL("/");
-    await expect(page).toHaveURL("/");
+    await page.waitForURL("/monthly_budget");
+    await expect(page).toHaveURL("/monthly_budget");
   });
 });
