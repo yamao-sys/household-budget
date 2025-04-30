@@ -47,6 +47,26 @@ export async function getTotalAmounts(fromDate: string, toDate: string) {
   return data.totalAmounts;
 }
 
+export async function getCategoryTotalAmounts(fromDate: string, toDate: string) {
+  const params: operations["get-expenses-category-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
+  if (!!fromDate) {
+    params.query = { ...params.query, fromDate };
+  }
+  if (!!toDate) {
+    params.query = { ...params.query, toDate };
+  }
+
+  const { data } = await client.GET("/expenses/categoryTotalAmounts", {
+    ...(await getRequestHeaders()),
+    params,
+  });
+  if (!data) {
+    throw new Error();
+  }
+
+  return data.totalAmounts;
+}
+
 export async function postCreateExpense(input: StoreExpenseInput) {
   const { data } = await client.POST("/expenses", {
     ...(await getRequestHeaders()),
