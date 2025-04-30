@@ -13,11 +13,13 @@ import type { StoreExpenseInput, Expense, TotalAmountLists, StoreExpenseValidati
 import { getExpenses, getTotalAmounts, postCreateExpense } from "~/apis/expenses.api";
 import BaseFormInput from "~/components/BaseFormInput";
 import BaseButton from "~/components/BaseButton";
+import { EXPENSE_CATEGORY } from "~/const/expense";
+import BaseFormSelect from "~/components/BaseFormSelect";
 
 const INITIAL_STORE_EXPENSE_INPUT = {
   paidAt: new Date(),
   amount: 0,
-  category: 1,
+  category: 0,
   description: "",
 };
 const INITIAL_VALIDATION_ERRORS = {
@@ -49,6 +51,13 @@ export const MonthlyBudgetCalender: React.FC = () => {
     },
     [updateStoreExpenseInput],
   );
+  const setStoreExpenseSelectInput = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      updateStoreExpenseInput({ [e.target.name]: e.target.value });
+    },
+    [updateStoreExpenseInput],
+  );
+
   const [validationErrors, setValidationErrors] = useState<StoreExpenseValidationError>(INITIAL_VALIDATION_ERRORS);
 
   // NOTE: 月が変更された時の処理
@@ -135,7 +144,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
                 <tr key={idx}>
                   <td className='w-1/4 py-2 px-2 border border-gray-300'>¥{expense.amount}</td>
                   <td className='w-2/4 py-2 px-2 border border-gray-300 break-words'>{expense.description}</td>
-                  <td className='w-1/4 py-2 px-2 border border-gray-300 break-words'>{expense.category}</td>
+                  <td className='w-1/4 py-2 px-2 border border-gray-300 break-words'>{EXPENSE_CATEGORY[expense.category]}</td>
                 </tr>
               ))}
             </tbody>
@@ -164,6 +173,17 @@ export const MonthlyBudgetCalender: React.FC = () => {
               value={storeExpenseInput.description}
               onChange={setStoreExpenseTextInput}
               validationErrorMessages={validationErrors.description ?? []}
+            />
+          </div>
+          <div className='mb-2'>
+            <BaseFormSelect
+              id='category'
+              label='カテゴリ'
+              name='category'
+              options={Object.entries(EXPENSE_CATEGORY)}
+              value={storeExpenseInput.category}
+              onChange={setStoreExpenseSelectInput}
+              validationErrorMessages={validationErrors.category ?? []}
             />
           </div>
 
