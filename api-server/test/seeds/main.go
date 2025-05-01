@@ -57,7 +57,7 @@ func main() {
 	dbCon.Create(&tenthOfLastMonthExpense2)
 	twentiethOfLastMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user2, "PaidAt": twentiethOfLastMonth, "Amount": 20000, "Category": models.CategoryEntertainment}).(*models.Expense)
 	dbCon.Create(&twentiethOfLastMonthExpense)
-	twentiethOfLastMonthIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user2, "ReceivedAt": twentieth, "Amount": 1100000, "ClientName": "テスト株式会社2"}).(*models.Income)
+	twentiethOfLastMonthIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user2, "ReceivedAt": twentiethOfLastMonth, "Amount": 1100000, "ClientName": "テスト株式会社2"}).(*models.Income)
 	dbCon.Create(&twentiethOfLastMonthIncome)
 }
 
