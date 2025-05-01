@@ -185,10 +185,12 @@ paths:
             type: string
           in: query
           name: fromDate
+          description: 取得対象の日付FROM
         - schema:
             type: string
           in: query
           name: toDate
+          description: 取得対象の日付TO
     post:
       summary: POST Income
       tags:
@@ -202,6 +204,30 @@ paths:
         - authentication: []
       requestBody:
         $ref: '#/components/requestBodies/StoreIncomeInput'
+  /incomes/totalAmounts:
+    get:
+      summary: GET Incomes TotalAmounts
+      tags:
+        - incomes
+      responses:
+        '200':
+          $ref: '#/components/responses/TotalAmountListsResponse'
+      operationId: get-incomes-total-amounts
+      security:
+        - authentication: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fromDate
+          required: true
+          description: 取得対象の日付FROM
+        - schema:
+            type: string
+          in: query
+          name: toDate
+          required: true
+          description: 取得対象の日付TO
 components:
   schemas:
     UserSignUpValidationError:

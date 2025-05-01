@@ -15,6 +15,9 @@ type IncomesHandler interface {
 	// Get Incomes
 	// (GET /incomes)
 	GetIncomes(ctx context.Context, request api.GetIncomesRequestObject) (api.GetIncomesResponseObject, error)
+	// Get Incomes TotalAmounts
+	// (GET /incomes/totalAmounts)
+	GetIncomesTotalAmounts(ctx context.Context, request api.GetIncomesTotalAmountsRequestObject) (api.GetIncomesTotalAmountsResponseObject, error)
 	// Post Income
 	// (POST /incomes)
 	PostIncomes(ctx context.Context, request api.PostIncomesRequestObject) (api.PostIncomesResponseObject, error)
@@ -56,6 +59,26 @@ func (ih *incomesHandler) GetIncomes(ctx context.Context, request api.GetIncomes
 	}
 
 	return api.GetIncomes200JSONResponse{FetchIncomeListsResponseJSONResponse: api.FetchIncomeListsResponseJSONResponse{Incomes: incomes}}, nil
+}
+
+func (ih *incomesHandler) GetIncomesTotalAmounts(ctx context.Context, request api.GetIncomesTotalAmountsRequestObject) (api.GetIncomesTotalAmountsResponseObject, error) {
+	userID, _ := helpers.ExtractUserID(ctx)
+	fromDate := request.Params.FromDate
+	toDate := request.Params.ToDate
+
+	totalAmounts := ih.incomeService.FetchTotalAmount(userID, fromDate, toDate)
+
+	var resTotalAmounts []api.TotalAmountLists
+	for _, totalAmount := range totalAmounts {
+		resTotalAmounts = append(resTotalAmounts, api.TotalAmountLists{
+			Date: openapi_types.Date{Time: totalAmount.ReceivedAt},
+			ExtendProps: struct{TotalAmount int "json:\"totalAmount\""; Type string "json:\"type\""} {
+				TotalAmount: totalAmount.TotalAmount,
+				Type: "income",
+			},
+		})
+	}
+	return api.GetIncomesTotalAmounts200JSONResponse{TotalAmountListsResponseJSONResponse: api.TotalAmountListsResponseJSONResponse{TotalAmounts: resTotalAmounts}}, nil
 }
 
 func (ih *incomesHandler) PostIncomes(ctx context.Context, request api.PostIncomesRequestObject) (api.PostIncomesResponseObject, error) {

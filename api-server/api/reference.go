@@ -213,8 +213,11 @@ type GetExpensesTotalAmountsParams struct {
 
 // GetIncomesParams defines parameters for GetIncomes.
 type GetIncomesParams struct {
+	// FromDate 取得対象の日付FROM
 	FromDate *string `form:"fromDate,omitempty" json:"fromDate,omitempty"`
-	ToDate   *string `form:"toDate,omitempty" json:"toDate,omitempty"`
+
+	// ToDate 取得対象の日付TO
+	ToDate *string `form:"toDate,omitempty" json:"toDate,omitempty"`
 }
 
 // PostIncomesJSONBody defines parameters for PostIncomes.
@@ -222,6 +225,15 @@ type PostIncomesJSONBody struct {
 	Amount     int                `json:"amount"`
 	ClientName string             `json:"clientName"`
 	ReceivedAt openapi_types.Date `json:"receivedAt"`
+}
+
+// GetIncomesTotalAmountsParams defines parameters for GetIncomesTotalAmounts.
+type GetIncomesTotalAmountsParams struct {
+	// FromDate 取得対象の日付FROM
+	FromDate string `form:"fromDate" json:"fromDate"`
+
+	// ToDate 取得対象の日付TO
+	ToDate string `form:"toDate" json:"toDate"`
 }
 
 // PostUsersSignInJSONBody defines parameters for PostUsersSignIn.
@@ -282,6 +294,9 @@ type ServerInterface interface {
 	// POST Income
 	// (POST /incomes)
 	PostIncomes(ctx echo.Context) error
+	// GET Incomes TotalAmounts
+	// (GET /incomes/totalAmounts)
+	GetIncomesTotalAmounts(ctx echo.Context, params GetIncomesTotalAmountsParams) error
 	// User CheckSignedIn
 	// (GET /users/checkSignedIn)
 	GetUsersCheckSignedIn(ctx echo.Context) error
@@ -440,6 +455,33 @@ func (w *ServerInterfaceWrapper) PostIncomes(ctx echo.Context) error {
 	return err
 }
 
+// GetIncomesTotalAmounts converts echo context to params.
+func (w *ServerInterfaceWrapper) GetIncomesTotalAmounts(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(AuthenticationScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetIncomesTotalAmountsParams
+	// ------------- Required query parameter "fromDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "fromDate", ctx.QueryParams(), &params.FromDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
+	}
+
+	// ------------- Required query parameter "toDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "toDate", ctx.QueryParams(), &params.ToDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetIncomesTotalAmounts(ctx, params)
+	return err
+}
+
 // GetUsersCheckSignedIn converts echo context to params.
 func (w *ServerInterfaceWrapper) GetUsersCheckSignedIn(ctx echo.Context) error {
 	var err error
@@ -513,6 +555,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/expenses/totalAmounts", wrapper.GetExpensesTotalAmounts)
 	router.GET(baseURL+"/incomes", wrapper.GetIncomes)
 	router.POST(baseURL+"/incomes", wrapper.PostIncomes)
+	router.GET(baseURL+"/incomes/totalAmounts", wrapper.GetIncomesTotalAmounts)
 	router.GET(baseURL+"/users/checkSignedIn", wrapper.GetUsersCheckSignedIn)
 	router.POST(baseURL+"/users/signIn", wrapper.PostUsersSignIn)
 	router.POST(baseURL+"/users/signUp", wrapper.PostUsersSignUp)
@@ -715,6 +758,25 @@ func (response PostIncomes200JSONResponse) VisitPostIncomesResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetIncomesTotalAmountsRequestObject struct {
+	Params GetIncomesTotalAmountsParams
+}
+
+type GetIncomesTotalAmountsResponseObject interface {
+	VisitGetIncomesTotalAmountsResponse(w http.ResponseWriter) error
+}
+
+type GetIncomesTotalAmounts200JSONResponse struct {
+	TotalAmountListsResponseJSONResponse
+}
+
+func (response GetIncomesTotalAmounts200JSONResponse) VisitGetIncomesTotalAmountsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type GetUsersCheckSignedInRequestObject struct {
 }
 
@@ -878,6 +940,9 @@ type StrictServerInterface interface {
 	// POST Income
 	// (POST /incomes)
 	PostIncomes(ctx context.Context, request PostIncomesRequestObject) (PostIncomesResponseObject, error)
+	// GET Incomes TotalAmounts
+	// (GET /incomes/totalAmounts)
+	GetIncomesTotalAmounts(ctx context.Context, request GetIncomesTotalAmountsRequestObject) (GetIncomesTotalAmountsResponseObject, error)
 	// User CheckSignedIn
 	// (GET /users/checkSignedIn)
 	GetUsersCheckSignedIn(ctx context.Context, request GetUsersCheckSignedInRequestObject) (GetUsersCheckSignedInResponseObject, error)
@@ -1085,6 +1150,31 @@ func (sh *strictHandler) PostIncomes(ctx echo.Context) error {
 	return nil
 }
 
+// GetIncomesTotalAmounts operation middleware
+func (sh *strictHandler) GetIncomesTotalAmounts(ctx echo.Context, params GetIncomesTotalAmountsParams) error {
+	var request GetIncomesTotalAmountsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetIncomesTotalAmounts(ctx.Request().Context(), request.(GetIncomesTotalAmountsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetIncomesTotalAmounts")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetIncomesTotalAmountsResponseObject); ok {
+		return validResponse.VisitGetIncomesTotalAmountsResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // GetUsersCheckSignedIn operation middleware
 func (sh *strictHandler) GetUsersCheckSignedIn(ctx echo.Context) error {
 	var request GetUsersCheckSignedInRequestObject
@@ -1198,34 +1288,34 @@ func (sh *strictHandler) PostUsersValidateSignUp(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

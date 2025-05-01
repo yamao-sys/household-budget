@@ -159,6 +159,40 @@ func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithoutFromDateAndToDate()
 	assert.Equal(s.T(), expense2.ID, fetchedIncomes[1].ID)
 }
 
+func (s *TestIncomeServiceSuite) TestIncomeFetchTotalAmount() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	minOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minOutOfRangeReceivedAtIncome)
+	inRangeReceivedAtIncomeFrom1_1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom1_1)
+	inRangeReceivedAtIncomeFrom1_2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom1_2)
+	inRangeReceivedAtIncomeFrom2_1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom2_1)
+	inRangeReceivedAtIncomeFrom2_2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom2_2)
+	maxOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxOutOfRangeReceivedAtIncome)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherBeginningOfMonthIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&otherBeginningOfMonthIncome)
+
+	fromDate := "2025-04-01"
+	toDate := "2025-04-02"
+	totalAmounts := testIncomeService.FetchTotalAmount(user.ID, fromDate, toDate)
+
+	// NOTE: 指定した期間で指定したユーザのIDに紐づく日ごとの支出合計のみ取得されること
+	assert.Equal(s.T(), 2, len(totalAmounts))
+	assert.Equal(s.T(), time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local).Format("2006-01-02"), totalAmounts[0].ReceivedAt.Format("2006-01-02"))
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom1_1.Amount+inRangeReceivedAtIncomeFrom1_2.Amount, totalAmounts[0].TotalAmount)
+	assert.Equal(s.T(), time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local).Format("2006-01-02"), totalAmounts[1].ReceivedAt.Format("2006-01-02"))
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom2_1.Amount+inRangeReceivedAtIncomeFrom2_2.Amount, totalAmounts[1].TotalAmount)
+}
+
 func (s *TestIncomeServiceSuite) TestIncomeCreate_Success() {
 	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
 	DBCon.Create(&user)

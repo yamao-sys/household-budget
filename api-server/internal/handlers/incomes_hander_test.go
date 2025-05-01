@@ -184,10 +184,10 @@ func (s *TestIncomesHandlerSuite) TestGetIncomes_WithoutFromDateAndWithToDate_St
 func (s *TestIncomesHandlerSuite) TestGetIncomes_WithoutFromDateAndToDate_StatusOk() {
 	user, cookieString := s.signIn()
 
-	expense1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
-	DBCon.Create(&expense1)
-	expense2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
-	DBCon.Create(&expense2)
+	income1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
+	DBCon.Create(&income1)
+	income2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
+	DBCon.Create(&income2)
 
 	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
 	DBCon.Create(&otherUser)
@@ -202,15 +202,15 @@ func (s *TestIncomesHandlerSuite) TestGetIncomes_WithoutFromDateAndToDate_Status
 	assert.NoError(s.T(), err, "error unmarshaling response")
 
 	assert.Equal(s.T(), 2, len(res.Incomes))
-	assert.Equal(s.T(), strconv.Itoa(expense1.ID), res.Incomes[0].Id)
-	assert.Equal(s.T(), expense1.ReceivedAt.Format("2006-01-02"), res.Incomes[0].ReceivedAt.Format("2006-01-02"))
-	assert.Equal(s.T(), expense1.Amount, res.Incomes[0].Amount)
-	assert.Equal(s.T(), expense1.ClientName, res.Incomes[0].ClientName)
+	assert.Equal(s.T(), strconv.Itoa(income1.ID), res.Incomes[0].Id)
+	assert.Equal(s.T(), income1.ReceivedAt.Format("2006-01-02"), res.Incomes[0].ReceivedAt.Format("2006-01-02"))
+	assert.Equal(s.T(), income1.Amount, res.Incomes[0].Amount)
+	assert.Equal(s.T(), income1.ClientName, res.Incomes[0].ClientName)
 
-	assert.Equal(s.T(), strconv.Itoa(expense2.ID), res.Incomes[1].Id)
-	assert.Equal(s.T(), expense2.ReceivedAt.Format("2006-01-02"), res.Incomes[1].ReceivedAt.Format("2006-01-02"))
-	assert.Equal(s.T(), expense2.Amount, res.Incomes[1].Amount)
-	assert.Equal(s.T(), expense2.ClientName, res.Incomes[1].ClientName)
+	assert.Equal(s.T(), strconv.Itoa(income2.ID), res.Incomes[1].Id)
+	assert.Equal(s.T(), income2.ReceivedAt.Format("2006-01-02"), res.Incomes[1].ReceivedAt.Format("2006-01-02"))
+	assert.Equal(s.T(), income2.Amount, res.Incomes[1].Amount)
+	assert.Equal(s.T(), income2.ClientName, res.Incomes[1].ClientName)
 }
 
 func (s *TestIncomesHandlerSuite) TestGetIncomes_StatusUnauthorized() {
@@ -218,6 +218,51 @@ func (s *TestIncomesHandlerSuite) TestGetIncomes_StatusUnauthorized() {
 	DBCon.Create(&user)
 
 	result := testutil.NewRequest().Get("/incomes").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
+	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
+}
+
+func (s *TestIncomesHandlerSuite) TestGetIncomesTotalAmounts_StatusOk() {
+	user, cookieString := s.signIn()
+
+	minOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minOutOfRangeReceivedAtIncome)
+	inRangeReceivedAtIncomeFrom1_1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom1_1)
+	inRangeReceivedAtIncomeFrom1_2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom1_2)
+	inRangeReceivedAtIncomeFrom2_1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom2_1)
+	inRangeReceivedAtIncomeFrom2_2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom2_2)
+	maxOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxOutOfRangeReceivedAtIncome)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherBeginningOfMonthIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&otherBeginningOfMonthIncome)
+
+	result := testutil.NewRequest().Get("/incomes/totalAmounts?fromDate=2025-04-01&toDate=2025-04-02").WithHeader("Cookie", csrfTokenCookie+"; "+cookieString).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
+	assert.Equal(s.T(), http.StatusOK, result.Code())
+
+	var res api.GetIncomesTotalAmounts200JSONResponse
+	err := result.UnmarshalBodyToObject(&res)
+	assert.NoError(s.T(), err, "error unmarshaling response")
+
+	assert.Equal(s.T(), 2, len(res.TotalAmounts))
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom1_1.ReceivedAt.Format("2006-01-02"), res.TotalAmounts[0].Date.Format("2006-01-02"))
+	assert.Equal(s.T(), "income", res.TotalAmounts[0].ExtendProps.Type)
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom1_1.Amount+inRangeReceivedAtIncomeFrom1_2.Amount, res.TotalAmounts[0].ExtendProps.TotalAmount)
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom2_1.ReceivedAt.Format("2006-01-02"), res.TotalAmounts[1].Date.Format("2006-01-02"))
+	assert.Equal(s.T(), "income", res.TotalAmounts[1].ExtendProps.Type)
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom2_1.Amount+inRangeReceivedAtIncomeFrom2_2.Amount, res.TotalAmounts[1].ExtendProps.TotalAmount)
+}
+
+func (s *TestIncomesHandlerSuite) TestGetIncomesTotalAmounts_StatusUnauthorized() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	result := testutil.NewRequest().Get("/incomes/totalAmounts?fromDate=2025-04-01&toDate=2025-04-02").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
 }
 
