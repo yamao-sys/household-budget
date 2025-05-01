@@ -18,6 +18,9 @@ type IncomesHandler interface {
 	// Get Incomes TotalAmounts
 	// (GET /incomes/totalAmounts)
 	GetIncomesTotalAmounts(ctx context.Context, request api.GetIncomesTotalAmountsRequestObject) (api.GetIncomesTotalAmountsResponseObject, error)
+	// Get Incomes ClientTotalAmounts
+	// (GET /incomes/clientTotalAmounts)
+	GetIncomesClientTotalAmounts(ctx context.Context, request api.GetIncomesClientTotalAmountsRequestObject) (api.GetIncomesClientTotalAmountsResponseObject, error)
 	// Post Income
 	// (POST /incomes)
 	PostIncomes(ctx context.Context, request api.PostIncomesRequestObject) (api.PostIncomesResponseObject, error)
@@ -79,6 +82,23 @@ func (ih *incomesHandler) GetIncomesTotalAmounts(ctx context.Context, request ap
 		})
 	}
 	return api.GetIncomesTotalAmounts200JSONResponse{TotalAmountListsResponseJSONResponse: api.TotalAmountListsResponseJSONResponse{TotalAmounts: resTotalAmounts}}, nil
+}
+
+func (ih *incomesHandler) GetIncomesClientTotalAmounts(ctx context.Context, request api.GetIncomesClientTotalAmountsRequestObject) (api.GetIncomesClientTotalAmountsResponseObject, error) {
+	userID, _ := helpers.ExtractUserID(ctx)
+	fromDate := request.Params.FromDate
+	toDate := request.Params.ToDate
+
+	categoryTotalAmounts := ih.incomeService.FetchClientTotalAmount(userID, fromDate, toDate)
+
+	var resClientTotalAmounts []api.ClientTotalAmountLists
+	for _, categoryTotalAmount := range categoryTotalAmounts {
+		resClientTotalAmounts = append(resClientTotalAmounts, api.ClientTotalAmountLists{
+			ClientName: categoryTotalAmount.ClientName,
+			TotalAmount: categoryTotalAmount.TotalAmount,
+		})
+	}
+	return api.GetIncomesClientTotalAmounts200JSONResponse{ClientTotalAmountListsResponseJSONResponse: api.ClientTotalAmountListsResponseJSONResponse{TotalAmounts: resClientTotalAmounts}}, nil
 }
 
 func (ih *incomesHandler) PostIncomes(ctx context.Context, request api.PostIncomesRequestObject) (api.PostIncomesResponseObject, error) {
