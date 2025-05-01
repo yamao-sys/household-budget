@@ -16,8 +16,8 @@ test.describe("/monthly_budget", () => {
     await expect(page.getByText("支出合計: ¥35,000", { exact: true })).toBeVisible();
     await expect(page.getByText("利益: ¥1,065,000", { exact: true })).toBeVisible();
 
-    // NOTE: user1の当月の支出詳細画面でカテゴリ毎の支出合計が表示されること
-    await page.getByRole("link", { name: "支出詳細へ" }).click();
+    // NOTE: user1の当月の収支詳細画面でカテゴリ毎の支出合計が表示されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
     await page.waitForURL(`/monthly_budget/${monthString}`);
     await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
     await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
@@ -97,8 +97,8 @@ test.describe("/monthly_budget", () => {
 
     await page.getByRole("button", { name: "閉じる" }).click();
 
-    // NOTE: 登録した支出が当月の支出詳細画面でカテゴリ毎の支出合計に反映されること
-    await page.getByRole("link", { name: "支出詳細へ" }).click();
+    // NOTE: 登録した支出が当月の収支詳細画面でカテゴリ毎の支出合計に反映されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
     await page.waitForURL(`/monthly_budget/${monthString}`);
     await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
     await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
@@ -196,8 +196,8 @@ test.describe("/monthly_budget", () => {
     await expect(page.getByText("支出合計: ¥35,000", { exact: true })).toBeVisible();
     await expect(page.getByText("利益: ¥1,065,000", { exact: true })).toBeVisible();
 
-    // NOTE: user2の先月の支出詳細画面でカテゴリ毎の支出合計が表示されること
-    await page.getByRole("link", { name: "支出詳細へ" }).click();
+    // NOTE: user2の先月の収支詳細画面でカテゴリ毎の支出合計が表示されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
     await page.waitForURL(`/monthly_budget/${monthString}`);
     await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
     await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
@@ -278,8 +278,8 @@ test.describe("/monthly_budget", () => {
 
     await page.getByRole("button", { name: "閉じる" }).click();
 
-    // NOTE: 登録した支出が先月の支出詳細画面でカテゴリ毎の支出合計に反映されること
-    await page.getByRole("link", { name: "支出詳細へ" }).click();
+    // NOTE: 登録した支出が先月の収支詳細画面でカテゴリ毎の支出合計に反映されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
     await page.waitForURL(`/monthly_budget/${monthString}`);
     await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
     await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
