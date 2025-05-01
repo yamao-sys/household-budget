@@ -3,6 +3,7 @@ import type { Route } from "./+types/page";
 import { getDateString } from "~/lib/date";
 import { useLoaderData } from "react-router";
 import { MonthlyBudgetDetail } from "~/features/monthly-budget/components/Detail/MonthlyBudgetDetail";
+import { getClientTotalAmounts } from "~/apis/incomes.api";
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const month = params.month;
@@ -16,15 +17,16 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const monthEndDate = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
 
   let categoryTotalAmounts = (await getCategoryTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate))) ?? [];
-  return { monthDate, categoryTotalAmounts };
+  let clientTotalAmounts = (await getClientTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate))) ?? [];
+  return { monthDate, categoryTotalAmounts, clientTotalAmounts };
 }
 
 export default function MonthlyBudgetDetailPage() {
-  const { monthDate, categoryTotalAmounts } = useLoaderData<typeof clientLoader>();
+  const { monthDate, categoryTotalAmounts, clientTotalAmounts } = useLoaderData<typeof clientLoader>();
 
   return (
     <>
-      <MonthlyBudgetDetail monthDate={monthDate} categoryTotalAmounts={categoryTotalAmounts} />
+      <MonthlyBudgetDetail monthDate={monthDate} categoryTotalAmounts={categoryTotalAmounts} clientTotalAmounts={clientTotalAmounts} />
     </>
   );
 }

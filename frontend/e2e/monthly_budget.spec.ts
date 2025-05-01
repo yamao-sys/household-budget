@@ -16,13 +16,20 @@ test.describe("/monthly_budget", () => {
     await expect(page.getByText("支出合計: ¥35,000", { exact: true })).toBeVisible();
     await expect(page.getByText("利益: ¥1,065,000", { exact: true })).toBeVisible();
 
-    // NOTE: user1の当月の支出詳細画面でカテゴリ毎の支出合計が表示されること
-    await page.getByRole("link", { name: "支出詳細へ" }).click();
+    // NOTE: user1の当月の収支詳細画面でカテゴリ毎の支出合計が表示されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
     await page.waitForURL(`/monthly_budget/${monthString}`);
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("支出合計: ¥35,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,065,000", { exact: true })).toBeVisible();
+
     await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
     await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
     await expect(page.getByText("¥20,000", { exact: true })).toBeVisible(); // 娯楽費
     await expect(page.getByText("¥35,000", { exact: true })).toBeVisible(); // 支出合計
+
+    await expect(page.getByText("¥1,100,000", { exact: true }).nth(0)).toBeVisible();
+    await expect(page.getByText("¥1,100,000", { exact: true }).nth(1)).toBeVisible(); // 収入合計
 
     await page.getByRole("link", { name: "Household Budget" }).click();
 
@@ -97,14 +104,21 @@ test.describe("/monthly_budget", () => {
 
     await page.getByRole("button", { name: "閉じる" }).click();
 
-    // NOTE: 登録した支出が当月の支出詳細画面でカテゴリ毎の支出合計に反映されること
-    await page.getByRole("link", { name: "支出詳細へ" }).click();
+    // NOTE: 登録した支出が当月の収支詳細画面でカテゴリ毎の支出合計に反映されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
     await page.waitForURL(`/monthly_budget/${monthString}`);
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("支出合計: ¥40,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,060,000", { exact: true })).toBeVisible();
+
     await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
     await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
     await expect(page.getByText("¥23,000", { exact: true })).toBeVisible(); // 娯楽費
     await expect(page.getByText("¥2,000", { exact: true })).toBeVisible(); // 自己投資
     await expect(page.getByText("¥40,000", { exact: true })).toBeVisible(); // 支出合計
+
+    await expect(page.getByText("¥1,100,000", { exact: true }).nth(0)).toBeVisible();
+    await expect(page.getByText("¥1,100,000", { exact: true }).nth(1)).toBeVisible(); // 収入合計
 
     await page.getByRole("link", { name: "Household Budget" }).click();
     await page.waitForURL(`/monthly_budget`);
@@ -170,6 +184,27 @@ test.describe("/monthly_budget", () => {
     await expect(page.getByRole("cell", { name: "テスト収入追加株式会社2" })).toBeVisible();
 
     await page.getByRole("button", { name: "閉じる" }).click();
+
+    // NOTE: user1の当月の収支詳細画面で収支それぞれの合計が表示されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
+    await page.waitForURL(`/monthly_budget/${monthString}`);
+    await expect(page.getByText("収入合計: ¥1,600,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("支出合計: ¥40,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,560,000", { exact: true })).toBeVisible();
+
+    await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
+    await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
+    await expect(page.getByText("¥23,000", { exact: true })).toBeVisible(); // 娯楽費
+    await expect(page.getByText("¥2,000", { exact: true })).toBeVisible(); // 自己投資
+    await expect(page.getByText("¥40,000", { exact: true })).toBeVisible(); // 支出合計
+
+    await expect(page.getByText("¥1,100,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("テスト株式会社1", { exact: true })).toBeVisible();
+    await expect(page.getByText("¥300,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("テスト収入追加株式会社1", { exact: true })).toBeVisible();
+    await expect(page.getByText("¥200,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("テスト収入追加株式会社2", { exact: true })).toBeVisible();
+    await expect(page.getByText("¥1,600,000", { exact: true })).toBeVisible();
   });
 
   test("先月操作", async ({ page }) => {
@@ -196,13 +231,20 @@ test.describe("/monthly_budget", () => {
     await expect(page.getByText("支出合計: ¥35,000", { exact: true })).toBeVisible();
     await expect(page.getByText("利益: ¥1,065,000", { exact: true })).toBeVisible();
 
-    // NOTE: user2の先月の支出詳細画面でカテゴリ毎の支出合計が表示されること
-    await page.getByRole("link", { name: "支出詳細へ" }).click();
+    // NOTE: user2の先月の収支詳細画面でカテゴリ毎の支出合計が表示されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
     await page.waitForURL(`/monthly_budget/${monthString}`);
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("支出合計: ¥35,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,065,000", { exact: true })).toBeVisible();
+
     await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
     await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
     await expect(page.getByText("¥20,000", { exact: true })).toBeVisible(); // 娯楽費
     await expect(page.getByText("¥35,000", { exact: true })).toBeVisible(); // 支出合計
+
+    await expect(page.getByText("¥1,100,000", { exact: true }).nth(0)).toBeVisible();
+    await expect(page.getByText("¥1,100,000", { exact: true }).nth(1)).toBeVisible(); // 収入合計
 
     await page.getByRole("link", { name: "Household Budget" }).click();
     await page.locator(".fc-icon-chevron-left").click(); // 先月に戻る
@@ -278,14 +320,21 @@ test.describe("/monthly_budget", () => {
 
     await page.getByRole("button", { name: "閉じる" }).click();
 
-    // NOTE: 登録した支出が先月の支出詳細画面でカテゴリ毎の支出合計に反映されること
-    await page.getByRole("link", { name: "支出詳細へ" }).click();
+    // NOTE: 登録した支出が先月の収支詳細画面でカテゴリ毎の支出合計に反映されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
     await page.waitForURL(`/monthly_budget/${monthString}`);
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("支出合計: ¥40,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,060,000", { exact: true })).toBeVisible();
+
     await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
     await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
     await expect(page.getByText("¥23,000", { exact: true })).toBeVisible(); // 娯楽費
     await expect(page.getByText("¥2,000", { exact: true })).toBeVisible(); // 自己投資
     await expect(page.getByText("¥40,000", { exact: true })).toBeVisible(); // 支出合計
+
+    await expect(page.getByText("¥1,100,000", { exact: true }).nth(0)).toBeVisible();
+    await expect(page.getByText("¥1,100,000", { exact: true }).nth(1)).toBeVisible(); // 収入合計
 
     await page.getByRole("link", { name: "Household Budget" }).click();
     await page.waitForURL(`/monthly_budget`);
@@ -352,5 +401,26 @@ test.describe("/monthly_budget", () => {
     await expect(page.getByRole("cell", { name: "テスト収入追加株式会社2" })).toBeVisible();
 
     await page.getByRole("button", { name: "閉じる" }).click();
+
+    // NOTE: user2の先月の収支詳細画面で収支それぞれの合計が表示されること
+    await page.getByRole("link", { name: "収支詳細へ" }).click();
+    await page.waitForURL(`/monthly_budget/${monthString}`);
+    await expect(page.getByText("収入合計: ¥1,600,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("支出合計: ¥40,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,560,000", { exact: true })).toBeVisible();
+
+    await expect(page.getByText("¥10,000", { exact: true })).toBeVisible(); // 食費
+    await expect(page.getByText("¥5,000", { exact: true })).toBeVisible(); // 日用品
+    await expect(page.getByText("¥23,000", { exact: true })).toBeVisible(); // 娯楽費
+    await expect(page.getByText("¥2,000", { exact: true })).toBeVisible(); // 自己投資
+    await expect(page.getByText("¥40,000", { exact: true })).toBeVisible(); // 支出合計
+
+    await expect(page.getByText("¥1,100,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("テスト株式会社2", { exact: true })).toBeVisible();
+    await expect(page.getByText("¥300,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("テスト収入追加株式会社1", { exact: true })).toBeVisible();
+    await expect(page.getByText("¥200,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("テスト収入追加株式会社2", { exact: true })).toBeVisible();
+    await expect(page.getByText("¥1,600,000", { exact: true })).toBeVisible();
   });
 });

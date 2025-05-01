@@ -47,6 +47,26 @@ export async function getIncomeTotalAmounts(fromDate: string, toDate: string) {
   return data.totalAmounts;
 }
 
+export async function getClientTotalAmounts(fromDate: string, toDate: string) {
+  const params: operations["get-incomes-client-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
+  if (!!fromDate) {
+    params.query = { ...params.query, fromDate };
+  }
+  if (!!toDate) {
+    params.query = { ...params.query, toDate };
+  }
+
+  const { data } = await client.GET("/incomes/clientTotalAmounts", {
+    ...(await getRequestHeaders()),
+    params,
+  });
+  if (!data) {
+    throw new Error();
+  }
+
+  return data.totalAmounts;
+}
+
 export async function postCreateIncome(input: StoreIncomeInput) {
   const { data } = await client.POST("/incomes", {
     ...(await getRequestHeaders()),

@@ -18,6 +18,8 @@ export type Income = components["schemas"]["Income"];
 
 export type IncomeLists = components["schemas"]["IncomeLists"];
 
+export type ClientTotalAmountLists = components["responses"]["ClientTotalAmountListsResponse"]["content"]["application/json"]["totalAmounts"];
+
 export type StoreExpenseInput = components["requestBodies"]["StoreExpenseInput"]["content"]["application/json"];
 
 export type StoreExpenseValidationError = components["responses"]["StoreExpenseResponse"]["content"]["application/json"]["errors"];
