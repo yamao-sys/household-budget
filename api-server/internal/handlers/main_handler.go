@@ -35,6 +35,9 @@ type MainHandler interface {
 	// (POST /expenses)
 	PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error)
 
+	// Get Incomes
+	// (GET /incomes)
+	GetIncomes(ctx context.Context, request api.GetIncomesRequestObject) (api.GetIncomesResponseObject, error)
 	// Post Income
 	// (POST /incomes)
 	PostIncomes(ctx context.Context, request api.PostIncomesRequestObject) (api.PostIncomesResponseObject, error)
@@ -98,6 +101,11 @@ func (mh *mainHandler) GetExpensesCategoryTotalAmounts(ctx context.Context, requ
 
 func (mh *mainHandler) PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error) {
 	res, err := mh.expensesHandler.PostExpenses(ctx, request)
+	return res, err
+}
+
+func (mh *mainHandler) GetIncomes(ctx context.Context, request api.GetIncomesRequestObject) (api.GetIncomesResponseObject, error) {
+	res, err := mh.incomesHandler.GetIncomes(ctx, request)
 	return res, err
 }
 

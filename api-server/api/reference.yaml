@@ -170,6 +170,25 @@ paths:
           description: 取得対象の日付TO
           required: true
   /incomes:
+    get:
+      summary: Get Incomes
+      tags:
+        - incomes
+      responses:
+        '200':
+          $ref: '#/components/responses/FetchIncomeListsResponse'
+      operationId: get-incomes
+      security:
+        - authentication: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fromDate
+        - schema:
+            type: string
+          in: query
+          name: toDate
     post:
       summary: POST Income
       tags:
@@ -325,6 +344,16 @@ components:
           type: array
           items:
             type: string
+    IncomeLists:
+      title: IncomeLists
+      type: object
+      required:
+        - incomes
+      properties:
+        incomes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Income'
   requestBodies:
     UserSignUpInput:
       content:
@@ -506,6 +535,12 @@ components:
                 $ref: '#/components/schemas/Income'
               errors:
                 $ref: '#/components/schemas/StoreIncomeValidationError'
+    FetchIncomeListsResponse:
+      description: Fetch Income Lists Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IncomeLists'
     InternalServerErrorResponse:
       description: Internal Server Error Response
       content:
