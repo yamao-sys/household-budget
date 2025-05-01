@@ -12,7 +12,9 @@ test.describe("/monthly_budget", () => {
 
     const now = new Date();
     const monthString = now.toLocaleDateString("ja-jp", { year: "numeric", month: "2-digit" }).replaceAll("/", "-");
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥35,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,065,000", { exact: true })).toBeVisible();
 
     // NOTE: user1の当月の支出詳細画面でカテゴリ毎の支出合計が表示されること
     await page.getByRole("link", { name: "支出詳細へ" }).click();
@@ -41,8 +43,10 @@ test.describe("/monthly_budget", () => {
     await page.getByLabel("カテゴリ").selectOption({ label: "娯楽費" });
     await page.getByRole("button", { name: "登録する" }).click();
 
-    // NOTE: 結果が支出に反映されること
+    // NOTE: 結果が支出と利益に反映されること
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥38,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,062,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥18000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥20000", { exact: true })).toBeVisible();
 
@@ -71,8 +75,10 @@ test.describe("/monthly_budget", () => {
     await page.getByLabel("カテゴリ").selectOption({ label: "自己投資" });
     await page.getByRole("button", { name: "登録する" }).click();
 
-    // NOTE: 結果が支出合計に反映されること
+    // NOTE: 結果が支出と利益に反映されること
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥40,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,060,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥18000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥2000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥20000", { exact: true })).toBeVisible();
@@ -97,7 +103,9 @@ test.describe("/monthly_budget", () => {
     await page.waitForURL(`/monthly_budget`);
 
     await page.locator(".fc-icon-chevron-left").click(); // 先月に遷移
+    await expect(page.getByText("収入合計: ¥0", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥0", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥0", { exact: true })).toBeVisible();
   });
 
   test("先月操作", async ({ page }) => {
@@ -114,11 +122,15 @@ test.describe("/monthly_budget", () => {
     const monthString = now.toLocaleDateString("ja-jp", { year: "numeric", month: "2-digit" }).replaceAll("/", "-");
 
     // NOTE: 支出合計が表示されること
-    // NOTE: user2の当月の支出合計は0
+    // NOTE: user2の当月
+    await expect(page.getByText("収入合計: ¥0", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥0", { exact: true })).toBeVisible();
-    // NOTE: user2の先月の支出合計は35000
+    await expect(page.getByText("利益: ¥0", { exact: true })).toBeVisible();
+    // NOTE: user2の先月
     await page.locator(".fc-icon-chevron-left").click();
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥35,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,065,000", { exact: true })).toBeVisible();
 
     // NOTE: user2の先月の支出詳細画面でカテゴリ毎の支出合計が表示されること
     await page.getByRole("link", { name: "支出詳細へ" }).click();
@@ -148,8 +160,10 @@ test.describe("/monthly_budget", () => {
     await page.getByLabel("カテゴリ").selectOption({ label: "娯楽費" });
     await page.getByRole("button", { name: "登録する" }).click();
 
-    // NOTE: 結果が支出に反映されること
+    // NOTE: 結果が支出と利益に反映されること
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥38,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,062,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥18000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥20000", { exact: true })).toBeVisible();
 
@@ -178,8 +192,10 @@ test.describe("/monthly_budget", () => {
     await page.getByLabel("カテゴリ").selectOption({ label: "自己投資" });
     await page.getByRole("button", { name: "登録する" }).click();
 
-    // NOTE: 結果が支出合計に反映されること
+    // NOTE: 結果が支出と利益に反映されること
+    await expect(page.getByText("収入合計: ¥1,100,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥40,000", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥1,060,000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥18000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥2000", { exact: true })).toBeVisible();
     await expect(page.getByText("支出: ¥20000", { exact: true })).toBeVisible();
@@ -205,6 +221,8 @@ test.describe("/monthly_budget", () => {
     await page.locator(".fc-icon-chevron-left").click(); // 先月に戻る
 
     await page.locator(".fc-icon-chevron-right").click(); // 当月に遷移
+    await expect(page.getByText("収入合計: ¥0", { exact: true })).toBeVisible();
     await expect(page.getByText("支出合計: ¥0", { exact: true })).toBeVisible();
+    await expect(page.getByText("利益: ¥0", { exact: true })).toBeVisible();
   });
 });

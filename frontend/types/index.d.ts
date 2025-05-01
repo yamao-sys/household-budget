@@ -14,6 +14,14 @@ export type CategoryTotalAmountLists = components["responses"]["CategoryTotalAmo
 
 export type ExpenseLists = components["schemas"]["ExpenseLists"];
 
+export type Income = components["schemas"]["Income"];
+
+export type IncomeLists = components["schemas"]["IncomeLists"];
+
 export type StoreExpenseInput = components["requestBodies"]["StoreExpenseInput"]["content"]["application/json"];
 
 export type StoreExpenseValidationError = components["responses"]["StoreExpenseResponse"]["content"]["application/json"]["errors"];
+
+export type StoreIncomeInput = components["requestBodies"]["StoreIncomeInput"]["content"]["application/json"];
+
+export type StoreIncomeValidationError = components["responses"]["StoreIncomeResponse"]["content"]["application/json"]["errors"];
