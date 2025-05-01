@@ -10,7 +10,7 @@ type Props = {
 export const HeaderNavigation: FC<Props> = ({ isSignedIn, children }: Props) => {
   return (
     <>
-      <header className='bg-white py-4 px-6 border-b fixed top-0 left-0 w-full'>
+      <header className='bg-white py-4 px-6 border-b fixed top-0 left-0 w-full z-100'>
         <div className='mx-auto flex flex-col md:flex-row md:items-center md:justify-between'>
           <h1 className='text-center text-lg md:text-2xl font-semibold text-gray-800'>
             <Link to={NAVIGATION_PAGE_LIST.monthlyBudgetPage}>Household Budget</Link>
