@@ -169,6 +169,20 @@ paths:
           name: toDate
           description: 取得対象の日付TO
           required: true
+  /incomes:
+    post:
+      summary: POST Income
+      tags:
+        - incomes
+      responses:
+        '200':
+          $ref: '#/components/responses/StoreIncomeResponse'
+      operationId: post-incomes
+      description: POST Income
+      security:
+        - authentication: []
+      requestBody:
+        $ref: '#/components/requestBodies/StoreIncomeInput'
 components:
   schemas:
     UserSignUpValidationError:
@@ -273,6 +287,44 @@ components:
         description:
           type: string
       description: Expense
+    Income:
+      title: Income
+      x-stoplight:
+        id: yskgst9zjw0q0
+      type: object
+      description: Income
+      required:
+        - id
+        - receivedAt
+        - amount
+        - clientName
+      properties:
+        id:
+          type: string
+        receivedAt:
+          type: string
+          format: date
+        amount:
+          type: integer
+        clientName:
+          type: string
+    StoreIncomeValidationError:
+      title: StoreIncomeValidationError
+      type: object
+      description: Store Income Validation Error
+      properties:
+        receivedAt:
+          type: array
+          items:
+            type: string
+        amount:
+          type: array
+          items:
+            type: string
+        clientName:
+          type: array
+          items:
+            type: string
   requestBodies:
     UserSignUpInput:
       content:
@@ -326,6 +378,24 @@ components:
               description:
                 type: string
       description: Store Expense Input
+    StoreIncomeInput:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - receivedAt
+              - amount
+              - clientName
+            properties:
+              receivedAt:
+                type: string
+                format: date
+              amount:
+                type: integer
+              clientName:
+                type: string
+      description: Store Income Input
   responses:
     CsrfResponse:
       description: Csrf response
@@ -422,6 +492,20 @@ components:
                 $ref: '#/components/schemas/Expense'
               errors:
                 $ref: '#/components/schemas/StoreExpenseValidationError'
+    StoreIncomeResponse:
+      description: Store Income Response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - income
+              - errors
+            properties:
+              income:
+                $ref: '#/components/schemas/Income'
+              errors:
+                $ref: '#/components/schemas/StoreIncomeValidationError'
     InternalServerErrorResponse:
       description: Internal Server Error Response
       content:
@@ -449,3 +533,5 @@ tags:
     description: users endpoint
   - name: expenses
     description: expenses endpoint
+  - name: incomes
+    description: incomes endpoint
