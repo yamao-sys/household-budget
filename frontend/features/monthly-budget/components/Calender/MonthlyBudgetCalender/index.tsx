@@ -71,7 +71,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
           return (
             <div className='text-xs bg-white p-1 rounded shadow-md'>
               <span className={extendProps.type === "income" ? "text-green-600 font-bold" : "text-red-600"}>
-                {`${extendProps.type === "income" ? "収入: " : "支出: "}¥${extendProps.totalAmount}`}
+                {`${extendProps.type === "income" ? "収入: " : "支出: "}¥${extendProps.totalAmount.toLocaleString()}`}
               </span>
             </div>
           );
