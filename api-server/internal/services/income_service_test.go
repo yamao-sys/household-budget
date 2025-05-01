@@ -141,10 +141,10 @@ func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithoutFromDateAndWithToDa
 func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithoutFromDateAndToDate() {
 	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
 	DBCon.Create(&user)
-	expense1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
-	DBCon.Create(&expense1)
-	expense2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
-	DBCon.Create(&expense2)
+	Income1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
+	DBCon.Create(&Income1)
+	Income2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
+	DBCon.Create(&Income2)
 
 	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
 	DBCon.Create(&otherUser)
@@ -155,8 +155,8 @@ func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithoutFromDateAndToDate()
 
 	// NOTE: 期間に関係なく指定したユーザのIDに紐づく収入情報のみ取得されること
 	assert.Equal(s.T(), 2, len(fetchedIncomes))
-	assert.Equal(s.T(), expense1.ID, fetchedIncomes[0].ID)
-	assert.Equal(s.T(), expense2.ID, fetchedIncomes[1].ID)
+	assert.Equal(s.T(), Income1.ID, fetchedIncomes[0].ID)
+	assert.Equal(s.T(), Income2.ID, fetchedIncomes[1].ID)
 }
 
 func (s *TestIncomeServiceSuite) TestIncomeFetchTotalAmount() {
@@ -191,6 +191,38 @@ func (s *TestIncomeServiceSuite) TestIncomeFetchTotalAmount() {
 	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom1_1.Amount+inRangeReceivedAtIncomeFrom1_2.Amount, totalAmounts[0].TotalAmount)
 	assert.Equal(s.T(), time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local).Format("2006-01-02"), totalAmounts[1].ReceivedAt.Format("2006-01-02"))
 	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom2_1.Amount+inRangeReceivedAtIncomeFrom2_2.Amount, totalAmounts[1].TotalAmount)
+}
+
+func (s *TestIncomeServiceSuite) TestIncomeFetchClientTotalAmount() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	minOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社1", "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minOutOfRangeReceivedAtIncome)
+	inRangeReceivedAtIncomeFrom1_1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社1", "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom1_1)
+	inRangeReceivedAtIncomeFrom1_2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社2", "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom1_2)
+	inRangeReceivedAtIncomeFrom2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社1", "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom2)
+	maxOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社2", "ReceivedAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxOutOfRangeReceivedAtIncome)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherBeginningOfMonthIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "ClientName": "テスト株式会社1", "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&otherBeginningOfMonthIncome)
+
+	fromDate := "2025-04-01"
+	toDate := "2025-04-02"
+	totalAmounts := testIncomeService.FetchClientTotalAmount(user.ID, fromDate, toDate)
+
+	// NOTE: 指定した期間で指定したユーザのIDに紐づく顧客ごとの収入合計のみ取得されること
+	assert.Equal(s.T(), 2, len(totalAmounts))
+	assert.Equal(s.T(), "テスト株式会社1", totalAmounts[0].ClientName)
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom1_1.Amount+inRangeReceivedAtIncomeFrom2.Amount, totalAmounts[0].TotalAmount)
+	assert.Equal(s.T(), "テスト株式会社2", totalAmounts[1].ClientName)
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom1_2.Amount, totalAmounts[1].TotalAmount)
 }
 
 func (s *TestIncomeServiceSuite) TestIncomeCreate_Success() {

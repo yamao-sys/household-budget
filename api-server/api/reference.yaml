@@ -228,6 +228,30 @@ paths:
           name: toDate
           required: true
           description: 取得対象の日付TO
+  /incomes/clientTotalAmounts:
+    get:
+      summary: Get Incomes Client TotalAmounts
+      tags:
+        - incomes
+      responses:
+        '200':
+          $ref: '#/components/responses/ClientTotalAmountListsResponse'
+      operationId: get-incomes-client-total-amounts
+      security:
+        - authentication: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fromDate
+          description: 取得対象の日付FROM
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: toDate
+          description: 取得対象の日付TO
+          required: true
 components:
   schemas:
     UserSignUpValidationError:
@@ -380,6 +404,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Income'
+    ClientTotalAmountLists:
+      title: ClientTotalAmountLists
+      type: object
+      required:
+        - clientName
+        - totalAmount
+      properties:
+        clientName:
+          type: string
+        totalAmount:
+          type: integer
+      description: Total Amount Lists
   requestBodies:
     UserSignUpInput:
       content:
@@ -567,6 +603,19 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/IncomeLists'
+    ClientTotalAmountListsResponse:
+      description: Client Total Amount Lists Response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - totalAmounts
+            properties:
+              totalAmounts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClientTotalAmountLists'
     InternalServerErrorResponse:
       description: Internal Server Error Response
       content:

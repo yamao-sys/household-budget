@@ -266,6 +266,47 @@ func (s *TestIncomesHandlerSuite) TestGetIncomesTotalAmounts_StatusUnauthorized(
 	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
 }
 
+func (s *TestIncomesHandlerSuite) TestGetIncomesClientTotalAmounts_StatusOk() {
+	user, cookieString := s.signIn()
+
+	minOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社1", "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minOutOfRangeReceivedAtIncome)
+	inRangeReceivedAtIncomeFrom1_1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社1", "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom1_1)
+	inRangeReceivedAtIncomeFrom1_2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社2", "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom1_2)
+	inRangeReceivedAtIncomeFrom2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社1", "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncomeFrom2)
+	maxOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ClientName": "テスト株式会社2", "ReceivedAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxOutOfRangeReceivedAtIncome)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherBeginningOfMonthIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "ClientName": "テスト株式会社1", "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&otherBeginningOfMonthIncome)
+
+	result := testutil.NewRequest().Get("/incomes/clientTotalAmounts?fromDate=2025-04-01&toDate=2025-04-02").WithHeader("Cookie", csrfTokenCookie+"; "+cookieString).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
+	assert.Equal(s.T(), http.StatusOK, result.Code())
+
+	var res api.GetIncomesClientTotalAmounts200JSONResponse
+	err := result.UnmarshalBodyToObject(&res)
+	assert.NoError(s.T(), err, "error unmarshaling response")
+
+	assert.Equal(s.T(), 2, len(res.TotalAmounts))
+	assert.Equal(s.T(), "テスト株式会社1", res.TotalAmounts[0].ClientName)
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom1_1.Amount+inRangeReceivedAtIncomeFrom2.Amount, res.TotalAmounts[0].TotalAmount)
+	assert.Equal(s.T(), "テスト株式会社2", res.TotalAmounts[1].ClientName)
+	assert.Equal(s.T(), inRangeReceivedAtIncomeFrom1_2.Amount, res.TotalAmounts[1].TotalAmount)
+}
+
+func (s *TestIncomesHandlerSuite) TestGetIncomesClientTotalAmounts_StatusUnauthorized() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	result := testutil.NewRequest().Get("/incomes/clientTotalAmounts?fromDate=2025-04-01&toDate=2025-04-02").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).GoWithHTTPHandler(s.T(), e)
+	assert.Equal(s.T(), http.StatusUnauthorized, result.Code())
+}
+
 func (s *TestIncomesHandlerSuite) TestPostIncomes_Success_StatusOk() {
 	user, cookieString := s.signIn()
 

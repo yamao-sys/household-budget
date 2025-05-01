@@ -13,6 +13,7 @@ import (
 type IncomeService interface {
 	FetchLists(userID int, fromDate string, toDate string) []models.Income
 	FetchTotalAmount(userID int, fromDate string, toDate string) []IncomeTotalAmount
+	FetchClientTotalAmount(userID int, fromDate string, toDate string) []ClientTotalAmount
 	Create(userID int, requestParams *api.PostIncomesJSONRequestBody) (models.Income, error)
 	MappingValidationErrorStruct(err error) api.StoreIncomeValidationError
 }
@@ -24,6 +25,11 @@ type incomeService struct {
 type IncomeTotalAmount struct {
     ReceivedAt      time.Time
     TotalAmount int
+}
+
+type ClientTotalAmount struct {
+	ClientName string
+	TotalAmount int
 }
 
 func NewIncomeService(db *gorm.DB) IncomeService {
@@ -61,6 +67,17 @@ func (is *incomeService) FetchTotalAmount(userID int, fromDate string, toDate st
 		  Where("user_id = ? AND received_at BETWEEN ? AND ?", userID, fromDate, toDate).
 		  Scan(&totalAmounts)
 	return totalAmounts
+}
+
+func (is *incomeService) FetchClientTotalAmount(userID int, fromDate string, toDate string) []ClientTotalAmount {
+	var clientTotalAmounts []ClientTotalAmount
+	
+	is.db.Model(&models.Income{}).
+		  Select("client_name, SUM(amount) AS total_amount").
+		  Group("client_name").
+		  Where("user_id = ? AND received_at BETWEEN ? AND ?", userID, fromDate, toDate).
+		  Scan(&clientTotalAmounts)
+	return clientTotalAmounts
 }
 
 func (is *incomeService) Create(userID int, requestParams *api.PostIncomesJSONRequestBody) (models.Income, error) {
