@@ -117,7 +117,7 @@ export const useMonthlyBudgetCalender = () => {
     window.alert("支出を登録しました");
 
     // NOTE: 選択月の支出に反映する
-    const otherDateEvents = events.filter((event) => String(event.date) !== selectedDate);
+    const otherDateEvents = events.filter((event) => String(event.date) !== selectedDate || event.extendProps.type !== "expense");
     const currentDateEvent = events.find((event) => String(event.date) === selectedDate && event.extendProps.type === "expense");
     const newTotalAmount = currentDateEvent?.extendProps.totalAmount ?? 0;
     setEvents([
@@ -147,7 +147,7 @@ export const useMonthlyBudgetCalender = () => {
     window.alert("収入を登録しました");
 
     // NOTE: 選択月の収入に反映する
-    const otherDateEvents = events.filter((event) => String(event.date) !== selectedDate);
+    const otherDateEvents = events.filter((event) => String(event.date) !== selectedDate || event.extendProps.type !== "income");
     const currentDateEvent = events.find((event) => String(event.date) === selectedDate && event.extendProps.type === "income");
     const newTotalAmount = currentDateEvent?.extendProps.totalAmount ?? 0;
     setEvents([
