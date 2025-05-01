@@ -36,6 +36,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
         inView={dialog.inView}
         setInView={dialog.setInView}
         date={dialog.selectedDate}
+        incomes={dialog.selectedDateIncomes}
         expenses={dialog.selectedDateExpenses}
         storeExpenseInput={dialog.store.storeExpenseInput}
         setStoreExpenseTextInput={dialog.store.setStoreExpenseTextInput}
