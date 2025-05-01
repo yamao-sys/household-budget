@@ -32,6 +32,12 @@ type CategoryTotalAmountLists struct {
 	TotalAmount int `json:"totalAmount"`
 }
 
+// ClientTotalAmountLists Total Amount Lists
+type ClientTotalAmountLists struct {
+	ClientName  string `json:"clientName"`
+	TotalAmount int    `json:"totalAmount"`
+}
+
 // Expense Expense
 type Expense struct {
 	Amount      int                `json:"amount"`
@@ -93,6 +99,11 @@ type UserSignUpValidationError struct {
 // CategoryTotalAmountListsResponse defines model for CategoryTotalAmountListsResponse.
 type CategoryTotalAmountListsResponse struct {
 	TotalAmounts []CategoryTotalAmountLists `json:"totalAmounts"`
+}
+
+// ClientTotalAmountListsResponse defines model for ClientTotalAmountListsResponse.
+type ClientTotalAmountListsResponse struct {
+	TotalAmounts []ClientTotalAmountLists `json:"totalAmounts"`
 }
 
 // CsrfResponse defines model for CsrfResponse.
@@ -227,6 +238,15 @@ type PostIncomesJSONBody struct {
 	ReceivedAt openapi_types.Date `json:"receivedAt"`
 }
 
+// GetIncomesClientTotalAmountsParams defines parameters for GetIncomesClientTotalAmounts.
+type GetIncomesClientTotalAmountsParams struct {
+	// FromDate 取得対象の日付FROM
+	FromDate string `form:"fromDate" json:"fromDate"`
+
+	// ToDate 取得対象の日付TO
+	ToDate string `form:"toDate" json:"toDate"`
+}
+
 // GetIncomesTotalAmountsParams defines parameters for GetIncomesTotalAmounts.
 type GetIncomesTotalAmountsParams struct {
 	// FromDate 取得対象の日付FROM
@@ -294,6 +314,9 @@ type ServerInterface interface {
 	// POST Income
 	// (POST /incomes)
 	PostIncomes(ctx echo.Context) error
+	// Get Incomes Client TotalAmounts
+	// (GET /incomes/clientTotalAmounts)
+	GetIncomesClientTotalAmounts(ctx echo.Context, params GetIncomesClientTotalAmountsParams) error
 	// GET Incomes TotalAmounts
 	// (GET /incomes/totalAmounts)
 	GetIncomesTotalAmounts(ctx echo.Context, params GetIncomesTotalAmountsParams) error
@@ -455,6 +478,33 @@ func (w *ServerInterfaceWrapper) PostIncomes(ctx echo.Context) error {
 	return err
 }
 
+// GetIncomesClientTotalAmounts converts echo context to params.
+func (w *ServerInterfaceWrapper) GetIncomesClientTotalAmounts(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(AuthenticationScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetIncomesClientTotalAmountsParams
+	// ------------- Required query parameter "fromDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "fromDate", ctx.QueryParams(), &params.FromDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
+	}
+
+	// ------------- Required query parameter "toDate" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "toDate", ctx.QueryParams(), &params.ToDate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetIncomesClientTotalAmounts(ctx, params)
+	return err
+}
+
 // GetIncomesTotalAmounts converts echo context to params.
 func (w *ServerInterfaceWrapper) GetIncomesTotalAmounts(ctx echo.Context) error {
 	var err error
@@ -555,6 +605,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/expenses/totalAmounts", wrapper.GetExpensesTotalAmounts)
 	router.GET(baseURL+"/incomes", wrapper.GetIncomes)
 	router.POST(baseURL+"/incomes", wrapper.PostIncomes)
+	router.GET(baseURL+"/incomes/clientTotalAmounts", wrapper.GetIncomesClientTotalAmounts)
 	router.GET(baseURL+"/incomes/totalAmounts", wrapper.GetIncomesTotalAmounts)
 	router.GET(baseURL+"/users/checkSignedIn", wrapper.GetUsersCheckSignedIn)
 	router.POST(baseURL+"/users/signIn", wrapper.PostUsersSignIn)
@@ -565,6 +616,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 type CategoryTotalAmountListsResponseJSONResponse struct {
 	TotalAmounts []CategoryTotalAmountLists `json:"totalAmounts"`
+}
+
+type ClientTotalAmountListsResponseJSONResponse struct {
+	TotalAmounts []ClientTotalAmountLists `json:"totalAmounts"`
 }
 
 type CsrfResponseJSONResponse struct {
@@ -758,6 +813,25 @@ func (response PostIncomes200JSONResponse) VisitPostIncomesResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetIncomesClientTotalAmountsRequestObject struct {
+	Params GetIncomesClientTotalAmountsParams
+}
+
+type GetIncomesClientTotalAmountsResponseObject interface {
+	VisitGetIncomesClientTotalAmountsResponse(w http.ResponseWriter) error
+}
+
+type GetIncomesClientTotalAmounts200JSONResponse struct {
+	ClientTotalAmountListsResponseJSONResponse
+}
+
+func (response GetIncomesClientTotalAmounts200JSONResponse) VisitGetIncomesClientTotalAmountsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type GetIncomesTotalAmountsRequestObject struct {
 	Params GetIncomesTotalAmountsParams
 }
@@ -940,6 +1014,9 @@ type StrictServerInterface interface {
 	// POST Income
 	// (POST /incomes)
 	PostIncomes(ctx context.Context, request PostIncomesRequestObject) (PostIncomesResponseObject, error)
+	// Get Incomes Client TotalAmounts
+	// (GET /incomes/clientTotalAmounts)
+	GetIncomesClientTotalAmounts(ctx context.Context, request GetIncomesClientTotalAmountsRequestObject) (GetIncomesClientTotalAmountsResponseObject, error)
 	// GET Incomes TotalAmounts
 	// (GET /incomes/totalAmounts)
 	GetIncomesTotalAmounts(ctx context.Context, request GetIncomesTotalAmountsRequestObject) (GetIncomesTotalAmountsResponseObject, error)
@@ -1150,6 +1227,31 @@ func (sh *strictHandler) PostIncomes(ctx echo.Context) error {
 	return nil
 }
 
+// GetIncomesClientTotalAmounts operation middleware
+func (sh *strictHandler) GetIncomesClientTotalAmounts(ctx echo.Context, params GetIncomesClientTotalAmountsParams) error {
+	var request GetIncomesClientTotalAmountsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetIncomesClientTotalAmounts(ctx.Request().Context(), request.(GetIncomesClientTotalAmountsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetIncomesClientTotalAmounts")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetIncomesClientTotalAmountsResponseObject); ok {
+		return validResponse.VisitGetIncomesClientTotalAmountsResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // GetIncomesTotalAmounts operation middleware
 func (sh *strictHandler) GetIncomesTotalAmounts(ctx echo.Context, params GetIncomesTotalAmountsParams) error {
 	var request GetIncomesTotalAmountsRequestObject
@@ -1288,34 +1390,35 @@ func (sh *strictHandler) PostUsersValidateSignUp(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
