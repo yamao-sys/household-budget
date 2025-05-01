@@ -136,6 +136,44 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/incomes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Incomes */
+    get: operations["get-incomes"];
+    put?: never;
+    /**
+     * POST Income
+     * @description POST Income
+     */
+    post: operations["post-incomes"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/incomes/totalAmounts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** GET Incomes TotalAmounts */
+    get: operations["get-incomes-total-amounts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -191,6 +229,30 @@ export interface components {
       amount: number;
       category: number;
       description: string;
+    };
+    /**
+     * Income
+     * @description Income
+     */
+    Income: {
+      id: string;
+      /** Format: date */
+      receivedAt: Date;
+      amount: number;
+      clientName: string;
+    };
+    /**
+     * StoreIncomeValidationError
+     * @description Store Income Validation Error
+     */
+    StoreIncomeValidationError: {
+      receivedAt?: string[];
+      amount?: string[];
+      clientName?: string[];
+    };
+    /** IncomeLists */
+    IncomeLists: {
+      incomes: components["schemas"]["Income"][];
     };
   };
   responses: {
@@ -280,6 +342,27 @@ export interface components {
         };
       };
     };
+    /** @description Store Income Response */
+    StoreIncomeResponse: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/json": {
+          income: components["schemas"]["Income"];
+          errors: components["schemas"]["StoreIncomeValidationError"];
+        };
+      };
+    };
+    /** @description Fetch Income Lists Response */
+    FetchIncomeListsResponse: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/json": components["schemas"]["IncomeLists"];
+      };
+    };
     /** @description Internal Server Error Response */
     InternalServerErrorResponse: {
       headers: {
@@ -324,6 +407,17 @@ export interface components {
           amount: number;
           category: number;
           description: string;
+        };
+      };
+    };
+    /** @description Store Income Input */
+    StoreIncomeInput: {
+      content: {
+        "application/json": {
+          /** Format: date */
+          receivedAt: Date;
+          amount: number;
+          clientName: string;
         };
       };
     };
@@ -471,6 +565,52 @@ export interface operations {
     requestBody?: never;
     responses: {
       200: components["responses"]["CategoryTotalAmountListsResponse"];
+    };
+  };
+  "get-incomes": {
+    parameters: {
+      query?: {
+        /** @description 取得対象の日付FROM */
+        fromDate?: string;
+        /** @description 取得対象の日付TO */
+        toDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: components["responses"]["FetchIncomeListsResponse"];
+    };
+  };
+  "post-incomes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: components["requestBodies"]["StoreIncomeInput"];
+    responses: {
+      200: components["responses"]["StoreIncomeResponse"];
+    };
+  };
+  "get-incomes-total-amounts": {
+    parameters: {
+      query: {
+        /** @description 取得対象の日付FROM */
+        fromDate: string;
+        /** @description 取得対象の日付TO */
+        toDate: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: components["responses"]["TotalAmountListsResponse"];
     };
   };
 }
