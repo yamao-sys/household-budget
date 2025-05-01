@@ -34,20 +34,26 @@ type MainHandler interface {
 	// Post Expense
 	// (POST /expenses)
 	PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error)
+
+	// Post Income
+	// (POST /incomes)
+	PostIncomes(ctx context.Context, request api.PostIncomesRequestObject) (api.PostIncomesResponseObject, error)
 }
 
 type mainHandler struct {
 	csrfHandler CsrfHandler
 	usersHandler UsersHandler
 	expensesHandler ExpensesHandler
+	incomesHandler IncomesHandler
 }
 
 func NewMainHandler(
 	csrfHandler CsrfHandler,
 	usersHandler UsersHandler,
 	expensesHandler ExpensesHandler,
+	incomesHandler IncomesHandler,
 ) MainHandler {
-	return &mainHandler{csrfHandler, usersHandler, expensesHandler}
+	return &mainHandler{csrfHandler, usersHandler, expensesHandler, incomesHandler}
 }
 
 func (mh *mainHandler) GetCsrf(ctx context.Context, request api.GetCsrfRequestObject) (api.GetCsrfResponseObject, error) {
@@ -92,5 +98,10 @@ func (mh *mainHandler) GetExpensesCategoryTotalAmounts(ctx context.Context, requ
 
 func (mh *mainHandler) PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error) {
 	res, err := mh.expensesHandler.PostExpenses(ctx, request)
+	return res, err
+}
+
+func (mh *mainHandler) PostIncomes(ctx context.Context, request api.PostIncomesRequestObject) (api.PostIncomesResponseObject, error) {
+	res, err := mh.incomesHandler.PostIncomes(ctx, request)
 	return res, err
 }
