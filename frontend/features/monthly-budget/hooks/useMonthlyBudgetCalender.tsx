@@ -12,7 +12,7 @@ const INITIAL_STORE_EXPENSE_INPUT = {
   category: 0,
   description: "",
 };
-const INITIAL_VALIDATION_ERRORS = {
+const INITIAL_EXPENSE_VALIDATION_ERRORS = {
   amount: [],
   category: [],
   description: [],
@@ -43,7 +43,7 @@ export const useMonthlyBudgetCalender = () => {
     [updateStoreExpenseInput],
   );
 
-  const [validationErrors, setValidationErrors] = useState<StoreExpenseValidationError>(INITIAL_VALIDATION_ERRORS);
+  const [expenseValidationErrors, setExpenseValidationErrors] = useState<StoreExpenseValidationError>(INITIAL_EXPENSE_VALIDATION_ERRORS);
 
   // NOTE: 月が変更された時の処理
   const handleDatesSet = async (arg: DatesSetArg) => {
@@ -74,11 +74,11 @@ export const useMonthlyBudgetCalender = () => {
   };
 
   const handleCreateExpense = async () => {
-    setValidationErrors(INITIAL_VALIDATION_ERRORS);
+    setExpenseValidationErrors(INITIAL_EXPENSE_VALIDATION_ERRORS);
 
     const { expense, errors } = await postCreateExpense(storeExpenseInput);
     if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
+      setExpenseValidationErrors(errors);
       return;
     }
 
@@ -134,7 +134,7 @@ export const useMonthlyBudgetCalender = () => {
       store: {
         handleCreateExpense,
         storeExpenseInput,
-        validationErrors,
+        expenseValidationErrors,
         setStoreExpenseTextInput,
         setStoreExpenseSelectInput,
       },

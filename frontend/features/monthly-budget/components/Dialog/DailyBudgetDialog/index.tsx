@@ -17,7 +17,7 @@ type Props = {
   setStoreExpenseTextInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setStoreExpenseSelectInput: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   handleCreateExpense: () => Promise<void>;
-  validationErrors: StoreExpenseValidationError;
+  expenseValidationErrors: StoreExpenseValidationError;
 };
 
 export const DailyBudgetDialog: React.FC<Props> = ({
@@ -30,7 +30,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
   setStoreExpenseTextInput,
   setStoreExpenseSelectInput,
   handleCreateExpense,
-  validationErrors,
+  expenseValidationErrors,
 }: Props) => {
   return (
     <div
@@ -101,7 +101,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
               type='number'
               value={storeExpenseInput.amount || ""}
               onChange={setStoreExpenseTextInput}
-              validationErrorMessages={validationErrors.amount ?? []}
+              validationErrorMessages={expenseValidationErrors.amount ?? []}
             />
           </div>
           <div className='mb-2'>
@@ -112,7 +112,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
               type='text'
               value={storeExpenseInput.description}
               onChange={setStoreExpenseTextInput}
-              validationErrorMessages={validationErrors.description ?? []}
+              validationErrorMessages={expenseValidationErrors.description ?? []}
             />
           </div>
           <div className='mb-2'>
@@ -123,7 +123,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
               options={Object.entries(EXPENSE_CATEGORY)}
               value={storeExpenseInput.category}
               onChange={setStoreExpenseSelectInput}
-              validationErrorMessages={validationErrors.category ?? []}
+              validationErrorMessages={expenseValidationErrors.category ?? []}
             />
           </div>
 
