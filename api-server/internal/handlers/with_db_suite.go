@@ -75,7 +75,10 @@ func (s *WithDBSuite) initializeHandlers() {
 	expenseService := services.NewExpenseService(DBCon)
 	testExpensesHandler := NewExpensesHandler(expenseService)
 
-	mainHandler := NewMainHandler(csrfServer, testUsersHandler, testExpensesHandler)
+	incomeService := services.NewIncomeService(DBCon)
+	testIncomesHandler := NewIncomesHandler(incomeService)
+
+	mainHandler := NewMainHandler(csrfServer, testUsersHandler, testExpensesHandler, testIncomesHandler)
 
 	strictHandler := api.NewStrictHandler(mainHandler, []api.StrictMiddlewareFunc{middlewares.AuthMiddleware})
 	api.RegisterHandlers(e, strictHandler)

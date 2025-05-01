@@ -24,18 +24,20 @@ func main() {
 	// NOTE: service層のインスタンス
 	userService := services.NewUserService(dbCon)
 	expenseService := services.NewExpenseService(dbCon)
+	incomeService := services.NewIncomeService(dbCon)
 
 	// NOTE: Handlerのインスタンス
 	csrfHandler := handlers.NewCsrfHandler()
 	usersHandler := handlers.NewUsersHandler(userService)
 	expensesHandler := handlers.NewExpensesHandler(expenseService)
+	incomesHandler := handlers.NewIncomesHandler(incomeService)
 
 	// NOTE: Handlerをルーティングに追加
 	e := middlewares.ApplyMiddlewares(echo.New())
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Household Budget!")
 	})
-	mainHandler := handlers.NewMainHandler(csrfHandler, usersHandler, expensesHandler)
+	mainHandler := handlers.NewMainHandler(csrfHandler, usersHandler, expensesHandler, incomesHandler)
 	mainStrictHandler := api.NewStrictHandler(mainHandler, []api.StrictMiddlewareFunc{middlewares.AuthMiddleware})
 	api.RegisterHandlers(e, mainStrictHandler)
 
