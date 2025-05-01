@@ -10,6 +10,7 @@ import (
 )
 
 type IncomeService interface {
+	FetchLists(userID int, fromDate string, toDate string) []models.Income
 	Create(userID int, requestParams *api.PostIncomesJSONRequestBody) (models.Income, error)
 	MappingValidationErrorStruct(err error) api.StoreIncomeValidationError
 }
@@ -22,7 +23,29 @@ func NewIncomeService(db *gorm.DB) IncomeService {
 	return &incomeService{db}
 }
 
-func (es *incomeService) Create(userID int, requestParams *api.PostIncomesJSONRequestBody) (models.Income, error) {
+func (is *incomeService) FetchLists(userID int, fromDate string, toDate string) []models.Income {
+	var incomes []models.Income
+
+	if fromDate != "" && toDate != "" {
+		if fromDate == toDate {
+			date := fromDate
+			is.db.Where("user_id = ? AND received_at = ?", userID, date).Find(&incomes)
+			return incomes
+		}
+
+		is.db.Where("user_id = ? AND received_at BETWEEN ? AND ?", userID, fromDate, toDate).Find(&incomes)
+	} else if fromDate != "" && toDate == "" {
+		is.db.Where("user_id = ? AND received_at >= ?", userID, fromDate).Find(&incomes)
+	} else if fromDate == "" && toDate != "" {
+		is.db.Where("user_id = ? AND received_at <= ?", userID, toDate).Find(&incomes)
+	} else {
+		is.db.Where("user_id = ?", userID).Find(&incomes)
+	}
+
+	return incomes
+}
+
+func (is *incomeService) Create(userID int, requestParams *api.PostIncomesJSONRequestBody) (models.Income, error) {
 	validationErr := validators.ValidateIncome(requestParams)
 	if validationErr != nil {
 		return models.Income{}, validationErr
@@ -34,12 +57,12 @@ func (es *incomeService) Create(userID int, requestParams *api.PostIncomesJSONRe
 	income.Amount = requestParams.Amount
 	income.ClientName = requestParams.ClientName
 
-	es.db.Create(&income)
+	is.db.Create(&income)
 
 	return income, nil
 }
 
-func (es *incomeService) MappingValidationErrorStruct(err error) api.StoreIncomeValidationError {
+func (is *incomeService) MappingValidationErrorStruct(err error) api.StoreIncomeValidationError {
 	var validationError api.StoreIncomeValidationError
 	if err == nil {
 		return validationError

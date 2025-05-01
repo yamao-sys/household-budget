@@ -29,6 +29,136 @@ func (s *TestIncomeServiceSuite) TearDownTest() {
 	s.CloseDB()
 }
 
+func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithFromDateAndToDate_Same() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	minOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minOutOfRangeReceivedAtIncome)
+	inRangeReceivedAtIncome1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncome1)
+	inRangeReceivedAtIncome2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncome2)
+	maxOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxOutOfRangeReceivedAtIncome)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherInRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&otherInRangeReceivedAtIncome)
+
+	fromDate := "2025-04-01"
+	toDate := "2025-04-01"
+	fetchedIncomes := testIncomeService.FetchLists(user.ID,fromDate, toDate)
+
+	// NOTE: 指定した日付の指定したユーザのIDに紐づく収入情報のみ取得されること
+	assert.Equal(s.T(), 2, len(fetchedIncomes))
+	assert.Equal(s.T(), inRangeReceivedAtIncome1.ID, fetchedIncomes[0].ID)
+	assert.Equal(s.T(), inRangeReceivedAtIncome2.ID, fetchedIncomes[1].ID)
+}
+
+func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithFromDateAndToDate_Different() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	minOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 30, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minOutOfRangeReceivedAtIncome)
+	minInRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minInRangeReceivedAtIncome)
+	inRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncome)
+	maxInRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxInRangeReceivedAtIncome)
+	maxOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 3, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxOutOfRangeReceivedAtIncome)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherInRangeReceivedAtIncomeIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&otherInRangeReceivedAtIncomeIncome)
+
+	fromDate := "2025-03-31"
+	toDate := "2025-04-02"
+	fetchedIncomes := testIncomeService.FetchLists(user.ID,fromDate, toDate)
+
+	// NOTE: 指定した期間の指定したユーザのIDに紐づく収入情報のみ取得されること
+	assert.Equal(s.T(), 3, len(fetchedIncomes))
+	assert.Equal(s.T(), minInRangeReceivedAtIncome.ID, fetchedIncomes[0].ID)
+	assert.Equal(s.T(), inRangeReceivedAtIncome.ID, fetchedIncomes[1].ID)
+	assert.Equal(s.T(), maxInRangeReceivedAtIncome.ID, fetchedIncomes[2].ID)
+}
+
+func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithFromDateAndWithoutToDate() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	minOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minOutOfRangeReceivedAtIncome)
+	minInRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&minInRangeReceivedAtIncome)
+	inRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncome)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherInRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&otherInRangeReceivedAtIncome)
+
+	fromDate := "2025-04-01"
+	fetchedIncomes := testIncomeService.FetchLists(user.ID, fromDate, "")
+
+	// NOTE: 指定した期間の指定したユーザのIDに紐づく収入情報のみ取得されること
+	assert.Equal(s.T(), 2, len(fetchedIncomes))
+	assert.Equal(s.T(), minInRangeReceivedAtIncome.ID, fetchedIncomes[0].ID)
+	assert.Equal(s.T(), inRangeReceivedAtIncome.ID, fetchedIncomes[1].ID)
+}
+
+func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithoutFromDateAndWithToDate() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+
+	inRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&inRangeReceivedAtIncome)
+	maxInRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxInRangeReceivedAtIncome)
+	maxOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&maxOutOfRangeReceivedAtIncome)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherInRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	DBCon.Create(&otherInRangeReceivedAtIncome)
+
+	toDate := "2025-04-01"
+	fetchedIncomes := testIncomeService.FetchLists(user.ID, "", toDate)
+
+	// NOTE: 指定した期間の指定したユーザのIDに紐づく収入情報のみ取得されること
+	assert.Equal(s.T(), 2, len(fetchedIncomes))
+	assert.Equal(s.T(), inRangeReceivedAtIncome.ID, fetchedIncomes[0].ID)
+	assert.Equal(s.T(), maxInRangeReceivedAtIncome.ID, fetchedIncomes[1].ID)
+}
+
+func (s *TestIncomeServiceSuite) TestIncomeFetchLists_WithoutFromDateAndToDate() {
+	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
+	DBCon.Create(&user)
+	expense1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
+	DBCon.Create(&expense1)
+	expense2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
+	DBCon.Create(&expense2)
+
+	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
+	DBCon.Create(&otherUser)
+	otherIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *otherUser}).(*models.Income)
+	DBCon.Create(&otherIncome)
+
+	fetchedIncomes := testIncomeService.FetchLists(user.ID, "", "")
+
+	// NOTE: 期間に関係なく指定したユーザのIDに紐づく収入情報のみ取得されること
+	assert.Equal(s.T(), 2, len(fetchedIncomes))
+	assert.Equal(s.T(), expense1.ID, fetchedIncomes[0].ID)
+	assert.Equal(s.T(), expense2.ID, fetchedIncomes[1].ID)
+}
+
 func (s *TestIncomeServiceSuite) TestIncomeCreate_Success() {
 	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
 	DBCon.Create(&user)
