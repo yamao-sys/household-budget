@@ -2,9 +2,17 @@ import type { DatesSetArg } from "@fullcalendar/core/index.js";
 import type { DateClickArg } from "@fullcalendar/interaction/index.js";
 import { useCallback, useMemo, useState } from "react";
 import { getExpenses, getTotalAmounts, postCreateExpense } from "~/apis/expenses.api";
-import { getIncomes, getIncomeTotalAmounts } from "~/apis/incomes.api";
+import { getIncomes, getIncomeTotalAmounts, postCreateIncome } from "~/apis/incomes.api";
 import { getDateString } from "~/lib/date";
-import type { Expense, Income, StoreExpenseInput, StoreExpenseValidationError, TotalAmountLists } from "~/types";
+import type {
+  Expense,
+  Income,
+  StoreExpenseInput,
+  StoreExpenseValidationError,
+  StoreIncomeInput,
+  StoreIncomeValidationError,
+  TotalAmountLists,
+} from "~/types";
 
 const INITIAL_STORE_EXPENSE_INPUT = {
   paidAt: new Date(),
@@ -16,6 +24,16 @@ const INITIAL_EXPENSE_VALIDATION_ERRORS = {
   amount: [],
   category: [],
   description: [],
+};
+
+const INITIAL_STORE_INCOME_INPUT = {
+  receivedAt: new Date(),
+  amount: 0,
+  clientName: "",
+};
+const INITIAL_INCOME_VALIDATION_ERRORS = {
+  amount: [],
+  clientName: [],
 };
 
 export const useMonthlyBudgetCalender = () => {
@@ -44,6 +62,19 @@ export const useMonthlyBudgetCalender = () => {
   );
 
   const [expenseValidationErrors, setExpenseValidationErrors] = useState<StoreExpenseValidationError>(INITIAL_EXPENSE_VALIDATION_ERRORS);
+
+  const [storeIncomeInput, setStoreIncomeInput] = useState<StoreIncomeInput>(INITIAL_STORE_INCOME_INPUT);
+  const updateStoreIncomeInput = useCallback((params: Partial<StoreIncomeInput>) => {
+    setStoreIncomeInput((prev: StoreIncomeInput) => ({ ...prev, ...params }));
+  }, []);
+  const setStoreIncomeTextInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      updateStoreIncomeInput({ [e.target.name]: e.target.value });
+    },
+    [updateStoreIncomeInput],
+  );
+
+  const [incomeValidationErrors, setIncomeValidationErrors] = useState<StoreIncomeValidationError>(INITIAL_INCOME_VALIDATION_ERRORS);
 
   // NOTE: 月が変更された時の処理
   const handleDatesSet = async (arg: DatesSetArg) => {
@@ -86,7 +117,7 @@ export const useMonthlyBudgetCalender = () => {
 
     // NOTE: 選択月の支出に反映する
     const otherDateEvents = events.filter((event) => String(event.date) !== selectedDate);
-    const currentDateEvent = events.find((event) => String(event.date) === selectedDate);
+    const currentDateEvent = events.find((event) => String(event.date) === selectedDate && event.extendProps.type === "expense");
     const newTotalAmount = currentDateEvent?.extendProps.totalAmount ?? 0;
     setEvents([
       ...otherDateEvents,
@@ -100,6 +131,37 @@ export const useMonthlyBudgetCalender = () => {
     ]);
     setInView(false);
     setStoreExpenseInput(INITIAL_STORE_EXPENSE_INPUT);
+    setStoreIncomeInput(INITIAL_STORE_INCOME_INPUT);
+  };
+
+  const handleCreateIncome = async () => {
+    setIncomeValidationErrors(INITIAL_INCOME_VALIDATION_ERRORS);
+
+    const { income, errors } = await postCreateIncome(storeIncomeInput);
+    if (Object.keys(errors).length > 0) {
+      setIncomeValidationErrors(errors);
+      return;
+    }
+
+    window.alert("収入を登録しました");
+
+    // NOTE: 選択月の収入に反映する
+    const otherDateEvents = events.filter((event) => String(event.date) !== selectedDate);
+    const currentDateEvent = events.find((event) => String(event.date) === selectedDate && event.extendProps.type === "income");
+    const newTotalAmount = currentDateEvent?.extendProps.totalAmount ?? 0;
+    setEvents([
+      ...otherDateEvents,
+      {
+        date: income.receivedAt,
+        extendProps: {
+          type: "income",
+          totalAmount: newTotalAmount + income.amount,
+        },
+      },
+    ]);
+    setInView(false);
+    setStoreExpenseInput(INITIAL_STORE_EXPENSE_INPUT);
+    setStoreIncomeInput(INITIAL_STORE_INCOME_INPUT);
   };
 
   // NOTE: 表示中の月の収支集計
@@ -132,11 +194,18 @@ export const useMonthlyBudgetCalender = () => {
       selectedDateExpenses,
       selectedDateIncomes,
       store: {
+        // 支出登録
         handleCreateExpense,
         storeExpenseInput,
         expenseValidationErrors,
         setStoreExpenseTextInput,
         setStoreExpenseSelectInput,
+
+        // 収入登録
+        handleCreateIncome,
+        storeIncomeInput,
+        incomeValidationErrors,
+        setStoreIncomeTextInput,
       },
     },
   };
