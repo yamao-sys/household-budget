@@ -2,6 +2,7 @@ import type { DatesSetArg } from "@fullcalendar/core/index.js";
 import type { DateClickArg } from "@fullcalendar/interaction/index.js";
 import { useCallback, useMemo, useState } from "react";
 import { getExpenses, getTotalAmounts, postCreateExpense } from "~/apis/expenses.api";
+import { getIncomeTotalAmounts } from "~/apis/incomes.api";
 import { getDateString } from "~/lib/date";
 import type { Expense, StoreExpenseInput, StoreExpenseValidationError, TotalAmountLists } from "~/types";
 
@@ -51,9 +52,11 @@ export const useMonthlyBudgetCalender = () => {
     const selectedMonthEndDate = currentEnd;
 
     // TODO: ここをTanstack Query等を使用してキャッシュする
-    const fetchedTotalAmounts = await getTotalAmounts(getDateString(selectedMonthBeginningDate), getDateString(selectedMonthEndDate));
+    const fetchedExpenseTotalAmounts = await getTotalAmounts(getDateString(selectedMonthBeginningDate), getDateString(selectedMonthEndDate));
+    const fetchedIncomeTotalAmounts = await getIncomeTotalAmounts(getDateString(selectedMonthBeginningDate), getDateString(selectedMonthEndDate));
+
     setCurrentMonthDate(selectedMonthBeginningDate);
-    setEvents(fetchedTotalAmounts);
+    setEvents([...(fetchedExpenseTotalAmounts ?? []), ...(fetchedIncomeTotalAmounts ?? [])]);
   };
 
   // NOTE: 日が選択された時の処理
