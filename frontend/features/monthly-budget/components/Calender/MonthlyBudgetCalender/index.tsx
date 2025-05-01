@@ -53,7 +53,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
             <Link to={`${NAVIGATION_PAGE_LIST.monthlyBudgetPage}/${getMonthString(currentMonthDate)}`}>支出詳細へ</Link>
           </div>
         </div>
-        <div className='mt-2 font-bold'>{`残高: ¥${(summary.totalIncome - summary.totalExpense).toLocaleString()}`}</div>
+        <div className='mt-2 font-bold'>{`利益: ¥${(summary.totalIncome - summary.totalExpense).toLocaleString()}`}</div>
       </div>
 
       <FullCalendar
