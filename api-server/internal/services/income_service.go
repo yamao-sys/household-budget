@@ -4,6 +4,7 @@ import (
 	"apps/api"
 	"apps/internal/models"
 	"apps/internal/validators"
+	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gorm.io/gorm"
@@ -11,12 +12,18 @@ import (
 
 type IncomeService interface {
 	FetchLists(userID int, fromDate string, toDate string) []models.Income
+	FetchTotalAmount(userID int, fromDate string, toDate string) []IncomeTotalAmount
 	Create(userID int, requestParams *api.PostIncomesJSONRequestBody) (models.Income, error)
 	MappingValidationErrorStruct(err error) api.StoreIncomeValidationError
 }
 
 type incomeService struct {
 	db *gorm.DB
+}
+
+type IncomeTotalAmount struct {
+    ReceivedAt      time.Time
+    TotalAmount int
 }
 
 func NewIncomeService(db *gorm.DB) IncomeService {
@@ -43,6 +50,17 @@ func (is *incomeService) FetchLists(userID int, fromDate string, toDate string) 
 	}
 
 	return incomes
+}
+
+func (is *incomeService) FetchTotalAmount(userID int, fromDate string, toDate string) []IncomeTotalAmount {
+	var totalAmounts []IncomeTotalAmount
+
+	is.db.Model(&models.Income{}).
+		  Select("received_at, SUM(amount) AS total_amount").
+		  Group("received_at").
+		  Where("user_id = ? AND received_at BETWEEN ? AND ?", userID, fromDate, toDate).
+		  Scan(&totalAmounts)
+	return totalAmounts
 }
 
 func (is *incomeService) Create(userID int, requestParams *api.PostIncomesJSONRequestBody) (models.Income, error) {
