@@ -6,6 +6,7 @@ import (
 	"apps/test/factories"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -31,6 +32,29 @@ func main() {
 	dbCon.Create(&user)
 	user2 := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_sign_in_2@example.com"}).(*models.User)
 	dbCon.Create(&user2)
+
+	// NOTE: それぞれのユーザに対して、10日と20日の支出レコードを作成
+	now := time.Now()
+	tenth := time.Date(now.Year(), now.Month(), 10, 0, 0, 0, 0, now.Location())
+	twentieth := time.Date(now.Year(), now.Month(), 20, 0, 0, 0, 0, now.Location())
+
+	lastMonth := now.AddDate(0, -1, 0)
+	tenthOfLastMonth := time.Date(lastMonth.Year(), lastMonth.Month(), 10, 0, 0, 0, 0, lastMonth.Location())
+	twentiethOfLastMonth := time.Date(lastMonth.Year(), lastMonth.Month(), 20, 0, 0, 0, 0, lastMonth.Location())
+	
+	tenthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": tenth, "Amount": 10000, "Category": models.CategoryFood}).(*models.Expense)
+	dbCon.Create(&tenthExpense)
+	tenthExpense2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": tenth, "Amount": 5000, "Category": models.CategoryDailyGoods}).(*models.Expense)
+	dbCon.Create(&tenthExpense2)
+	twentiethExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": twentieth, "Amount": 20000, "Category": models.CategoryEntertainment}).(*models.Expense)
+	dbCon.Create(&twentiethExpense)
+
+	tenthOfLastMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user2, "PaidAt": tenthOfLastMonth, "Amount": 10000, "Category": models.CategoryFood}).(*models.Expense)
+	dbCon.Create(&tenthOfLastMonthExpense)
+	tenthOfLastMonthExpense2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user2, "PaidAt": tenthOfLastMonth, "Amount": 5000, "Category": models.CategoryDailyGoods}).(*models.Expense)
+	dbCon.Create(&tenthOfLastMonthExpense2)
+	twentiethOfLastMonthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user2, "PaidAt": twentiethOfLastMonth, "Amount": 20000, "Category": models.CategoryEntertainment}).(*models.Expense)
+	dbCon.Create(&twentiethOfLastMonthExpense)
 }
 
 func loadEnv() {
