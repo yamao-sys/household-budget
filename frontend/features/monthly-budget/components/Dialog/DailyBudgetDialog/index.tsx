@@ -70,7 +70,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
             <tbody>
               {expenses.map((expense, idx) => (
                 <tr key={idx}>
-                  <td className='w-1/4 py-2 px-2 border border-gray-300'>¥{expense.amount}</td>
+                  <td className='w-1/4 py-2 px-2 border border-gray-300'>¥{expense.amount.toLocaleString()}</td>
                   <td className='w-2/4 py-2 px-2 border border-gray-300 break-words'>{expense.description}</td>
                   <td className='w-1/4 py-2 px-2 border border-gray-300 break-words'>{EXPENSE_CATEGORY[expense.category]}</td>
                 </tr>
@@ -91,7 +91,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
             <tbody>
               {incomes.map((income, idx) => (
                 <tr key={idx}>
-                  <td className='w-1/4 py-2 px-2 border border-gray-300'>¥{income.amount}</td>
+                  <td className='w-1/4 py-2 px-2 border border-gray-300'>¥{income.amount.toLocaleString()}</td>
                   <td className='w-2/4 py-2 px-2 border border-gray-300 break-words'>{income.clientName}</td>
                 </tr>
               ))}
