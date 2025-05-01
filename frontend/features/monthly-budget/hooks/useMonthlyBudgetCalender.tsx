@@ -102,6 +102,7 @@ export const useMonthlyBudgetCalender = () => {
     setSelectedDate(date);
     setInView(true);
     setStoreExpenseInput((prev: StoreExpenseInput) => ({ ...prev, ...{ paidAt: arg.date } }));
+    setStoreIncomeInput((prev: StoreIncomeInput) => ({ ...prev, ...{ receivedAt: arg.date } }));
   };
 
   const handleCreateExpense = async () => {
