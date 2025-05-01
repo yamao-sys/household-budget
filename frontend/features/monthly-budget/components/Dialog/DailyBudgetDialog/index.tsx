@@ -19,7 +19,7 @@ type Props = {
   validationErrors: StoreExpenseValidationError;
 };
 
-export const ExpenseListDialog: React.FC<Props> = ({
+export const DailyBudgetDialog: React.FC<Props> = ({
   inView,
   setInView,
   date,
