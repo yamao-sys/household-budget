@@ -5,7 +5,7 @@ import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
 import BaseFormSelect from "~/components/BaseFormSelect";
 import { EXPENSE_CATEGORY } from "~/const/expense";
-import type { Expense, Income, StoreExpenseInput, StoreExpenseValidationError } from "~/types";
+import type { Expense, Income, StoreExpenseInput, StoreExpenseValidationError, StoreIncomeInput, StoreIncomeValidationError } from "~/types";
 
 type Props = {
   inView: boolean;
@@ -17,7 +17,11 @@ type Props = {
   setStoreExpenseTextInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setStoreExpenseSelectInput: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   handleCreateExpense: () => Promise<void>;
-  validationErrors: StoreExpenseValidationError;
+  expenseValidationErrors: StoreExpenseValidationError;
+  storeIncomeInput: StoreIncomeInput;
+  setStoreIncomeTextInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleCreateIncome: () => Promise<void>;
+  incomeValidationErrors: StoreIncomeValidationError;
 };
 
 export const DailyBudgetDialog: React.FC<Props> = ({
@@ -30,7 +34,11 @@ export const DailyBudgetDialog: React.FC<Props> = ({
   setStoreExpenseTextInput,
   setStoreExpenseSelectInput,
   handleCreateExpense,
-  validationErrors,
+  expenseValidationErrors,
+  storeIncomeInput,
+  setStoreIncomeTextInput,
+  handleCreateIncome,
+  incomeValidationErrors,
 }: Props) => {
   return (
     <div
@@ -92,19 +100,20 @@ export const DailyBudgetDialog: React.FC<Props> = ({
         </div>
 
         {/* 入力フォーム */}
-        <div className='flex flex-col gap-2 mb-4 w-full'>
-          <div className='mb-2'>
+        <div className='flex flex-col gap-2 p-4 mb-4 w-full border rounded'>
+          <h3 className='text-center font-bold mb-4'>支出登録</h3>
+          <div className='w-1/2 mx-auto mb-2'>
             <BaseFormInput
-              id='amount'
-              label='金額'
+              id='expense-amount'
+              label='支出金額'
               name='amount'
               type='number'
               value={storeExpenseInput.amount || ""}
               onChange={setStoreExpenseTextInput}
-              validationErrorMessages={validationErrors.amount ?? []}
+              validationErrorMessages={expenseValidationErrors.amount ?? []}
             />
           </div>
-          <div className='mb-2'>
+          <div className='w-1/2 mx-auto mb-2'>
             <BaseFormInput
               id='description'
               label='適用'
@@ -112,10 +121,10 @@ export const DailyBudgetDialog: React.FC<Props> = ({
               type='text'
               value={storeExpenseInput.description}
               onChange={setStoreExpenseTextInput}
-              validationErrorMessages={validationErrors.description ?? []}
+              validationErrorMessages={expenseValidationErrors.description ?? []}
             />
           </div>
-          <div className='mb-2'>
+          <div className='w-1/2 mx-auto mb-2'>
             <BaseFormSelect
               id='category'
               label='カテゴリ'
@@ -123,12 +132,42 @@ export const DailyBudgetDialog: React.FC<Props> = ({
               options={Object.entries(EXPENSE_CATEGORY)}
               value={storeExpenseInput.category}
               onChange={setStoreExpenseSelectInput}
-              validationErrorMessages={validationErrors.category ?? []}
+              validationErrorMessages={expenseValidationErrors.category ?? []}
             />
           </div>
 
           <div className='w-full flex justify-center'>
-            <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='登録する' onClick={handleCreateExpense} />
+            <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='支出を登録する' onClick={handleCreateExpense} />
+          </div>
+        </div>
+
+        <div className='flex flex-col gap-2 p-4 mb-4 w-full border rounded'>
+          <h3 className='text-center font-bold mb-4'>収入登録</h3>
+          <div className='w-1/2 mx-auto mb-2'>
+            <BaseFormInput
+              id='income-amount'
+              label='収入金額'
+              name='amount'
+              type='number'
+              value={storeIncomeInput.amount || ""}
+              onChange={setStoreIncomeTextInput}
+              validationErrorMessages={incomeValidationErrors.amount ?? []}
+            />
+          </div>
+          <div className='w-1/2 mx-auto mb-2'>
+            <BaseFormInput
+              id='client-name'
+              label='顧客名'
+              name='clientName'
+              type='text'
+              value={storeIncomeInput.clientName}
+              onChange={setStoreIncomeTextInput}
+              validationErrorMessages={incomeValidationErrors.clientName ?? []}
+            />
+          </div>
+
+          <div className='w-full flex justify-center'>
+            <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='収入を登録する' onClick={handleCreateIncome} />
           </div>
         </div>
       </div>
