@@ -2,9 +2,9 @@ import type { DatesSetArg } from "@fullcalendar/core/index.js";
 import type { DateClickArg } from "@fullcalendar/interaction/index.js";
 import { useCallback, useMemo, useState } from "react";
 import { getExpenses, getTotalAmounts, postCreateExpense } from "~/apis/expenses.api";
-import { getIncomeTotalAmounts } from "~/apis/incomes.api";
+import { getIncomes, getIncomeTotalAmounts } from "~/apis/incomes.api";
 import { getDateString } from "~/lib/date";
-import type { Expense, StoreExpenseInput, StoreExpenseValidationError, TotalAmountLists } from "~/types";
+import type { Expense, Income, StoreExpenseInput, StoreExpenseValidationError, TotalAmountLists } from "~/types";
 
 const INITIAL_STORE_EXPENSE_INPUT = {
   paidAt: new Date(),
@@ -23,6 +23,7 @@ export const useMonthlyBudgetCalender = () => {
   const [inView, setInView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDateExpenses, setSelectedDateExpenses] = useState<Expense[]>([]);
+  const [selectedDateIncomes, setSelectedDateIncomes] = useState<Income[]>([]);
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
   const [storeExpenseInput, setStoreExpenseInput] = useState<StoreExpenseInput>(INITIAL_STORE_EXPENSE_INPUT);
@@ -66,6 +67,7 @@ export const useMonthlyBudgetCalender = () => {
 
     const date = getDateString(arg.date);
     setSelectedDateExpenses(await getExpenses(date, date));
+    setSelectedDateIncomes(await getIncomes(date, date));
     setSelectedDate(date);
     setInView(true);
     setStoreExpenseInput((prev: StoreExpenseInput) => ({ ...prev, ...{ paidAt: arg.date } }));
@@ -128,6 +130,7 @@ export const useMonthlyBudgetCalender = () => {
       setInView,
       selectedDate,
       selectedDateExpenses,
+      selectedDateIncomes,
       store: {
         handleCreateExpense,
         storeExpenseInput,

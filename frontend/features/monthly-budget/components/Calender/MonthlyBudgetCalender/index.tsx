@@ -10,7 +10,7 @@ import { Link } from "react-router";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
 import { getMonthString } from "~/lib/date";
 import { useMonthlyBudgetCalender } from "~/features/monthly-budget/hooks/useMonthlyBudgetCalender";
-import { ExpenseListDialog } from "../../Dialog/ExpenseListDialog";
+import { DailyBudgetDialog } from "../../Dialog/DailyBudgetDialog";
 
 export const MonthlyBudgetCalender: React.FC = () => {
   /**
@@ -32,10 +32,11 @@ export const MonthlyBudgetCalender: React.FC = () => {
   return (
     <div className='mx-auto mt-4'>
       {/* 選択した日付の支出と登録フォーム */}
-      <ExpenseListDialog
+      <DailyBudgetDialog
         inView={dialog.inView}
         setInView={dialog.setInView}
         date={dialog.selectedDate}
+        incomes={dialog.selectedDateIncomes}
         expenses={dialog.selectedDateExpenses}
         storeExpenseInput={dialog.store.storeExpenseInput}
         setStoreExpenseTextInput={dialog.store.setStoreExpenseTextInput}

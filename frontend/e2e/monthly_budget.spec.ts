@@ -26,6 +26,13 @@ test.describe("/monthly_budget", () => {
 
     await page.getByRole("link", { name: "Household Budget" }).click();
 
+    // NOTE: user1の当月の収入が表示されること
+    await expect(page.getByText("収入: ¥1100000", { exact: true })).toBeVisible();
+    await page.getByText("20日", { exact: true }).nth(0).click();
+    await expect(page.getByText("¥1100000", { exact: true })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "テスト株式会社1" })).toBeVisible();
+    await page.getByRole("button", { name: "閉じる" }).click();
+
     // NOTE: データがある日付で支出合計が表示されること(10日目)
     await expect(page.getByText("支出: ¥15000", { exact: true })).toBeVisible();
     // NOTE: データがある日付でdialog devで支出が表示されること
@@ -142,6 +149,13 @@ test.describe("/monthly_budget", () => {
 
     await page.getByRole("link", { name: "Household Budget" }).click();
     await page.locator(".fc-icon-chevron-left").click(); // 先月に戻る
+
+    // NOTE: user2の先月の収入が表示されること
+    await expect(page.getByText("収入: ¥1100000", { exact: true })).toBeVisible();
+    await page.getByText("20日", { exact: true }).nth(0).click();
+    await expect(page.getByText("¥1100000", { exact: true })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "テスト株式会社2" })).toBeVisible();
+    await page.getByRole("button", { name: "閉じる" }).click();
 
     // NOTE: データがある日付で支出合計が表示されること(10日目)
     await expect(page.getByText("支出: ¥15000", { exact: true })).toBeVisible();
