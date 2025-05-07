@@ -9,8 +9,8 @@ COPY go.mod go.sum ./
 COPY cmd/main.go ./
 COPY api /app/api
 COPY database /app/database
-COPY models /app/models
-COPY internal /app/business
+COPY internal /app/internal
+COPY test /app/test
 
 RUN go mod tidy && \
 	go install github.com/joho/godotenv/cmd/godotenv@latest
