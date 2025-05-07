@@ -2,6 +2,16 @@
 
 家計簿アプリ
 
+## コマンド類
+
+現状、各サービスごとのデプロイだが、後で整理したい
+
+### マイグレーション
+
+```
+cd migrations && gcloud builds submit --config ./cloudbuild.yaml
+```
+
 ## 参考
 
 - https://github.com/fullcalendar/fullcalendar-react?tab=readme-ov-file
