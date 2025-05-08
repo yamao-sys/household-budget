@@ -24,7 +24,7 @@ func ApplyMiddlewares(e *echo.Echo) *echo.Echo {
 		TokenLookup: "header:"+echo.HeaderXCSRFToken,
 		CookieMaxAge: 3600,
 		CookieSameSite: http.SameSiteNoneMode,
-		CookieHTTPOnly: false,
+		CookieHTTPOnly: true,
 		CookiePath: "/",
 		CookieSecure: os.Getenv("APP_ENV") == "production",
 		ErrorHandler: func(err error, c echo.Context) error {
