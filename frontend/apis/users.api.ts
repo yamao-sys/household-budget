@@ -8,9 +8,9 @@ const client = createClient<paths>({
   credentials: "include",
 });
 
-export async function postUserSignUp(input: UserSignUpInput) {
+export async function postUserSignUp(input: UserSignUpInput, csrfToken: string) {
   const { data, response } = await client.POST("/users/signUp", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     body: input,
   });
   if (response.status === 403) {
@@ -23,9 +23,9 @@ export async function postUserSignUp(input: UserSignUpInput) {
   return data.errors;
 }
 
-export async function postUserSignIn(input: UserSignInInput) {
+export async function postUserSignIn(input: UserSignInInput, csrfToken: string) {
   const { response } = await client.POST("/users/signIn", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     body: input,
   });
   if (response.status === 500) {
@@ -41,9 +41,9 @@ export async function postUserSignIn(input: UserSignInInput) {
   return "";
 }
 
-export async function getCheckSignedIn() {
+export async function getCheckSignedIn(csrfToken: string) {
   const { data, response } = await client.GET("/users/checkSignedIn", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
   });
   if (data === undefined || response.status === 401) {
     return false;
