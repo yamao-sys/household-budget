@@ -1,0 +1,45 @@
+substitutions:
+  _REGION: "asia-northeast1"
+  _SERVIVE: "frontend"
+steps:
+  # 環境変数を.env.productionに書き出す
+  - name: gcr.io/cloud-builders/gcloud
+    id: "prepare_env"
+    waitFor: ["-"]
+    entrypoint: bash
+    args:
+      - -c
+      - gcloud secrets versions access latest --secret=VITE_ENV_PRODUCTION > .env.production
+
+  # Frontendコンテナのビルド・プッシュ
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build_frontend"
+    waitFor: ["prepare_env"]
+    args: ["build", "-t", "$_REGION-docker.pkg.dev/${PROJECT_ID}/${_SERVIVE}/latest", "-f", "Dockerfile", "."]
+  - name: "gcr.io/cloud-builders/docker"
+    id: "push_frontend_image"
+    waitFor: ["build_frontend"]
+    args: ["push", "$_REGION-docker.pkg.dev/${PROJECT_ID}/${_SERVIVE}/latest"]
+
+  # Cloud Run へデプロイ
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "bash"
+    id: "deploy_frontend"
+    waitFor: ["push_frontend_image"]
+    args:
+      - -c
+      - |
+        gcloud run deploy ${_SERVIVE} \
+          --image ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_SERVIVE}/latest \
+          --project ${PROJECT_ID} \
+          --platform managed \
+          --region ${_REGION} \
+          --update-env-vars="SERVICE_ACCOUNT_EMAIL=$$SERVICE_ACCOUNT_EMAIL,TZ=$$TZ" \
+          --service-account="$$SERVICE_ACCOUNT_EMAIL"
+    secretEnv: ["SERVICE_ACCOUNT_EMAIL", "TZ"]
+availableSecrets:
+  secretManager:
+    - versionName: "projects/${PROJECT_NUMBER}/secrets/SERVICE_ACCOUNT_EMAIL/versions/1"
+      env: SERVICE_ACCOUNT_EMAIL
+    - versionName: "projects/${PROJECT_NUMBER}/secrets/TZ/versions/1"
+      env: TZ

@@ -12,6 +12,11 @@
 cd migrations && gcloud builds submit --config ./cloudbuild.yaml
 ```
 
+## ハマりポイント
+
+- 本番での環境変数の渡し方が少し煩わしい...
+  - Secret Manager に.env.production の元データを作っておき、build 時にそれを.env.production に書き出すことで解決
+
 ## 参考
 
 - https://github.com/fullcalendar/fullcalendar-react?tab=readme-ov-file
