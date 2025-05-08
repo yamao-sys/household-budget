@@ -38,6 +38,9 @@ importers:
       isbot:
         specifier: ^5.1.17
         version: 5.1.26
+      js-cookie:
+        specifier: ^3.0.5
+        version: 3.0.5
       openapi-fetch:
         specifier: ^0.13.5
         version: 0.13.5
@@ -66,6 +69,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.0.0
         version: 4.1.4(vite@5.4.18(@types/node@20.17.30)(lightningcss@1.29.2))
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
       '@types/node':
         specifier: ^20
         version: 20.17.30
@@ -1207,6 +1213,9 @@ packages:
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
+
+  '@types/js-cookie@3.0.6':
+    resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -4571,6 +4580,8 @@ snapshots:
   '@types/d3-hierarchy@1.1.11': {}
 
   '@types/estree@1.0.7': {}
+
+  '@types/js-cookie@3.0.6': {}
 
   '@types/json-schema@7.0.15': {}
 
