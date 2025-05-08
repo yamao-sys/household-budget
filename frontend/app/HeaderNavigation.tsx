@@ -1,13 +1,15 @@
 import type { FC } from "react";
 import { Link } from "react-router";
 import { NAVIGATION_PAGE_LIST } from "./routes";
+import { useAuthContext } from "~/contexts/useAuthContext";
 
 type Props = {
-  isSignedIn: boolean;
   children: React.ReactNode;
 };
 
-export const HeaderNavigation: FC<Props> = ({ isSignedIn, children }: Props) => {
+export const HeaderNavigation: FC<Props> = ({ children }: Props) => {
+  const { isSignedIn } = useAuthContext();
+
   return (
     <>
       <header className='bg-white py-4 px-6 border-b fixed top-0 left-0 w-full z-100'>
