@@ -53,7 +53,7 @@ export const SignUpForm: FC = () => {
     // NOTE: バリデーションエラーの格納と入力パスワードのリセット
     setValidationErrors(errors);
     updateSignUpInput({ password: "" });
-  }, [setValidationErrors, userSignUpInputs, updateSignUpInput]);
+  }, [setValidationErrors, userSignUpInputs, updateSignUpInput, csrfToken]);
 
   return (
     <>

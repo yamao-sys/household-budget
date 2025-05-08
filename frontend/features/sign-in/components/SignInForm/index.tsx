@@ -40,7 +40,7 @@ export const SignInForm: FC = () => {
 
     window.alert("ログインしました");
     navigate(NAVIGATION_PAGE_LIST.top);
-  }, [setValidationError, userSignInInputs, updateSignInInput]);
+  }, [setValidationError, userSignInInputs, updateSignInInput, csrfToken]);
 
   return (
     <>
