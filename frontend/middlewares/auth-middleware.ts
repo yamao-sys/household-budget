@@ -6,9 +6,9 @@ import { NAVIGATION_PAGE_LIST } from "~/app/routes";
 
 export const authMiddleware: MiddlewareFunction = async ({ request, context }) => {
   // NOTE: 画面遷移の際にCSRFトークンを取得
-  await getCsrfToken();
+  const csrfToken = await getCsrfToken();
 
-  const checkedSignedIn = await getCheckSignedIn();
+  const checkedSignedIn = await getCheckSignedIn(csrfToken);
 
   let toNavigatePath = "";
   const url = new URL(request.url);
@@ -23,7 +23,7 @@ export const authMiddleware: MiddlewareFunction = async ({ request, context }) =
       toNavigatePath = NAVIGATION_PAGE_LIST.signInPage;
     }
   }
-  context.set(authContext, { isSignedIn: checkedSignedIn });
+  context.set(authContext, { isSignedIn: checkedSignedIn, csrfToken });
 
   if (toNavigatePath !== "") {
     throw redirect(toNavigatePath);
