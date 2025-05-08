@@ -42,7 +42,7 @@ jobs:
       - name: Run Migration
         working-directory: ./
         if: needs.filter.outputs.ddl_changed == 'true' # NOTE: migrations配下に差分があった場合のみマイグレーションの実行
-        run: gcloud builds submit --config migration-cloudbuild.yaml .
+        run: gcloud builds submit --gcs-log-dir=gs://household-budget-build-and-deploy/logs --config migration-cloudbuild.yaml .
 
       - name: Run Cloud Build
         working-directory: ./
