@@ -6,6 +6,7 @@ import (
 	"apps/internal/services"
 	"context"
 	"net/http"
+	"os"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -87,14 +88,21 @@ func (uh *usersHandler) PostUsersSignIn(ctx context.Context, request api.PostUse
 		}}, nil
 	}
 	
+	var sameSite http.SameSite
+	if os.Getenv("APP_ENV") == "production" {
+		sameSite = http.SameSiteNoneMode
+	} else {
+		sameSite = http.SameSiteDefaultMode
+	}
 	// NOTE: Cookieにtokenをセット
 	cookie := &http.Cookie{
 		Name:     "token",
 		Value:    tokenString,
 		MaxAge:   3600 * 24,
 		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
+		Domain:   os.Getenv("API_ORIGIN"),
+		SameSite: sameSite,
+		Secure:   os.Getenv("APP_ENV") == "production",
 		HttpOnly: true,
 	}
 	return api.PostUsersSignIn200JSONResponse{UserSignInOkResponseJSONResponse: api.UserSignInOkResponseJSONResponse{
