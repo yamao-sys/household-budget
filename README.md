@@ -26,3 +26,7 @@ cd migrations && gcloud builds submit --config ./cloudbuild.yaml
   - https://zenn.dev/coji/articles/react-router-v7-client-middleware
 - React Router v7 での request.url
   - https://zenn.dev/atman/scraps/bafae280189ac9
+- Github Actions で Cloud Run へのデプロイ
+  - https://cloud.google.com/blog/ja/products/devops-sre/deploy-to-cloud-run-with-github-actions/
+- Github Actions で特定のディレクトリ配下に差分のあった時のみ Job を実行する
+  - https://zenn.dev/aishift/articles/f24bef7836aaec
