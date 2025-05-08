@@ -20,15 +20,16 @@ export async function clientLoader({ params, context }: Route.ClientLoaderArgs) 
   const monthBeginningDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const monthEndDate = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
 
-  let categoryTotalAmounts = (await getCategoryTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate))) ?? [];
-  let clientTotalAmounts = (await getClientTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate))) ?? [];
-  return { isSignedIn: !!auth?.isSignedIn, monthDate, categoryTotalAmounts, clientTotalAmounts };
+  let categoryTotalAmounts =
+    (await getCategoryTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate), auth?.csrfToken ?? "")) ?? [];
+  let clientTotalAmounts = (await getClientTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate), auth?.csrfToken ?? "")) ?? [];
+  return { isSignedIn: !!auth?.isSignedIn, csrfToken: auth?.csrfToken ?? "", monthDate, categoryTotalAmounts, clientTotalAmounts };
 }
 
 export default function MonthlyBudgetDetailPage() {
-  const { isSignedIn, monthDate, categoryTotalAmounts, clientTotalAmounts } = useLoaderData<typeof clientLoader>();
+  const { isSignedIn, csrfToken, monthDate, categoryTotalAmounts, clientTotalAmounts } = useLoaderData<typeof clientLoader>();
 
-  useAuth(isSignedIn);
+  useAuth(isSignedIn, csrfToken);
 
   return (
     <>
