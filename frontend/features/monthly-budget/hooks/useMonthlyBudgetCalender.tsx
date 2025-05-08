@@ -3,6 +3,7 @@ import type { DateClickArg } from "@fullcalendar/interaction/index.js";
 import { useCallback, useMemo, useState } from "react";
 import { getExpenses, getTotalAmounts, postCreateExpense } from "~/apis/expenses.api";
 import { getIncomes, getIncomeTotalAmounts, postCreateIncome } from "~/apis/incomes.api";
+import { useAuthContext } from "~/contexts/useAuthContext";
 import { getDateString } from "~/lib/date";
 import type {
   Expense,
@@ -44,6 +45,8 @@ export const useMonthlyBudgetCalender = () => {
   const [selectedDateIncomes, setSelectedDateIncomes] = useState<Income[]>([]);
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
+  const { csrfToken } = useAuthContext();
+
   const [storeExpenseInput, setStoreExpenseInput] = useState<StoreExpenseInput>(INITIAL_STORE_EXPENSE_INPUT);
   const updateStoreExpenseInput = useCallback((params: Partial<StoreExpenseInput>) => {
     setStoreExpenseInput((prev: StoreExpenseInput) => ({ ...prev, ...params }));
@@ -84,8 +87,16 @@ export const useMonthlyBudgetCalender = () => {
     const selectedMonthEndDate = currentEnd;
 
     // TODO: ここをTanstack Query等を使用してキャッシュする
-    const fetchedExpenseTotalAmounts = await getTotalAmounts(getDateString(selectedMonthBeginningDate), getDateString(selectedMonthEndDate));
-    const fetchedIncomeTotalAmounts = await getIncomeTotalAmounts(getDateString(selectedMonthBeginningDate), getDateString(selectedMonthEndDate));
+    const fetchedExpenseTotalAmounts = await getTotalAmounts(
+      getDateString(selectedMonthBeginningDate),
+      getDateString(selectedMonthEndDate),
+      csrfToken,
+    );
+    const fetchedIncomeTotalAmounts = await getIncomeTotalAmounts(
+      getDateString(selectedMonthBeginningDate),
+      getDateString(selectedMonthEndDate),
+      csrfToken,
+    );
 
     setCurrentMonthDate(selectedMonthBeginningDate);
     setEvents([...(fetchedExpenseTotalAmounts ?? []), ...(fetchedIncomeTotalAmounts ?? [])]);
@@ -97,8 +108,8 @@ export const useMonthlyBudgetCalender = () => {
     if (arg.date.getMonth() !== currentMonthDate.getMonth()) return;
 
     const date = getDateString(arg.date);
-    setSelectedDateExpenses(await getExpenses(date, date));
-    setSelectedDateIncomes(await getIncomes(date, date));
+    setSelectedDateExpenses(await getExpenses(date, date, csrfToken));
+    setSelectedDateIncomes(await getIncomes(date, date, csrfToken));
     setSelectedDate(date);
     setInView(true);
     setStoreExpenseInput((prev: StoreExpenseInput) => ({ ...prev, ...{ paidAt: arg.date } }));
@@ -108,7 +119,7 @@ export const useMonthlyBudgetCalender = () => {
   const handleCreateExpense = async () => {
     setExpenseValidationErrors(INITIAL_EXPENSE_VALIDATION_ERRORS);
 
-    const { expense, errors } = await postCreateExpense(storeExpenseInput);
+    const { expense, errors } = await postCreateExpense(storeExpenseInput, csrfToken);
     if (Object.keys(errors).length > 0) {
       setExpenseValidationErrors(errors);
       return;
@@ -138,7 +149,7 @@ export const useMonthlyBudgetCalender = () => {
   const handleCreateIncome = async () => {
     setIncomeValidationErrors(INITIAL_INCOME_VALIDATION_ERRORS);
 
-    const { income, errors } = await postCreateIncome(storeIncomeInput);
+    const { income, errors } = await postCreateIncome(storeIncomeInput, csrfToken);
     if (Object.keys(errors).length > 0) {
       setIncomeValidationErrors(errors);
       return;
