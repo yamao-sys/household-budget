@@ -3,50 +3,6 @@ substitutions:
   _API_SERVER_SERVICE: 'api-server'
   _FRONTEND_SERVICE: 'frontend'
 steps:
-  # マイグレーションコンテナのビルド・プッシュ
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-migration'
-    waitFor: ['-']
-    args:
-      [
-        'build',
-        '-t',
-        '$_REGION-docker.pkg.dev/${PROJECT_ID}/migrations/latest',
-        '-f',
-        './migrations/Dockerfile',
-        './migrations',
-      ]
-
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-migration-image'
-    waitFor: ['build-migration']
-    args: ['push', '$_REGION-docker.pkg.dev/${PROJECT_ID}/migrations/latest']
-
-  # Cloud Run Jobでマイグレーションの実行
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
-    id: 'apply-migration'
-    waitFor: ['push-migration-image']
-    args:
-      - -c
-      - |
-        gcloud run jobs update apply-migration \
-          --image ${_REGION}-docker.pkg.dev/${PROJECT_ID}/migrations/latest \
-          --project ${PROJECT_ID} \
-          --region ${_REGION} \
-          --update-env-vars="SERVICE_ACCOUNT_EMAIL=$$SERVICE_ACCOUNT_EMAIL,MYSQL_DBNAME=$$MYSQL_DBNAME,MYSQL_USER=$$MYSQL_USER,MYSQL_PASS=$$MYSQL_PASS,MYSQL_HOST=$$MYSQL_HOST,MYSQL_PORT=$$MYSQL_PORT" \
-          --service-account="$$SERVICE_ACCOUNT_EMAIL" \
-          --execute-now
-    secretEnv:
-      [
-        'SERVICE_ACCOUNT_EMAIL',
-        'MYSQL_DBNAME',
-        'MYSQL_USER',
-        'MYSQL_PASS',
-        'MYSQL_HOST',
-        'MYSQL_PORT',
-      ]
-
   # NOTE: APIコンテナのビルド・プッシュ
   - name: 'gcr.io/cloud-builders/docker'
     args:
@@ -59,7 +15,7 @@ steps:
         './api-server',
       ]
     id: build-api-server
-    waitFor: ['apply-migration']
+    waitFor: ['-']
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
@@ -103,7 +59,7 @@ steps:
   # Frontendのデプロイのため、環境変数を.env.productionに書き出す
   - name: gcr.io/cloud-builders/gcloud
     id: 'prepare-frontend-env'
-    waitFor: ['apply-migration']
+    waitFor: ['-']
     entrypoint: bash
     args:
       - -c

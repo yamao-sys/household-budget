@@ -5,13 +5,29 @@ on:
     types: [opened, synchronize]
 
 jobs:
+  # NOTE: migrations配下に差分があった場合のみマイグレーションの実行するため差分の有無判定
+  detect-ddl-change:
+    runs-on: ubuntu-latest
+    outputs:
+      ddl_changed: ${{ steps.filter.outputs.ddl_changed }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # NOTE: 差分確認のためにフル履歴を取得
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            ddl_changed:
+              - 'migrations/**'
+
   build-and-deploy:
-    name: execute
+    needs: detect-ddl-change
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Auth gcloud CLI
         uses: 'google-github-actions/auth@v2'
@@ -22,6 +38,11 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
+
+      - name: Run Migration
+        working-directory: ./
+        if: needs.filter.outputs.ddl_changed == 'true' # NOTE: migrations配下に差分があった場合のみマイグレーションの実行
+        run: gcloud builds submit --config migration-cloudbuild.yaml .
 
       - name: Run Cloud Build
         working-directory: ./
