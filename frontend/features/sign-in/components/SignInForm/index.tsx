@@ -4,6 +4,7 @@ import { postUserSignIn } from "~/apis/users.api";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
 import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
+import { useAuthContext } from "~/contexts/useAuthContext";
 import type { UserSignInInput } from "~/types";
 
 export const SignInForm: FC = () => {
@@ -24,10 +25,12 @@ export const SignInForm: FC = () => {
 
   const navigate = useNavigate();
 
+  const { csrfToken } = useAuthContext();
+
   const handleSignIn = useCallback(async () => {
     setValidationError("");
 
-    const error = await postUserSignIn(userSignInInputs);
+    const error = await postUserSignIn(userSignInInputs, csrfToken);
 
     if (error !== "") {
       setValidationError(error);
