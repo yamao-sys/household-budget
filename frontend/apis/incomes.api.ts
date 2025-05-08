@@ -8,7 +8,7 @@ const client = createClient<paths>({
   credentials: "include",
 });
 
-export async function getIncomes(fromDate: string, toDate: string) {
+export async function getIncomes(fromDate: string, toDate: string, csrfToken: string) {
   const params: operations["get-incomes"]["parameters"] = { query: {} };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };
@@ -18,7 +18,7 @@ export async function getIncomes(fromDate: string, toDate: string) {
   }
 
   const { data } = await client.GET("/incomes", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     params,
   });
 
@@ -27,7 +27,7 @@ export async function getIncomes(fromDate: string, toDate: string) {
   return data?.incomes ?? emptyIncomes;
 }
 
-export async function getIncomeTotalAmounts(fromDate: string, toDate: string) {
+export async function getIncomeTotalAmounts(fromDate: string, toDate: string, csrfToken: string) {
   const params: operations["get-incomes-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };
@@ -37,7 +37,7 @@ export async function getIncomeTotalAmounts(fromDate: string, toDate: string) {
   }
 
   const { data } = await client.GET("/incomes/totalAmounts", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     params,
   });
   if (!data) {
@@ -47,7 +47,7 @@ export async function getIncomeTotalAmounts(fromDate: string, toDate: string) {
   return data.totalAmounts;
 }
 
-export async function getClientTotalAmounts(fromDate: string, toDate: string) {
+export async function getClientTotalAmounts(fromDate: string, toDate: string, csrfToken: string) {
   const params: operations["get-incomes-client-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };
@@ -57,7 +57,7 @@ export async function getClientTotalAmounts(fromDate: string, toDate: string) {
   }
 
   const { data } = await client.GET("/incomes/clientTotalAmounts", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     params,
   });
   if (!data) {
@@ -67,9 +67,9 @@ export async function getClientTotalAmounts(fromDate: string, toDate: string) {
   return data.totalAmounts;
 }
 
-export async function postCreateIncome(input: StoreIncomeInput) {
+export async function postCreateIncome(input: StoreIncomeInput, csrfToken: string) {
   const { data } = await client.POST("/incomes", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     body: input,
     bodySerializer() {
       const reqBody: { [key: string]: string | number } = {};

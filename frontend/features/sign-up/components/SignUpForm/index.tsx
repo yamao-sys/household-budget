@@ -5,6 +5,7 @@ import { postUserSignUp } from "~/apis/users.api";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
 import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
+import { useAuthContext } from "~/contexts/useAuthContext";
 import type { UserSignUpInput, UserSignUpValidationError } from "~/types";
 
 const INITIAL_VALIDATION_ERRORS = {
@@ -26,6 +27,8 @@ export const SignUpForm: FC = () => {
 
   const [validationErrors, setValidationErrors] = useState<UserSignUpValidationError>(INITIAL_VALIDATION_ERRORS);
 
+  const { csrfToken } = useAuthContext();
+
   const setSupporterSignUpTextInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       updateSignUpInput({ [e.target.name]: e.target.value });
@@ -38,7 +41,7 @@ export const SignUpForm: FC = () => {
   const handleSignUp = useCallback(async () => {
     setValidationErrors(INITIAL_VALIDATION_ERRORS);
 
-    const errors = await postUserSignUp(userSignUpInputs);
+    const errors = await postUserSignUp(userSignUpInputs, csrfToken);
 
     // バリデーションエラーがなければ、確認画面へ遷移
     if (Object.keys(errors).length === 0) {
@@ -50,7 +53,7 @@ export const SignUpForm: FC = () => {
     // NOTE: バリデーションエラーの格納と入力パスワードのリセット
     setValidationErrors(errors);
     updateSignUpInput({ password: "" });
-  }, [setValidationErrors, userSignUpInputs, updateSignUpInput]);
+  }, [setValidationErrors, userSignUpInputs, updateSignUpInput, csrfToken]);
 
   return (
     <>

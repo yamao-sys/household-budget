@@ -8,7 +8,7 @@ const client = createClient<paths>({
   credentials: "include",
 });
 
-export async function getExpenses(fromDate: string, toDate: string) {
+export async function getExpenses(fromDate: string, toDate: string, csrfToken: string) {
   const params: operations["get-expenses"]["parameters"] = { query: {} };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };
@@ -18,7 +18,7 @@ export async function getExpenses(fromDate: string, toDate: string) {
   }
 
   const { data } = await client.GET("/expenses", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     params,
   });
 
@@ -27,7 +27,7 @@ export async function getExpenses(fromDate: string, toDate: string) {
   return data?.expenses ?? emptyExpenses;
 }
 
-export async function getTotalAmounts(fromDate: string, toDate: string) {
+export async function getTotalAmounts(fromDate: string, toDate: string, csrfToken: string) {
   const params: operations["get-expenses-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };
@@ -37,7 +37,7 @@ export async function getTotalAmounts(fromDate: string, toDate: string) {
   }
 
   const { data } = await client.GET("/expenses/totalAmounts", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     params,
   });
   if (!data) {
@@ -47,7 +47,7 @@ export async function getTotalAmounts(fromDate: string, toDate: string) {
   return data.totalAmounts;
 }
 
-export async function getCategoryTotalAmounts(fromDate: string, toDate: string) {
+export async function getCategoryTotalAmounts(fromDate: string, toDate: string, csrfToken: string) {
   const params: operations["get-expenses-category-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };
@@ -57,7 +57,7 @@ export async function getCategoryTotalAmounts(fromDate: string, toDate: string) 
   }
 
   const { data } = await client.GET("/expenses/categoryTotalAmounts", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     params,
   });
   if (!data) {
@@ -67,9 +67,9 @@ export async function getCategoryTotalAmounts(fromDate: string, toDate: string) 
   return data.totalAmounts;
 }
 
-export async function postCreateExpense(input: StoreExpenseInput) {
+export async function postCreateExpense(input: StoreExpenseInput, csrfToken: string) {
   const { data } = await client.POST("/expenses", {
-    ...(await getRequestHeaders()),
+    ...getRequestHeaders(csrfToken),
     body: input,
     bodySerializer() {
       const reqBody: { [key: string]: string | number } = {};

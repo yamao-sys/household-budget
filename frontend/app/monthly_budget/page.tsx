@@ -7,13 +7,13 @@ import { useAuth } from "~/hooks/useAuth";
 export async function clientLoader({ context }: Route.ClientLoaderArgs) {
   const auth = context.get(authContext);
 
-  return { isSignedIn: !!auth?.isSignedIn };
+  return { isSignedIn: !!auth?.isSignedIn, csrfToken: auth?.csrfToken ?? "" };
 }
 
 export default function MonthlyBudgetPage() {
-  const { isSignedIn } = useLoaderData<typeof clientLoader>();
+  const { isSignedIn, csrfToken } = useLoaderData<typeof clientLoader>();
 
-  useAuth(isSignedIn);
+  useAuth(isSignedIn, csrfToken);
 
   return (
     <>

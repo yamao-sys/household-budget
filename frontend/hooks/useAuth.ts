@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useAuthSetContext } from "~/contexts/useAuthContext";
 
-export const useAuth = (isSignedIn: boolean) => {
+export const useAuth = (isSignedIn: boolean, csrfToken: string) => {
   const { setAuth } = useAuthSetContext();
 
   useEffect(() => {
-    setAuth({ isSignedIn });
-  }, [isSignedIn]);
+    setAuth({ isSignedIn, csrfToken });
+  }, [isSignedIn, csrfToken]);
 
   return;
 };
