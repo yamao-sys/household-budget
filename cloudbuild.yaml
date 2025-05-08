@@ -13,8 +13,8 @@ steps:
         '-t',
         '$_REGION-docker.pkg.dev/${PROJECT_ID}/migrations/latest',
         '-f',
-        '.migrations/Dockerfile',
-        '.',
+        './migrations/Dockerfile',
+        './migrations',
       ]
 
   - name: 'gcr.io/cloud-builders/docker'
@@ -56,7 +56,7 @@ steps:
         '$_REGION-docker.pkg.dev/${PROJECT_ID}/${_API_SERVER_SERVICE}/latest',
         '-f',
         './api-server/Dockerfile',
-        '.',
+        './api-server',
       ]
     id: build-api-server
     waitFor: ['apply-migration']
@@ -119,8 +119,8 @@ steps:
         '-t',
         '$_REGION-docker.pkg.dev/${PROJECT_ID}/${_FRONTEND_SERVICE}/latest',
         '-f',
-        '.frontend/Dockerfile',
-        '.',
+        './frontend/Dockerfile',
+        './frontend',
       ]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-frontend-image'
