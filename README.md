@@ -22,3 +22,7 @@ cd migrations && gcloud builds submit --config ./cloudbuild.yaml
 - https://github.com/fullcalendar/fullcalendar-react?tab=readme-ov-file
 - https://qiita.com/FumioNonaka/items/1810f7e211638988af62
 - https://fullcalendar.io/docs/height
+- React Router v7(SPA)でクライアントのミドルウェアを作る
+  - https://zenn.dev/coji/articles/react-router-v7-client-middleware
+- React Router v7 での request.url
+  - https://zenn.dev/atman/scraps/bafae280189ac9
