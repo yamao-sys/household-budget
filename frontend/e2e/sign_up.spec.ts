@@ -21,8 +21,6 @@ test.describe("/sign_up", () => {
   test("異常系", async ({ page }) => {
     await page.goto("/sign_up");
 
-    page.on("console", (msg) => console.log(msg.text()));
-
     // NOTE: 会員登録フォームを入力
     await page.getByRole("button", { name: "登録する" }).click();
 
