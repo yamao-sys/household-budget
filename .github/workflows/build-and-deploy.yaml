@@ -25,5 +25,4 @@ jobs:
 
       - name: Run Cloud Build
         working-directory: ./
-        run: |
-          gcloud builds submit --config ./cloudbuild.yaml
+        run: gcloud builds submit --config cloudbuild.yaml .
