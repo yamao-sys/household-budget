@@ -16,6 +16,7 @@ export async function getCsrfToken() {
 }
 
 export const getRequestHeaders = async () => {
+  console.log(`Cookies.get("_csrf"): ${Cookies.get("_csrf")}`);
   return {
     headers: {
       "X-CSRF-Token": Cookies.get("_csrf"),
