@@ -19,11 +19,12 @@ func ApplyMiddlewares(e *echo.Echo) *echo.Echo {
 	}))
 
 	// NOTE: CSRF対策
+	// 	   : CSRFトークンをリクエスト時にHTTPヘッダに埋め込むため、HttpOnlyはfalseにする
 	csrfConfig := middleware.CSRFConfig{
 		TokenLookup: "header:"+echo.HeaderXCSRFToken,
 		CookieMaxAge: 3600,
 		CookieSameSite: http.SameSiteNoneMode,
-		CookieHTTPOnly: true,
+		CookieHTTPOnly: false,
 		CookiePath: "/",
 		CookieSecure: os.Getenv("APP_ENV") == "production",
 		ErrorHandler: func(err error, c echo.Context) error {

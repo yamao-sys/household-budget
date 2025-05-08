@@ -4,8 +4,12 @@ import { getDateString } from "~/lib/date";
 import { useLoaderData } from "react-router";
 import { MonthlyBudgetDetail } from "~/features/monthly-budget/components/Detail/MonthlyBudgetDetail";
 import { getClientTotalAmounts } from "~/apis/incomes.api";
+import { authContext } from "~/middlewares/auth-context";
+import { useAuth } from "~/hooks/useAuth";
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+export async function clientLoader({ params, context }: Route.ClientLoaderArgs) {
+  const auth = context.get(authContext);
+
   const month = params.month;
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
     throw new Response("Invalid Path", { status: 500 });
@@ -18,11 +22,13 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 
   let categoryTotalAmounts = (await getCategoryTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate))) ?? [];
   let clientTotalAmounts = (await getClientTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate))) ?? [];
-  return { monthDate, categoryTotalAmounts, clientTotalAmounts };
+  return { isSignedIn: !!auth?.isSignedIn, monthDate, categoryTotalAmounts, clientTotalAmounts };
 }
 
 export default function MonthlyBudgetDetailPage() {
-  const { monthDate, categoryTotalAmounts, clientTotalAmounts } = useLoaderData<typeof clientLoader>();
+  const { isSignedIn, monthDate, categoryTotalAmounts, clientTotalAmounts } = useLoaderData<typeof clientLoader>();
+
+  useAuth(isSignedIn);
 
   return (
     <>

@@ -9,11 +9,14 @@ const client = createClient<paths>({
 });
 
 export async function postUserSignUp(input: UserSignUpInput) {
-  const { data, error } = await client.POST("/users/signUp", {
+  const { data, response } = await client.POST("/users/signUp", {
     ...(await getRequestHeaders()),
     body: input,
   });
-  if (error?.code === 500 || data === undefined) {
+  if (response.status === 403) {
+    throw Error("Forbidden");
+  }
+  if (response.status === 500 || data === undefined) {
     throw Error("Internal Server Error");
   }
 
@@ -27,6 +30,9 @@ export async function postUserSignIn(input: UserSignInInput) {
   });
   if (response.status === 500) {
     throw Error("Internal Server Error");
+  }
+  if (response.status === 403) {
+    throw Error("Forbidden");
   }
   if (response.status === 400) {
     return "メールアドレスまたはパスワードが正しくありません";

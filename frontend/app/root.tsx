@@ -1,12 +1,11 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation, useNavigate } from "react-router";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import BaseContainer from "~/components/BaseContainer";
-import { getCheckSignedIn } from "~/apis/users.api";
-import { useEffect, useState } from "react";
-import { NAVIGATION_PAGE_LIST } from "./routes";
 import { HeaderNavigation } from "./HeaderNavigation";
+import { authMiddleware } from "~/middlewares/auth-middleware";
+import { AuthProvider } from "~/contexts/useAuthContext";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -21,53 +20,29 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export const unstable_clientMiddleware = [authMiddleware];
+
 export function Layout({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isSignedIn, setIsSignedIn] = useState(false);
-
-  useEffect(() => {
-    async function init() {
-      const checkedSignedIn = await getCheckSignedIn();
-
-      let toNavigatePath = "";
-      if (location.pathname === NAVIGATION_PAGE_LIST.signInPage) {
-        if (checkedSignedIn) {
-          toNavigatePath = NAVIGATION_PAGE_LIST.monthlyBudgetPage;
-        }
-      }
-      if (location.pathname !== NAVIGATION_PAGE_LIST.signUpPage && location.pathname !== NAVIGATION_PAGE_LIST.signInPage) {
-        if (!checkedSignedIn) {
-          toNavigatePath = NAVIGATION_PAGE_LIST.signInPage;
-        }
-      }
-
-      setIsSignedIn(checkedSignedIn);
-      if (toNavigatePath !== "") {
-        navigate(toNavigatePath);
-      }
-    }
-    init();
-  }, [location, setIsSignedIn]);
-
   return (
-    <html lang='en'>
-      <head>
-        <meta charSet='utf-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <div>
-          <HeaderNavigation isSignedIn={isSignedIn}>
-            <BaseContainer containerWidth='w-4/5'>{children}</BaseContainer>
-          </HeaderNavigation>
-        </div>
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+    <AuthProvider>
+      <html lang='en'>
+        <head>
+          <meta charSet='utf-8' />
+          <meta name='viewport' content='width=device-width, initial-scale=1' />
+          <Meta />
+          <Links />
+        </head>
+        <body>
+          <div>
+            <HeaderNavigation>
+              <BaseContainer containerWidth='w-4/5'>{children}</BaseContainer>
+            </HeaderNavigation>
+          </div>
+          <ScrollRestoration />
+          <Scripts />
+        </body>
+      </html>
+    </AuthProvider>
   );
 }
 
