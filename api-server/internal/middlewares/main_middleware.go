@@ -24,6 +24,8 @@ func ApplyMiddlewares(e *echo.Echo) *echo.Echo {
 		CookieMaxAge: 3600,
 		CookieSameSite: http.SameSiteNoneMode,
 		CookieHTTPOnly: true,
+		CookiePath: "/",
+		CookieSecure: os.Getenv("APP_ENV") == "production",
 		ErrorHandler: func(err error, c echo.Context) error {
 			return echo.NewHTTPError(http.StatusForbidden, err.Error())
 		},
