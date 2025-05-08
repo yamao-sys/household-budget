@@ -1,0 +1,50 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # NOTE: migrations配下に差分があった場合のみマイグレーションの実行するため差分の有無判定
+  detect-ddl-change:
+    runs-on: ubuntu-latest
+    outputs:
+      ddl_changed: ${{ steps.filter.outputs.ddl_changed }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # NOTE: 差分確認のためにフル履歴を取得
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            ddl_changed:
+              - 'migrations/**'
+
+  build-and-deploy:
+    needs: detect-ddl-change
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Auth gcloud CLI
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+
+      - name: Run Migration
+        working-directory: ./
+        if: needs.detect-ddl-change.outputs.ddl_changed == 'true' # NOTE: migrations配下に差分があった場合のみマイグレーションの実行
+        run: gcloud builds submit --gcs-log-dir=gs://household-budget-build-and-deploy/logs --config migration-cloudbuild.yaml .
+
+      - name: Run Cloud Build
+        working-directory: ./
+        run: gcloud builds submit --gcs-log-dir=gs://household-budget-build-and-deploy/logs --config cloudbuild.yaml .
