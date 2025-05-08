@@ -31,7 +31,7 @@ steps:
           --project ${PROJECT_ID} \
           --platform managed \
           --region ${_REGION} \
-          --update-env-vars="SERVICE_ACCOUNT_EMAIL=$$SERVICE_ACCOUNT_EMAIL,MYSQL_DBNAME=$$MYSQL_DBNAME,MYSQL_USER=$$MYSQL_USER,MYSQL_PASS=$$MYSQL_PASS,MYSQL_HOST=$$MYSQL_HOST,MYSQL_PORT=$$MYSQL_PORT,SERVER_PORT=$$SERVER_PORT,JWT_TOKEN_KEY=$$JWT_TOKEN_KEY,CLIENT_ORIGIN=$$CLIENT_ORIGIN,APP_ENV=$$APP_ENV" \
+          --update-env-vars="SERVICE_ACCOUNT_EMAIL=$$SERVICE_ACCOUNT_EMAIL,MYSQL_DBNAME=$$MYSQL_DBNAME,MYSQL_USER=$$MYSQL_USER,MYSQL_PASS=$$MYSQL_PASS,MYSQL_HOST=$$MYSQL_HOST,MYSQL_PORT=$$MYSQL_PORT,SERVER_PORT=$$SERVER_PORT,JWT_TOKEN_KEY=$$JWT_TOKEN_KEY,CLIENT_ORIGIN=$$CLIENT_ORIGIN,APP_ENV=$$APP_ENV,API_ORIGIN=$$API_ORIGIN" \
           --service-account="$$SERVICE_ACCOUNT_EMAIL"
     id: deploy-api-server
     waitFor: ['push-api-server-image']
@@ -48,6 +48,7 @@ steps:
         'CLIENT_ORIGIN',
         'APP_ENV',
         'TZ',
+        'API_ORIGIN',
       ]
 availableSecrets:
   secretManager:
@@ -73,3 +74,5 @@ availableSecrets:
       env: APP_ENV
     - versionName: 'projects/${PROJECT_NUMBER}/secrets/TZ/versions/1'
       env: TZ
+    - versionName: 'projects/${PROJECT_NUMBER}/secrets/API_ORIGIN/versions/1'
+      env: API_ORIGIN
