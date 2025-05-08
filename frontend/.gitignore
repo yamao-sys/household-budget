@@ -14,4 +14,5 @@ node_modules/
 /playwright/.cache/
 
 .env
+.env.production
 .env.*.local
