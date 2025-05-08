@@ -1,8 +1,9 @@
 name: Build and Deploy
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  push:
+    branches:
+      - main
 
 jobs:
   # NOTE: migrations配下に差分があった場合のみマイグレーションの実行するため差分の有無判定
