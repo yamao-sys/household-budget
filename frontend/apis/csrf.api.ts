@@ -1,6 +1,5 @@
 import createClient from "openapi-fetch";
 import type { paths } from "./generated/apiSchema";
-import Cookies from "js-cookie";
 
 const client = createClient<paths>({
   baseUrl: `${import.meta.env.VITE_API_ENDPOINT_URI}/`,
@@ -15,10 +14,10 @@ export async function getCsrfToken() {
   return data.csrfToken;
 }
 
-export const getRequestHeaders = async () => {
+export const getRequestHeaders = (csrfToken: string) => {
   return {
     headers: {
-      "X-CSRF-Token": Cookies.get("_csrf"),
+      "X-CSRF-Token": csrfToken,
     },
   };
 };
