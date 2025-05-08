@@ -13,9 +13,14 @@ jobs:
       ddl_changed: ${{ steps.filter.outputs.ddl_changed }}
 
     steps:
+      - run: echo "fetch_depth=$(( commits + 1 ))" >> $GITHUB_ENV
+        env:
+          commits: ${{ github.event.pull_request.commits }}
+
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # NOTE: 差分確認のためにフル履歴を取得
+          fetch-depth: ${{ env.fetch_depth }}
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
