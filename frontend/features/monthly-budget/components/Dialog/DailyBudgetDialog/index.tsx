@@ -1,13 +1,21 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useQueryClient } from "@tanstack/react-query";
 import type React from "react";
 import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
 import BaseFormSelect from "~/components/BaseFormSelect";
 import { EXPENSE_CATEGORY } from "~/const/expense";
 import { useAuthContext } from "~/contexts/useAuthContext";
-import { useGetExpenses } from "~/services/expenses";
-import type { Income, StoreExpenseInput, StoreExpenseValidationError, StoreIncomeInput, StoreIncomeValidationError } from "~/types";
+import { useGetExpenses, usePostCreateExpense } from "~/services/expenses";
+import type {
+  Income,
+  StoreExpenseInput,
+  StoreExpenseResponse,
+  StoreExpenseValidationError,
+  StoreIncomeInput,
+  StoreIncomeValidationError,
+} from "~/types";
 
 type Props = {
   inView: boolean;
@@ -17,7 +25,8 @@ type Props = {
   storeExpenseInput: StoreExpenseInput;
   setStoreExpenseTextInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setStoreExpenseSelectInput: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  handleCreateExpense: () => Promise<void>;
+  onPostCreateExpenseMutate: () => void;
+  onPostCreateExpenseSuccess: (data: StoreExpenseResponse) => void;
   expenseValidationErrors: StoreExpenseValidationError;
   storeIncomeInput: StoreIncomeInput;
   setStoreIncomeTextInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -33,7 +42,8 @@ export const DailyBudgetDialog: React.FC<Props> = ({
   storeExpenseInput,
   setStoreExpenseTextInput,
   setStoreExpenseSelectInput,
-  handleCreateExpense,
+  onPostCreateExpenseMutate,
+  onPostCreateExpenseSuccess,
   expenseValidationErrors,
   storeIncomeInput,
   setStoreIncomeTextInput,
@@ -47,6 +57,14 @@ export const DailyBudgetDialog: React.FC<Props> = ({
     isPending: isSelectedDateExpensesPending,
     isError: isSelectedDateExpensesError,
   } = useGetExpenses(date, date, csrfToken);
+
+  const queryClient = useQueryClient();
+
+  const {
+    mutate,
+    // isPending: isPostExpensePending,
+    // isError: isPostExpenseError,
+  } = usePostCreateExpense(queryClient, onPostCreateExpenseMutate, onPostCreateExpenseSuccess, storeExpenseInput, date, csrfToken);
 
   return (
     <div
@@ -152,7 +170,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
           </div>
 
           <div className='w-full flex justify-center'>
-            <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='支出を登録する' onClick={handleCreateExpense} />
+            <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='支出を登録する' onClick={() => mutate()} />
           </div>
         </div>
 
