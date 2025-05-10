@@ -1,4 +1,4 @@
-import type { operations } from "~/apis/generated/apiSchema";
+import type { operations } from "~/types/apiSchema";
 import { client, getRequestHeaders } from "../base/api";
 import type { ClientTotalAmountLists, Income, StoreIncomeInput, StoreIncomeResponse, TotalAmountLists } from "~/types";
 

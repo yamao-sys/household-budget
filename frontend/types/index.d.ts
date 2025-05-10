@@ -1,4 +1,4 @@
-import type { components } from "~/apis/generated/apiSchema";
+import type { components } from "~/types/apiSchema";
 
 export type UserSignUpInput = components["requestBodies"]["UserSignUpInput"]["content"]["application/json"];
 
