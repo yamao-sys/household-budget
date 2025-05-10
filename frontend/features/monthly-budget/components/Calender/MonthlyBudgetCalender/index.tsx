@@ -24,7 +24,6 @@ export const MonthlyBudgetCalender: React.FC = () => {
 
   const {
     selectedMonth,
-    currentMonthDate,
     summary,
     handleDatesSet,
     handleDateClick,
@@ -90,7 +89,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
               <div className='text-green-700 mr-4'>{`収入合計: ¥${summary.totalIncome.toLocaleString()}`}</div>
               <div className='text-red-700 mr-4'>{`支出合計: ¥${summary.totalExpense.toLocaleString()}`}</div>
               <div className='text-blue-700 underline'>
-                <Link to={`${NAVIGATION_PAGE_LIST.monthlyBudgetPage}/${getMonthString(currentMonthDate)}`}>収支詳細へ</Link>
+                <Link to={`${NAVIGATION_PAGE_LIST.monthlyBudgetPage}/${getMonthString(selectedMonth.beginning)}`}>収支詳細へ</Link>
               </div>
             </div>
             <div className='mt-2 font-bold'>{`利益: ¥${(summary.totalIncome - summary.totalExpense).toLocaleString()}`}</div>

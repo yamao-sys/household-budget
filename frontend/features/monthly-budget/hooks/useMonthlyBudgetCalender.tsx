@@ -38,7 +38,6 @@ export const useMonthlyBudgetCalender = () => {
   const [events, setEvents] = useState<TotalAmountLists>([]);
   const [inView, setInView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
-  const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState<{
@@ -88,7 +87,6 @@ export const useMonthlyBudgetCalender = () => {
     currentEnd.setDate(currentEnd.getDate() - 1);
     const selectedMonthEndDate = currentEnd;
 
-    setCurrentMonthDate(selectedMonthBeginningDate);
     setSelectedMonth({
       beginning: selectedMonthBeginningDate,
       end: selectedMonthEndDate,
@@ -98,7 +96,7 @@ export const useMonthlyBudgetCalender = () => {
   // NOTE: 日が選択された時の処理
   const handleDateClick = async (arg: DateClickArg) => {
     // NOTE: 選択月以外の日付のクリックは無効にする
-    if (arg.date.getMonth() !== currentMonthDate.getMonth()) return;
+    if (arg.date.getMonth() !== selectedMonth.beginning.getMonth()) return;
 
     const date = getDateString(arg.date);
     setSelectedDate(date);
@@ -193,7 +191,6 @@ export const useMonthlyBudgetCalender = () => {
 
   return {
     selectedMonth,
-    currentMonthDate,
     summary,
     handleDatesSet,
     handleDateClick,
