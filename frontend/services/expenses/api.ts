@@ -41,7 +41,7 @@ export async function getExpenseTotalAmounts(fromDate: string, toDate: string, c
   return data.totalAmounts;
 }
 
-export async function getCategoryTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<CategoryTotalAmountLists> {
+export async function getExpenseCategoryTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<CategoryTotalAmountLists> {
   const params: operations["get-expenses-category-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };

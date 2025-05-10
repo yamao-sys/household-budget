@@ -1,6 +1,6 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { incomeKeys } from "./key";
-import { getIncomes, getIncomeTotalAmounts, postCreateIncome } from "./api";
+import { getIncomeClientTotalAmounts, getIncomes, getIncomeTotalAmounts, postCreateIncome } from "./api";
 import type { StoreIncomeInput, StoreIncomeResponse } from "~/types";
 import { getDateString } from "~/lib/date";
 
@@ -18,6 +18,16 @@ export const useGetIncomeTotalAmounts = (fromDate: string, toDate: string, csrfT
     queryKey: incomeKeys.totalAmount(fromDate, toDate),
     queryFn: () => getIncomeTotalAmounts(fromDate, toDate, csrfToken),
     staleTime: 1000 * 60 * 10, // NOTE: FullCalenderで月を変更すると、キャッシュクリアされてしまうため設定
+  });
+
+  return { data, isPending, isError };
+};
+
+export const useGetIncomeClientTotalAmounts = (fromDate: string, toDate: string, csrfToken: string) => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: incomeKeys.clientTotalAmount(fromDate, toDate),
+    queryFn: () => getIncomeClientTotalAmounts(fromDate, toDate, csrfToken),
+    staleTime: 1000 * 60 * 10,
   });
 
   return { data, isPending, isError };
@@ -44,6 +54,9 @@ export const usePostCreateIncome = (
       });
       queryClient.invalidateQueries({
         queryKey: incomeKeys.totalAmount(beginningOfMonth, endOfMonth),
+      });
+      queryClient.invalidateQueries({
+        queryKey: incomeKeys.clientTotalAmount(beginningOfMonth, endOfMonth),
       });
 
       onSuccess(data);

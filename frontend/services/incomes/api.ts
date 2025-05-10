@@ -41,7 +41,7 @@ export async function getIncomeTotalAmounts(fromDate: string, toDate: string, cs
   return data.totalAmounts;
 }
 
-export async function getClientTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<ClientTotalAmountLists> {
+export async function getIncomeClientTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<ClientTotalAmountLists> {
   const params: operations["get-incomes-client-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };
