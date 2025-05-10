@@ -52,4 +52,6 @@ jobs:
 
       - name: Run Cloud Build
         working-directory: ./
-        run: gcloud builds submit --gcs-log-dir=gs://household-budget-build-and-deploy/logs --config cloudbuild.yaml .
+        run: |
+          cp ./frontend/.dockerignore.prod ./frontend/.dockerignore
+          gcloud builds submit --gcs-log-dir=gs://household-budget-build-and-deploy/logs --config cloudbuild.yaml .
