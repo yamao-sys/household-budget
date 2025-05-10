@@ -29,3 +29,5 @@ export type StoreExpenseValidationError = components["responses"]["StoreExpenseR
 export type StoreIncomeInput = components["requestBodies"]["StoreIncomeInput"]["content"]["application/json"];
 
 export type StoreIncomeValidationError = components["responses"]["StoreIncomeResponse"]["content"]["application/json"]["errors"];
+
+export type StoreIncomeResponse = components["responses"]["StoreIncomeResponse"]["content"]["application/json"];
