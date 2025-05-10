@@ -83,7 +83,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
     <div
       role='dialog'
       aria-modal='true'
-      className={inView ? "fixed inset-0 z-50 bg-opacity-100 flex justify-center items-start overflow-y-auto py-10" : "hidden"}
+      className={inView ? "fixed inset-0 z-150 bg-opacity-100 flex justify-center items-start overflow-y-auto py-10" : "hidden"}
     >
       <div className='bg-white p-4 rounded shadow-lg w-11/12 max-w-2xl relative overflow-y-auto max-h-[90vh]'>
         <button
