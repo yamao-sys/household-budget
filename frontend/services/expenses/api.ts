@@ -21,7 +21,7 @@ export async function getExpenses(fromDate: string, toDate: string, csrfToken: s
   return data?.expenses ?? emptyExpenses;
 }
 
-export async function getTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<TotalAmountLists> {
+export async function getExpenseTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<TotalAmountLists> {
   const params: operations["get-expenses-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
   if (!!fromDate) {
     params.query = { ...params.query, fromDate };

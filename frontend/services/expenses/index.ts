@@ -1,12 +1,21 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { expenseKeys } from "./key";
-import { getExpenses, postCreateExpense } from "./api";
+import { getExpenses, getExpenseTotalAmounts, postCreateExpense } from "./api";
 import type { StoreExpenseInput, StoreExpenseResponse } from "~/types";
 
 export const useGetExpenses = (fromDate: string, toDate: string, csrfToken: string) => {
   const { data, isPending, isError } = useQuery({
     queryKey: expenseKeys.list(fromDate, toDate),
     queryFn: () => getExpenses(fromDate, toDate, csrfToken),
+  });
+
+  return { data, isPending, isError };
+};
+
+export const useGetExpenseTotalAmounts = (fromDate: string, toDate: string, csrfToken: string) => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: expenseKeys.totalAmount(fromDate, toDate),
+    queryFn: () => getExpenseTotalAmounts(fromDate, toDate, csrfToken),
   });
 
   return { data, isPending, isError };
