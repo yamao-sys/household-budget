@@ -22,12 +22,14 @@ type Props = {
   inView: boolean;
   setInView: (inView: boolean) => void;
   date: string;
+  // NOTE: 支出登録関連
   storeExpenseInput: StoreExpenseInput;
   setStoreExpenseTextInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setStoreExpenseSelectInput: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onPostCreateExpenseMutate: () => void;
   onPostCreateExpenseSuccess: (data: StoreExpenseResponse) => void;
   expenseValidationErrors: StoreExpenseValidationError;
+  // NOTE: 収入登録関連
   storeIncomeInput: StoreIncomeInput;
   setStoreIncomeTextInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPostCreateIncomeMutate: () => void;
@@ -39,12 +41,14 @@ export const DailyBudgetDialog: React.FC<Props> = ({
   inView,
   setInView,
   date,
+  // NOTE: 支出登録関連
   storeExpenseInput,
   setStoreExpenseTextInput,
   setStoreExpenseSelectInput,
   onPostCreateExpenseMutate,
   onPostCreateExpenseSuccess,
   expenseValidationErrors,
+  // NOTE: 収入登録関連
   storeIncomeInput,
   setStoreIncomeTextInput,
   onPostCreateIncomeMutate,
