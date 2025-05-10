@@ -1,46 +1,12 @@
-import { useCallback, useState, type FC } from "react";
-import { useNavigate } from "react-router";
-import { postUserSignIn } from "~/apis/users.api";
-import { NAVIGATION_PAGE_LIST } from "~/app/routes";
+import { type FC } from "react";
 import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
 import { useAuthContext } from "~/contexts/useAuthContext";
-import type { UserSignInInput } from "~/types";
+import { useSignIn } from "../../hooks/useSignIn";
 
 export const SignInForm: FC = () => {
-  const [userSignInInputs, setUserSignInInputs] = useState<UserSignInInput>({
-    email: "",
-    password: "",
-  });
-  const updateSignInInput = useCallback((params: Partial<UserSignInInput>) => {
-    setUserSignInInputs((prev: UserSignInInput) => ({ ...prev, ...params }));
-  }, []);
-  const setUserSignUpTextInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      updateSignInInput({ [e.target.name]: e.target.value });
-    },
-    [updateSignInInput],
-  );
-  const [validationError, setValidationError] = useState("");
-
-  const navigate = useNavigate();
-
   const { csrfToken } = useAuthContext();
-
-  const handleSignIn = useCallback(async () => {
-    setValidationError("");
-
-    const error = await postUserSignIn(userSignInInputs, csrfToken);
-
-    if (error !== "") {
-      setValidationError(error);
-      updateSignInInput({ password: "" });
-      return;
-    }
-
-    window.alert("ログインしました");
-    navigate(NAVIGATION_PAGE_LIST.top);
-  }, [setValidationError, userSignInInputs, updateSignInInput, csrfToken]);
+  const { userSignInInputs, setUserSignUpTextInput, validationError, mutate } = useSignIn(csrfToken);
 
   return (
     <>
@@ -78,7 +44,7 @@ export const SignInForm: FC = () => {
 
       <div className='w-full flex justify-center'>
         <div className='mt-16'>
-          <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='ログインする' onClick={handleSignIn} />
+          <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='ログインする' onClick={() => mutate()} />
         </div>
       </div>
     </>
