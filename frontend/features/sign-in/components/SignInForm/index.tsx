@@ -1,51 +1,12 @@
-import { useCallback, useState, type FC } from "react";
-import { useNavigate } from "react-router";
-import { NAVIGATION_PAGE_LIST } from "~/app/routes";
+import { type FC } from "react";
 import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
 import { useAuthContext } from "~/contexts/useAuthContext";
-import { usePostSignIn } from "~/services/users";
-import type { UserSignInInput } from "~/types";
+import { useSignIn } from "../../hooks/useSignIn";
 
 export const SignInForm: FC = () => {
-  const [userSignInInputs, setUserSignInInputs] = useState<UserSignInInput>({
-    email: "",
-    password: "",
-  });
-  const updateSignInInput = useCallback((params: Partial<UserSignInInput>) => {
-    setUserSignInInputs((prev: UserSignInInput) => ({ ...prev, ...params }));
-  }, []);
-  const setUserSignUpTextInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      updateSignInInput({ [e.target.name]: e.target.value });
-    },
-    [updateSignInInput],
-  );
-  const [validationError, setValidationError] = useState("");
-
-  const navigate = useNavigate();
-
   const { csrfToken } = useAuthContext();
-
-  const initSignInValidationErrors = useCallback(() => {
-    setValidationError("");
-  }, []);
-
-  const onSuccessPostSignIn = useCallback(
-    (error: string) => {
-      if (error !== "") {
-        setValidationError(error);
-        updateSignInInput({ password: "" });
-        return;
-      }
-
-      window.alert("ログインしました");
-      navigate(NAVIGATION_PAGE_LIST.top);
-    },
-    [setValidationError, updateSignInInput],
-  );
-
-  const { mutate } = usePostSignIn(initSignInValidationErrors, onSuccessPostSignIn, userSignInInputs, csrfToken);
+  const { userSignInInputs, setUserSignUpTextInput, validationError, mutate } = useSignIn(csrfToken);
 
   return (
     <>
