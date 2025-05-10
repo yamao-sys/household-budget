@@ -2,6 +2,8 @@
 
 月ごとの収支を可視化する家計簿アプリ
 
+https://github.com/user-attachments/assets/9fde9fcb-9206-4a7c-bd91-056f04b0dd65
+
 ## 技術構成
 
 ### フロントエンド
