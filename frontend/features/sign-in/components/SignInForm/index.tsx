@@ -1,10 +1,10 @@
 import { useCallback, useState, type FC } from "react";
 import { useNavigate } from "react-router";
-import { postUserSignIn } from "~/apis/users.api";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
 import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
 import { useAuthContext } from "~/contexts/useAuthContext";
+import { usePostSignIn } from "~/services/users";
 import type { UserSignInInput } from "~/types";
 
 export const SignInForm: FC = () => {
@@ -27,20 +27,25 @@ export const SignInForm: FC = () => {
 
   const { csrfToken } = useAuthContext();
 
-  const handleSignIn = useCallback(async () => {
+  const initSignInValidationErrors = useCallback(() => {
     setValidationError("");
+  }, []);
 
-    const error = await postUserSignIn(userSignInInputs, csrfToken);
+  const onSuccessPostSignIn = useCallback(
+    (error: string) => {
+      if (error !== "") {
+        setValidationError(error);
+        updateSignInInput({ password: "" });
+        return;
+      }
 
-    if (error !== "") {
-      setValidationError(error);
-      updateSignInInput({ password: "" });
-      return;
-    }
+      window.alert("ログインしました");
+      navigate(NAVIGATION_PAGE_LIST.top);
+    },
+    [setValidationError, updateSignInInput],
+  );
 
-    window.alert("ログインしました");
-    navigate(NAVIGATION_PAGE_LIST.top);
-  }, [setValidationError, userSignInInputs, updateSignInInput, csrfToken]);
+  const { mutate } = usePostSignIn(initSignInValidationErrors, onSuccessPostSignIn, userSignInInputs, csrfToken);
 
   return (
     <>
@@ -78,7 +83,7 @@ export const SignInForm: FC = () => {
 
       <div className='w-full flex justify-center'>
         <div className='mt-16'>
-          <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='ログインする' onClick={handleSignIn} />
+          <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='ログインする' onClick={() => mutate()} />
         </div>
       </div>
     </>
