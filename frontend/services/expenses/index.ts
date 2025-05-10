@@ -1,6 +1,6 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { expenseKeys } from "./key";
-import { getExpenses, getExpenseTotalAmounts, postCreateExpense } from "./api";
+import { getExpenseCategoryTotalAmounts, getExpenses, getExpenseTotalAmounts, postCreateExpense } from "./api";
 import type { StoreExpenseInput, StoreExpenseResponse } from "~/types";
 import { getDateString } from "~/lib/date";
 
@@ -18,6 +18,16 @@ export const useGetExpenseTotalAmounts = (fromDate: string, toDate: string, csrf
     queryKey: expenseKeys.totalAmount(fromDate, toDate),
     queryFn: () => getExpenseTotalAmounts(fromDate, toDate, csrfToken),
     staleTime: 1000 * 60 * 10, // NOTE: FullCalenderで月を変更すると、キャッシュクリアされてしまうため設定
+  });
+
+  return { data, isPending, isError };
+};
+
+export const useGetExpenseCategoryTotalAmounts = (fromDate: string, toDate: string, csrfToken: string) => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: expenseKeys.categoryTotalAmount(fromDate, toDate),
+    queryFn: () => getExpenseCategoryTotalAmounts(fromDate, toDate, csrfToken),
+    staleTime: 1000 * 60 * 10,
   });
 
   return { data, isPending, isError };
@@ -44,6 +54,9 @@ export const usePostCreateExpense = (
       });
       queryClient.invalidateQueries({
         queryKey: expenseKeys.totalAmount(beginningOfMonth, endOfMonth),
+      });
+      queryClient.invalidateQueries({
+        queryKey: expenseKeys.categoryTotalAmount(beginningOfMonth, endOfMonth),
       });
 
       onSuccess(data);
