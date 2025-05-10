@@ -48,6 +48,7 @@ export const useMonthlyBudgetCalender = () => {
     end: new Date(now.getFullYear(), now.getMonth() + 1, 0),
   });
 
+  // NOTE: 支出登録関連
   const [storeExpenseInput, setStoreExpenseInput] = useState<StoreExpenseInput>(INITIAL_STORE_EXPENSE_INPUT);
   const updateStoreExpenseInput = useCallback((params: Partial<StoreExpenseInput>) => {
     setStoreExpenseInput((prev: StoreExpenseInput) => ({ ...prev, ...params }));
@@ -64,9 +65,9 @@ export const useMonthlyBudgetCalender = () => {
     },
     [updateStoreExpenseInput],
   );
-
   const [expenseValidationErrors, setExpenseValidationErrors] = useState<StoreExpenseValidationError>(INITIAL_EXPENSE_VALIDATION_ERRORS);
 
+  // NOTE: 収入登録関連
   const [storeIncomeInput, setStoreIncomeInput] = useState<StoreIncomeInput>(INITIAL_STORE_INCOME_INPUT);
   const updateStoreIncomeInput = useCallback((params: Partial<StoreIncomeInput>) => {
     setStoreIncomeInput((prev: StoreIncomeInput) => ({ ...prev, ...params }));
@@ -77,7 +78,6 @@ export const useMonthlyBudgetCalender = () => {
     },
     [updateStoreIncomeInput],
   );
-
   const [incomeValidationErrors, setIncomeValidationErrors] = useState<StoreIncomeValidationError>(INITIAL_INCOME_VALIDATION_ERRORS);
 
   // NOTE: 月が変更された時の処理
@@ -202,7 +202,7 @@ export const useMonthlyBudgetCalender = () => {
       setInView,
       selectedDate,
       store: {
-        // 支出登録
+        // NOTE: 支出登録関連
         initExpenseValidationErrors,
         onSuccessPostCreateExpense,
         storeExpenseInput,
@@ -210,7 +210,7 @@ export const useMonthlyBudgetCalender = () => {
         setStoreExpenseTextInput,
         setStoreExpenseSelectInput,
 
-        // 収入登録
+        // NOTE: 収入登録関連
         initIncomeValidationErrors,
         onSuccessPostCreateIncome,
         storeIncomeInput,
