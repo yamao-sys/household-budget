@@ -5,14 +5,15 @@ import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
 import BaseFormSelect from "~/components/BaseFormSelect";
 import { EXPENSE_CATEGORY } from "~/const/expense";
-import type { Expense, Income, StoreExpenseInput, StoreExpenseValidationError, StoreIncomeInput, StoreIncomeValidationError } from "~/types";
+import { useAuthContext } from "~/contexts/useAuthContext";
+import { useGetExpenses } from "~/services/expenses";
+import type { Income, StoreExpenseInput, StoreExpenseValidationError, StoreIncomeInput, StoreIncomeValidationError } from "~/types";
 
 type Props = {
   inView: boolean;
   setInView: (inView: boolean) => void;
   date: string;
   incomes: Income[];
-  expenses: Expense[];
   storeExpenseInput: StoreExpenseInput;
   setStoreExpenseTextInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setStoreExpenseSelectInput: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -29,7 +30,6 @@ export const DailyBudgetDialog: React.FC<Props> = ({
   setInView,
   date,
   incomes,
-  expenses,
   storeExpenseInput,
   setStoreExpenseTextInput,
   setStoreExpenseSelectInput,
@@ -40,6 +40,14 @@ export const DailyBudgetDialog: React.FC<Props> = ({
   handleCreateIncome,
   incomeValidationErrors,
 }: Props) => {
+  const { csrfToken } = useAuthContext();
+
+  const {
+    data: selectedDateExpenses,
+    isPending: isSelectedDateExpensesPending,
+    isError: isSelectedDateExpensesError,
+  } = useGetExpenses(date, date, csrfToken);
+
   return (
     <div
       role='dialog'
@@ -57,27 +65,34 @@ export const DailyBudgetDialog: React.FC<Props> = ({
         <h2 className='text-xl text-center font-bold mb-4'>{date} の収支</h2>
 
         {/* 支出 一覧表示 */}
-        <h3 className='text-center font-bold mb-4'>支出</h3>
-        <div className='overflow-y-auto mb-4 border rounded max-h-50'>
-          <table className='w-full table-fixed border border-gray-300 text-sm mb-4'>
-            <thead className='sticky top-0 bg-white z-10 shadow-[0px_1px_0px_0px_rgba(209,213,219,1)]'>
-              <tr>
-                <th className='w-1/4 text-left py-2 px-2 border border-gray-300'>金額</th>
-                <th className='w-2/4 text-left py-2 px-2 border border-gray-300'>適用</th>
-                <th className='w-1/4 text-left py-2 px-2 border border-gray-300'>カテゴリ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expenses.map((expense, idx) => (
-                <tr key={idx}>
-                  <td className='w-1/4 py-2 px-2 border border-gray-300'>¥{expense.amount.toLocaleString()}</td>
-                  <td className='w-2/4 py-2 px-2 border border-gray-300 break-words'>{expense.description}</td>
-                  <td className='w-1/4 py-2 px-2 border border-gray-300 break-words'>{EXPENSE_CATEGORY[expense.category]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {isSelectedDateExpensesPending && <div className='text-center'>Loading...</div>}
+        {isSelectedDateExpensesError && <div className='text-center'>Error loading expenses</div>}
+
+        {selectedDateExpenses !== undefined && !isSelectedDateExpensesPending && !isSelectedDateExpensesError && (
+          <>
+            <h3 className='text-center font-bold mb-4'>支出</h3>
+            <div className='overflow-y-auto mb-4 border rounded max-h-50'>
+              <table className='w-full table-fixed border border-gray-300 text-sm mb-4'>
+                <thead className='sticky top-0 bg-white z-10 shadow-[0px_1px_0px_0px_rgba(209,213,219,1)]'>
+                  <tr>
+                    <th className='w-1/4 text-left py-2 px-2 border border-gray-300'>金額</th>
+                    <th className='w-2/4 text-left py-2 px-2 border border-gray-300'>適用</th>
+                    <th className='w-1/4 text-left py-2 px-2 border border-gray-300'>カテゴリ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedDateExpenses.map((expense, idx) => (
+                    <tr key={idx}>
+                      <td className='w-1/4 py-2 px-2 border border-gray-300'>¥{expense.amount.toLocaleString()}</td>
+                      <td className='w-2/4 py-2 px-2 border border-gray-300 break-words'>{expense.description}</td>
+                      <td className='w-1/4 py-2 px-2 border border-gray-300 break-words'>{EXPENSE_CATEGORY[expense.category]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
 
         <h3 className='text-center font-bold mb-4'>収入</h3>
         <div className='overflow-y-auto mb-4 border rounded max-h-50'>
