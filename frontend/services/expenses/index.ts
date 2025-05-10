@@ -17,6 +17,7 @@ export const useGetExpenseTotalAmounts = (fromDate: string, toDate: string, csrf
   const { data, isPending, isError } = useQuery({
     queryKey: expenseKeys.totalAmount(fromDate, toDate),
     queryFn: () => getExpenseTotalAmounts(fromDate, toDate, csrfToken),
+    staleTime: 1000 * 60 * 10, // NOTE: FullCalenderで月を変更すると、キャッシュクリアされてしまうため設定
   });
 
   return { data, isPending, isError };
