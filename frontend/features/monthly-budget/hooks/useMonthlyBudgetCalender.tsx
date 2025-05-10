@@ -1,9 +1,6 @@
 import type { DatesSetArg } from "@fullcalendar/core/index.js";
 import type { DateClickArg } from "@fullcalendar/interaction/index.js";
 import { useCallback, useMemo, useState } from "react";
-import { getTotalAmounts } from "~/apis/expenses.api";
-import { getIncomeTotalAmounts } from "~/apis/incomes.api";
-import { useAuthContext } from "~/contexts/useAuthContext";
 import { getDateString } from "~/lib/date";
 import type {
   StoreExpenseInput,
@@ -52,8 +49,6 @@ export const useMonthlyBudgetCalender = () => {
     end: new Date(now.getFullYear(), now.getMonth() + 1, 0),
   });
 
-  const { csrfToken } = useAuthContext();
-
   const [storeExpenseInput, setStoreExpenseInput] = useState<StoreExpenseInput>(INITIAL_STORE_EXPENSE_INPUT);
   const updateStoreExpenseInput = useCallback((params: Partial<StoreExpenseInput>) => {
     setStoreExpenseInput((prev: StoreExpenseInput) => ({ ...prev, ...params }));
@@ -93,24 +88,11 @@ export const useMonthlyBudgetCalender = () => {
     currentEnd.setDate(currentEnd.getDate() - 1);
     const selectedMonthEndDate = currentEnd;
 
-    // TODO: ここをTanstack Query等を使用してキャッシュする
-    const fetchedExpenseTotalAmounts = await getTotalAmounts(
-      getDateString(selectedMonthBeginningDate),
-      getDateString(selectedMonthEndDate),
-      csrfToken,
-    );
-    const fetchedIncomeTotalAmounts = await getIncomeTotalAmounts(
-      getDateString(selectedMonthBeginningDate),
-      getDateString(selectedMonthEndDate),
-      csrfToken,
-    );
-
     setCurrentMonthDate(selectedMonthBeginningDate);
     setSelectedMonth({
       beginning: selectedMonthBeginningDate,
       end: selectedMonthEndDate,
     });
-    setEvents([...(fetchedExpenseTotalAmounts ?? []), ...(fetchedIncomeTotalAmounts ?? [])]);
   };
 
   // NOTE: 日が選択された時の処理
@@ -215,6 +197,7 @@ export const useMonthlyBudgetCalender = () => {
     summary,
     handleDatesSet,
     handleDateClick,
+    setEvents,
     events,
 
     dialog: {
