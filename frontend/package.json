@@ -13,7 +13,7 @@
     "format": "prettier  --check './**/*.{ts,tsx}'",
     "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,json}'",
     "test:e2e": "playwright test",
-    "gen:schema": "pnpx tsx /app/generate-api-types.ts /app/openapi/reference.yaml /app/apis/generated/ && pnpm format:fix"
+    "gen:schema": "pnpx tsx /app/generate-api-types.ts /app/openapi/reference.yaml /app/types/ && pnpm format:fix"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",

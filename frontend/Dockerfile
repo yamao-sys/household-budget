@@ -6,7 +6,6 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY apis /app/apis
 COPY app /app/app
 COPY components /app/components
 COPY const /app/const
