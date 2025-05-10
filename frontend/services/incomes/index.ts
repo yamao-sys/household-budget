@@ -2,6 +2,7 @@ import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { incomeKeys } from "./key";
 import { getIncomes, getIncomeTotalAmounts, postCreateIncome } from "./api";
 import type { StoreIncomeInput, StoreIncomeResponse } from "~/types";
+import { getDateString } from "~/lib/date";
 
 export const useGetIncomes = (fromDate: string, toDate: string, csrfToken: string) => {
   const { data, isPending, isError } = useQuery({
@@ -33,9 +34,17 @@ export const usePostCreateIncome = (
     onMutate: () => onMutate,
     mutationFn: () => postCreateIncome(input, csrfToken),
     onSuccess: (data) => {
+      const selectedDate = new Date(date);
+      const beginningOfMonth = getDateString(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
+      const endOfMonth = getDateString(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0));
+
       queryClient.invalidateQueries({
         queryKey: incomeKeys.list(date, date),
       });
+      queryClient.invalidateQueries({
+        queryKey: incomeKeys.totalAmount(beginningOfMonth, endOfMonth),
+      });
+
       onSuccess(data);
     },
   });
