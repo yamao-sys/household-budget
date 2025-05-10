@@ -42,24 +42,24 @@ export const MonthlyBudgetCalender: React.FC = () => {
   } = useGetExpenseTotalAmounts(getDateString(selectedMonth.beginning), getDateString(selectedMonth.end), csrfToken);
 
   const {
-    data: expenseTotalIncomes,
-    isPending: isGetExpenseTotalIncomesPending,
-    isError: isGetExpenseTotalIncomesError,
+    data: incomeTotalIncomes,
+    isPending: isGetIncomeTotalIncomesPending,
+    isError: isGetIncomeTotalIncomesError,
   } = useGetIncomeTotalAmounts(getDateString(selectedMonth.beginning), getDateString(selectedMonth.end), csrfToken);
 
   useEffect(() => {
-    if (expenseTotalAmounts === undefined || expenseTotalIncomes === undefined) return;
+    if (expenseTotalAmounts === undefined || incomeTotalIncomes === undefined) return;
 
-    setEvents([...(expenseTotalAmounts ?? []), ...(expenseTotalIncomes ?? [])]);
-  }, [expenseTotalAmounts, expenseTotalIncomes]);
+    setEvents([...(expenseTotalAmounts ?? []), ...(incomeTotalIncomes ?? [])]);
+  }, [expenseTotalAmounts, incomeTotalIncomes]);
 
   return (
     <div className='mx-auto mt-4'>
-      {isGetExpenseTotalAmountsPending || isGetExpenseTotalIncomesPending ? (
+      {isGetExpenseTotalAmountsPending || isGetIncomeTotalIncomesPending ? (
         <div className='text-center'>
           <p className='text-gray-500'>Loading...</p>
         </div>
-      ) : isGetExpenseTotalAmountsError || isGetExpenseTotalIncomesError ? (
+      ) : isGetExpenseTotalAmountsError || isGetIncomeTotalIncomesError ? (
         <div className='text-center'>
           <p className='text-red-500'>Error occurred while fetching data.</p>
         </div>
