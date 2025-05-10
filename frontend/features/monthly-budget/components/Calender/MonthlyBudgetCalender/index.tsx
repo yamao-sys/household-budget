@@ -8,9 +8,11 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import { Link } from "react-router";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
-import { getMonthString } from "~/lib/date";
+import { getDateString, getMonthString } from "~/lib/date";
 import { useMonthlyBudgetCalender } from "~/features/monthly-budget/hooks/useMonthlyBudgetCalender";
 import { DailyBudgetDialog } from "../../Dialog/DailyBudgetDialog";
+import { useGetExpenseTotalAmounts } from "~/services/expenses";
+import { useAuthContext } from "~/contexts/useAuthContext";
 
 export const MonthlyBudgetCalender: React.FC = () => {
   /**
@@ -20,6 +22,7 @@ export const MonthlyBudgetCalender: React.FC = () => {
   const ref = React.createRef<any>();
 
   const {
+    selectedMonth,
     currentMonthDate,
     summary,
     handleDatesSet,
@@ -28,6 +31,14 @@ export const MonthlyBudgetCalender: React.FC = () => {
 
     dialog,
   } = useMonthlyBudgetCalender();
+
+  const { csrfToken } = useAuthContext();
+
+  const {
+    data: expenseTotalAmounts,
+    isPending: isGetExpenseTotalAmountsPending,
+    isError: isGetExpenseTotalAmountsError,
+  } = useGetExpenseTotalAmounts(getDateString(selectedMonth.beginning), getDateString(selectedMonth.end), csrfToken);
 
   return (
     <div className='mx-auto mt-4'>

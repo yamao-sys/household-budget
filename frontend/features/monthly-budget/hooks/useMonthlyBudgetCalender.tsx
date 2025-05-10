@@ -43,6 +43,15 @@ export const useMonthlyBudgetCalender = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState<{
+    beginning: Date;
+    end: Date;
+  }>({
+    beginning: new Date(now.getFullYear(), now.getMonth(), 1),
+    end: new Date(now.getFullYear(), now.getMonth() + 1, 0),
+  });
+
   const { csrfToken } = useAuthContext();
 
   const [storeExpenseInput, setStoreExpenseInput] = useState<StoreExpenseInput>(INITIAL_STORE_EXPENSE_INPUT);
@@ -97,6 +106,10 @@ export const useMonthlyBudgetCalender = () => {
     );
 
     setCurrentMonthDate(selectedMonthBeginningDate);
+    setSelectedMonth({
+      beginning: selectedMonthBeginningDate,
+      end: selectedMonthEndDate,
+    });
     setEvents([...(fetchedExpenseTotalAmounts ?? []), ...(fetchedIncomeTotalAmounts ?? [])]);
   };
 
@@ -197,6 +210,7 @@ export const useMonthlyBudgetCalender = () => {
   }, [events]);
 
   return {
+    selectedMonth,
     currentMonthDate,
     summary,
     handleDatesSet,
