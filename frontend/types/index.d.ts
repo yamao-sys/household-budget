@@ -14,6 +14,8 @@ export type CategoryTotalAmountLists = components["responses"]["CategoryTotalAmo
 
 export type ExpenseLists = components["schemas"]["ExpenseLists"];
 
+export type StoreExpenseResponse = components["responses"]["StoreExpenseResponse"]["content"]["application/json"];
+
 export type Income = components["schemas"]["Income"];
 
 export type IncomeLists = components["schemas"]["IncomeLists"];
