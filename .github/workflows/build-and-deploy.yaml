@@ -1,9 +1,12 @@
 name: Build and Deploy
 
+# on:
+#   push:
+#     branches:
+#       - main
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   # NOTE: migrations配下に差分があった場合のみマイグレーションの実行するため差分の有無判定
@@ -52,4 +55,6 @@ jobs:
 
       - name: Run Cloud Build
         working-directory: ./
-        run: gcloud builds submit --gcs-log-dir=gs://household-budget-build-and-deploy/logs --config cloudbuild.yaml .
+        run: |
+          cp ./frontend/.dockerignore.prod ./frontend/.dockerignore
+          gcloud builds submit --gcs-log-dir=gs://household-budget-build-and-deploy/logs --config cloudbuild.yaml .
