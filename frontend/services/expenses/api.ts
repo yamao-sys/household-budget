@@ -10,13 +10,14 @@ export async function getExpenses(fromDate: string, toDate: string, csrfToken: s
   if (!!toDate) {
     params.query = { ...params.query, toDate };
   }
+  const emptyExpenses: Expense[] = [];
+
+  if (!fromDate && !toDate) return emptyExpenses;
 
   const { data } = await client.GET("/expenses", {
     ...getRequestHeaders(csrfToken),
     params,
   });
-
-  const emptyExpenses: Expense[] = [];
 
   return data?.expenses ?? emptyExpenses;
 }

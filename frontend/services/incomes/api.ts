@@ -11,12 +11,14 @@ export async function getIncomes(fromDate: string, toDate: string, csrfToken: st
     params.query = { ...params.query, toDate };
   }
 
+  const emptyIncomes: Income[] = [];
+
+  if (!fromDate && !toDate) return emptyIncomes;
+
   const { data } = await client.GET("/incomes", {
     ...getRequestHeaders(csrfToken),
     params,
   });
-
-  const emptyIncomes: Income[] = [];
 
   return data?.incomes ?? emptyIncomes;
 }
