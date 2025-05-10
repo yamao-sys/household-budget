@@ -13,6 +13,7 @@ import { useMonthlyBudgetCalender } from "~/features/monthly-budget/hooks/useMon
 import { DailyBudgetDialog } from "../../Dialog/DailyBudgetDialog";
 import { useGetExpenseTotalAmounts } from "~/services/expenses";
 import { useAuthContext } from "~/contexts/useAuthContext";
+import { useGetIncomeTotalAmounts } from "~/services/incomes";
 
 export const MonthlyBudgetCalender: React.FC = () => {
   /**
@@ -39,6 +40,12 @@ export const MonthlyBudgetCalender: React.FC = () => {
     isPending: isGetExpenseTotalAmountsPending,
     isError: isGetExpenseTotalAmountsError,
   } = useGetExpenseTotalAmounts(getDateString(selectedMonth.beginning), getDateString(selectedMonth.end), csrfToken);
+
+  const {
+    data: expenseTotalIncomes,
+    isPending: isGetExpenseTotalIncomesPending,
+    isError: isGetExpenseTotalIncomesError,
+  } = useGetIncomeTotalAmounts(getDateString(selectedMonth.beginning), getDateString(selectedMonth.end), csrfToken);
 
   return (
     <div className='mx-auto mt-4'>
