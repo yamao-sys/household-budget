@@ -1,12 +1,23 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { expenseKeys } from "./key";
-import { getExpenses, postCreateExpense } from "./api";
+import { getExpenses, getExpenseTotalAmounts, postCreateExpense } from "./api";
 import type { StoreExpenseInput, StoreExpenseResponse } from "~/types";
+import { getDateString } from "~/lib/date";
 
 export const useGetExpenses = (fromDate: string, toDate: string, csrfToken: string) => {
   const { data, isPending, isError } = useQuery({
     queryKey: expenseKeys.list(fromDate, toDate),
     queryFn: () => getExpenses(fromDate, toDate, csrfToken),
+  });
+
+  return { data, isPending, isError };
+};
+
+export const useGetExpenseTotalAmounts = (fromDate: string, toDate: string, csrfToken: string) => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: expenseKeys.totalAmount(fromDate, toDate),
+    queryFn: () => getExpenseTotalAmounts(fromDate, toDate, csrfToken),
+    staleTime: 1000 * 60 * 10, // NOTE: FullCalenderで月を変更すると、キャッシュクリアされてしまうため設定
   });
 
   return { data, isPending, isError };
@@ -24,9 +35,17 @@ export const usePostCreateExpense = (
     onMutate: () => onMutate,
     mutationFn: () => postCreateExpense(input, csrfToken),
     onSuccess: (data) => {
+      const selectedDate = new Date(date);
+      const beginningOfMonth = getDateString(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
+      const endOfMonth = getDateString(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0));
+
       queryClient.invalidateQueries({
         queryKey: expenseKeys.list(date, date),
       });
+      queryClient.invalidateQueries({
+        queryKey: expenseKeys.totalAmount(beginningOfMonth, endOfMonth),
+      });
+
       onSuccess(data);
     },
   });

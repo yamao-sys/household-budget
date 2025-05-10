@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 // NOTE: FullCalendarコンポーネント。
 import FullCalendar from "@fullcalendar/react";
 // NOTE: FullCalendarで月表示を可能にするモジュール。
@@ -8,9 +8,12 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import { Link } from "react-router";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
-import { getMonthString } from "~/lib/date";
+import { getDateString, getMonthString } from "~/lib/date";
 import { useMonthlyBudgetCalender } from "~/features/monthly-budget/hooks/useMonthlyBudgetCalender";
 import { DailyBudgetDialog } from "../../Dialog/DailyBudgetDialog";
+import { useGetExpenseTotalAmounts } from "~/services/expenses";
+import { useAuthContext } from "~/contexts/useAuthContext";
+import { useGetIncomeTotalAmounts } from "~/services/incomes";
 
 export const MonthlyBudgetCalender: React.FC = () => {
   /**
@@ -20,46 +23,79 @@ export const MonthlyBudgetCalender: React.FC = () => {
   const ref = React.createRef<any>();
 
   const {
-    currentMonthDate,
+    selectedMonth,
     summary,
     handleDatesSet,
     handleDateClick,
+    setEvents,
     events,
 
     dialog,
   } = useMonthlyBudgetCalender();
 
+  const { csrfToken } = useAuthContext();
+
+  const {
+    data: expenseTotalAmounts,
+    isPending: isGetExpenseTotalAmountsPending,
+    isError: isGetExpenseTotalAmountsError,
+  } = useGetExpenseTotalAmounts(getDateString(selectedMonth.beginning), getDateString(selectedMonth.end), csrfToken);
+
+  const {
+    data: incomeTotalIncomes,
+    isPending: isGetIncomeTotalIncomesPending,
+    isError: isGetIncomeTotalIncomesError,
+  } = useGetIncomeTotalAmounts(getDateString(selectedMonth.beginning), getDateString(selectedMonth.end), csrfToken);
+
+  useEffect(() => {
+    if (expenseTotalAmounts === undefined || incomeTotalIncomes === undefined) return;
+
+    setEvents([...(expenseTotalAmounts ?? []), ...(incomeTotalIncomes ?? [])]);
+  }, [expenseTotalAmounts, incomeTotalIncomes]);
+
   return (
     <div className='mx-auto mt-4'>
-      {/* 選択した日付の支出と登録フォーム */}
-      <DailyBudgetDialog
-        inView={dialog.inView}
-        setInView={dialog.setInView}
-        date={dialog.selectedDate}
-        storeExpenseInput={dialog.store.storeExpenseInput}
-        setStoreExpenseTextInput={dialog.store.setStoreExpenseTextInput}
-        setStoreExpenseSelectInput={dialog.store.setStoreExpenseSelectInput}
-        onPostCreateExpenseMutate={dialog.store.initExpenseValidationErrors}
-        onPostCreateExpenseSuccess={dialog.store.onSuccessPostCreateExpense}
-        expenseValidationErrors={dialog.store.expenseValidationErrors}
-        storeIncomeInput={dialog.store.storeIncomeInput}
-        setStoreIncomeTextInput={dialog.store.setStoreIncomeTextInput}
-        onPostCreateIncomeMutate={dialog.store.initIncomeValidationErrors}
-        onPostCreateIncomeSuccess={dialog.store.onSuccessPostCreateIncome}
-        incomeValidationErrors={dialog.store.incomeValidationErrors}
-      />
-
-      {/* 合計表示 */}
-      <div className='mb-4 p-4 bg-gray-100 rounded-lg shadow text-sm'>
-        <div className='flex'>
-          <div className='text-green-700 mr-4'>{`収入合計: ¥${summary.totalIncome.toLocaleString()}`}</div>
-          <div className='text-red-700 mr-4'>{`支出合計: ¥${summary.totalExpense.toLocaleString()}`}</div>
-          <div className='text-blue-700 underline'>
-            <Link to={`${NAVIGATION_PAGE_LIST.monthlyBudgetPage}/${getMonthString(currentMonthDate)}`}>収支詳細へ</Link>
-          </div>
+      {isGetExpenseTotalAmountsPending || isGetIncomeTotalIncomesPending ? (
+        <div className='text-center'>
+          <p className='text-gray-500'>Loading...</p>
         </div>
-        <div className='mt-2 font-bold'>{`利益: ¥${(summary.totalIncome - summary.totalExpense).toLocaleString()}`}</div>
-      </div>
+      ) : isGetExpenseTotalAmountsError || isGetIncomeTotalIncomesError ? (
+        <div className='text-center'>
+          <p className='text-red-500'>Error occurred while fetching data.</p>
+        </div>
+      ) : (
+        <>
+          {/* 選択した日付の支出と登録フォーム */}
+          <DailyBudgetDialog
+            inView={dialog.inView}
+            setInView={dialog.setInView}
+            date={dialog.selectedDate}
+            storeExpenseInput={dialog.store.storeExpenseInput}
+            setStoreExpenseTextInput={dialog.store.setStoreExpenseTextInput}
+            setStoreExpenseSelectInput={dialog.store.setStoreExpenseSelectInput}
+            onPostCreateExpenseMutate={dialog.store.initExpenseValidationErrors}
+            onPostCreateExpenseSuccess={dialog.store.onSuccessPostCreateExpense}
+            expenseValidationErrors={dialog.store.expenseValidationErrors}
+            storeIncomeInput={dialog.store.storeIncomeInput}
+            setStoreIncomeTextInput={dialog.store.setStoreIncomeTextInput}
+            onPostCreateIncomeMutate={dialog.store.initIncomeValidationErrors}
+            onPostCreateIncomeSuccess={dialog.store.onSuccessPostCreateIncome}
+            incomeValidationErrors={dialog.store.incomeValidationErrors}
+          />
+
+          {/* 合計表示 */}
+          <div className='mb-4 p-4 bg-gray-100 rounded-lg shadow text-sm'>
+            <div className='flex'>
+              <div className='text-green-700 mr-4'>{`収入合計: ¥${summary.totalIncome.toLocaleString()}`}</div>
+              <div className='text-red-700 mr-4'>{`支出合計: ¥${summary.totalExpense.toLocaleString()}`}</div>
+              <div className='text-blue-700 underline'>
+                <Link to={`${NAVIGATION_PAGE_LIST.monthlyBudgetPage}/${getMonthString(selectedMonth.beginning)}`}>収支詳細へ</Link>
+              </div>
+            </div>
+            <div className='mt-2 font-bold'>{`利益: ¥${(summary.totalIncome - summary.totalExpense).toLocaleString()}`}</div>
+          </div>
+        </>
+      )}
 
       <FullCalendar
         locale='ja'

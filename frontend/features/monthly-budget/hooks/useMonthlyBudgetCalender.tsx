@@ -1,9 +1,6 @@
 import type { DatesSetArg } from "@fullcalendar/core/index.js";
 import type { DateClickArg } from "@fullcalendar/interaction/index.js";
 import { useCallback, useMemo, useState } from "react";
-import { getTotalAmounts } from "~/apis/expenses.api";
-import { getIncomeTotalAmounts } from "~/apis/incomes.api";
-import { useAuthContext } from "~/contexts/useAuthContext";
 import { getDateString } from "~/lib/date";
 import type {
   StoreExpenseInput,
@@ -41,9 +38,15 @@ export const useMonthlyBudgetCalender = () => {
   const [events, setEvents] = useState<TotalAmountLists>([]);
   const [inView, setInView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
-  const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
-  const { csrfToken } = useAuthContext();
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState<{
+    beginning: Date;
+    end: Date;
+  }>({
+    beginning: new Date(now.getFullYear(), now.getMonth(), 1),
+    end: new Date(now.getFullYear(), now.getMonth() + 1, 0),
+  });
 
   const [storeExpenseInput, setStoreExpenseInput] = useState<StoreExpenseInput>(INITIAL_STORE_EXPENSE_INPUT);
   const updateStoreExpenseInput = useCallback((params: Partial<StoreExpenseInput>) => {
@@ -84,26 +87,16 @@ export const useMonthlyBudgetCalender = () => {
     currentEnd.setDate(currentEnd.getDate() - 1);
     const selectedMonthEndDate = currentEnd;
 
-    // TODO: ここをTanstack Query等を使用してキャッシュする
-    const fetchedExpenseTotalAmounts = await getTotalAmounts(
-      getDateString(selectedMonthBeginningDate),
-      getDateString(selectedMonthEndDate),
-      csrfToken,
-    );
-    const fetchedIncomeTotalAmounts = await getIncomeTotalAmounts(
-      getDateString(selectedMonthBeginningDate),
-      getDateString(selectedMonthEndDate),
-      csrfToken,
-    );
-
-    setCurrentMonthDate(selectedMonthBeginningDate);
-    setEvents([...(fetchedExpenseTotalAmounts ?? []), ...(fetchedIncomeTotalAmounts ?? [])]);
+    setSelectedMonth({
+      beginning: selectedMonthBeginningDate,
+      end: selectedMonthEndDate,
+    });
   };
 
   // NOTE: 日が選択された時の処理
   const handleDateClick = async (arg: DateClickArg) => {
     // NOTE: 選択月以外の日付のクリックは無効にする
-    if (arg.date.getMonth() !== currentMonthDate.getMonth()) return;
+    if (arg.date.getMonth() !== selectedMonth.beginning.getMonth()) return;
 
     const date = getDateString(arg.date);
     setSelectedDate(date);
@@ -197,10 +190,11 @@ export const useMonthlyBudgetCalender = () => {
   }, [events]);
 
   return {
-    currentMonthDate,
+    selectedMonth,
     summary,
     handleDatesSet,
     handleDateClick,
+    setEvents,
     events,
 
     dialog: {
