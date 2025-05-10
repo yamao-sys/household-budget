@@ -1,59 +1,12 @@
 import type { FC } from "react";
-import { useCallback, useState } from "react";
-import { useNavigate } from "react-router";
-import { postUserSignUp } from "~/apis/users.api";
-import { NAVIGATION_PAGE_LIST } from "~/app/routes";
 import BaseButton from "~/components/BaseButton";
 import BaseFormInput from "~/components/BaseFormInput";
 import { useAuthContext } from "~/contexts/useAuthContext";
-import type { UserSignUpInput, UserSignUpValidationError } from "~/types";
-
-const INITIAL_VALIDATION_ERRORS = {
-  name: [],
-  email: [],
-  password: [],
-};
+import { useSignUp } from "../../hooks/useSignUp";
 
 export const SignUpForm: FC = () => {
-  const [userSignUpInputs, setUserSignUpInputs] = useState<UserSignUpInput>({
-    name: "",
-    email: "",
-    password: "",
-  });
-
-  const updateSignUpInput = useCallback((params: Partial<UserSignUpInput>) => {
-    setUserSignUpInputs((prev: UserSignUpInput) => ({ ...prev, ...params }));
-  }, []);
-
-  const [validationErrors, setValidationErrors] = useState<UserSignUpValidationError>(INITIAL_VALIDATION_ERRORS);
-
   const { csrfToken } = useAuthContext();
-
-  const setSupporterSignUpTextInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      updateSignUpInput({ [e.target.name]: e.target.value });
-    },
-    [updateSignUpInput],
-  );
-
-  const navigate = useNavigate();
-
-  const handleSignUp = useCallback(async () => {
-    setValidationErrors(INITIAL_VALIDATION_ERRORS);
-
-    const errors = await postUserSignUp(userSignUpInputs, csrfToken);
-
-    // バリデーションエラーがなければ、確認画面へ遷移
-    if (Object.keys(errors).length === 0) {
-      window.alert("会員登録が完了しました");
-      navigate(NAVIGATION_PAGE_LIST.top);
-      return;
-    }
-
-    // NOTE: バリデーションエラーの格納と入力パスワードのリセット
-    setValidationErrors(errors);
-    updateSignUpInput({ password: "" });
-  }, [setValidationErrors, userSignUpInputs, updateSignUpInput, csrfToken]);
+  const { userSignUpInputs, setSupporterSignUpTextInput, validationErrors, mutate } = useSignUp(csrfToken);
 
   return (
     <>
@@ -97,7 +50,7 @@ export const SignUpForm: FC = () => {
 
       <div className='w-full flex justify-center'>
         <div className='mt-16'>
-          <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='登録する' onClick={handleSignUp} />
+          <BaseButton borderColor='border-green-500' bgColor='bg-green-500' label='登録する' onClick={() => mutate()} />
         </div>
       </div>
     </>

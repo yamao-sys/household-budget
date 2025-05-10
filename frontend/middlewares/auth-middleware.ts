@@ -1,8 +1,8 @@
 import { redirect, type unstable_MiddlewareFunction as MiddlewareFunction } from "react-router";
 import { authContext } from "./auth-context";
 import { getCsrfToken } from "~/apis/csrf.api";
-import { getCheckSignedIn } from "~/apis/users.api";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
+import { getCheckSignedIn } from "~/services/users/api";
 
 export const authMiddleware: MiddlewareFunction = async ({ request, context }) => {
   // NOTE: 画面遷移の際にCSRFトークンを取得
