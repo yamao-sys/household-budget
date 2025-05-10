@@ -17,6 +17,7 @@ COPY types /app/types
 COPY hooks /app/hooks
 COPY middlewares /app/middlewares
 COPY contexts /app/contexts
+COPY services /app/services
 COPY package.json package.json
 COPY pnpm-lock.yaml pnpm-lock.yaml
 COPY react-router.config.ts react-router.config.ts

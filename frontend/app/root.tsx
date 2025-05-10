@@ -9,6 +9,7 @@ import { HeaderNavigation } from "./HeaderNavigation";
 import { authMiddleware } from "~/middlewares/auth-middleware";
 import { AuthProvider } from "~/contexts/useAuthContext";
 import { NAVIGATION_PAGE_LIST } from "./routes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -55,6 +56,8 @@ function Fallback({ error }: { error: Error }) {
   );
 }
 
+const queryClient = new QueryClient();
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
@@ -82,7 +85,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <ReactErrorBoundary fallbackRender={Fallback}>
-      <Outlet />
+      <QueryClientProvider client={queryClient}>
+        <Outlet />
+      </QueryClientProvider>
     </ReactErrorBoundary>
   );
 }

@@ -1,14 +1,14 @@
 import type { DatesSetArg } from "@fullcalendar/core/index.js";
 import type { DateClickArg } from "@fullcalendar/interaction/index.js";
 import { useCallback, useMemo, useState } from "react";
-import { getExpenses, getTotalAmounts, postCreateExpense } from "~/apis/expenses.api";
+import { getTotalAmounts } from "~/apis/expenses.api";
 import { getIncomes, getIncomeTotalAmounts, postCreateIncome } from "~/apis/incomes.api";
 import { useAuthContext } from "~/contexts/useAuthContext";
 import { getDateString } from "~/lib/date";
 import type {
-  Expense,
   Income,
   StoreExpenseInput,
+  StoreExpenseResponse,
   StoreExpenseValidationError,
   StoreIncomeInput,
   StoreIncomeValidationError,
@@ -41,7 +41,6 @@ export const useMonthlyBudgetCalender = () => {
   const [events, setEvents] = useState<TotalAmountLists>([]);
   const [inView, setInView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedDateExpenses, setSelectedDateExpenses] = useState<Expense[]>([]);
   const [selectedDateIncomes, setSelectedDateIncomes] = useState<Income[]>([]);
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
@@ -108,7 +107,6 @@ export const useMonthlyBudgetCalender = () => {
     if (arg.date.getMonth() !== currentMonthDate.getMonth()) return;
 
     const date = getDateString(arg.date);
-    setSelectedDateExpenses(await getExpenses(date, date, csrfToken));
     setSelectedDateIncomes(await getIncomes(date, date, csrfToken));
     setSelectedDate(date);
     setInView(true);
@@ -116,35 +114,39 @@ export const useMonthlyBudgetCalender = () => {
     setStoreIncomeInput((prev: StoreIncomeInput) => ({ ...prev, ...{ receivedAt: arg.date } }));
   };
 
-  const handleCreateExpense = async () => {
+  const initExpenseValidationErrors = useCallback(() => {
     setExpenseValidationErrors(INITIAL_EXPENSE_VALIDATION_ERRORS);
+  }, []);
 
-    const { expense, errors } = await postCreateExpense(storeExpenseInput, csrfToken);
-    if (Object.keys(errors).length > 0) {
-      setExpenseValidationErrors(errors);
-      return;
-    }
+  const onSuccessPostCreateExpense = useCallback(
+    (result: StoreExpenseResponse) => {
+      if (Object.keys(result.errors).length > 0) {
+        setExpenseValidationErrors(result.errors);
+        return;
+      }
 
-    window.alert("支出を登録しました");
+      window.alert("支出を登録しました");
 
-    // NOTE: 選択月の支出に反映する
-    const otherDateEvents = events.filter((event) => String(event.date) !== selectedDate || event.extendProps.type !== "expense");
-    const currentDateEvent = events.find((event) => String(event.date) === selectedDate && event.extendProps.type === "expense");
-    const newTotalAmount = currentDateEvent?.extendProps.totalAmount ?? 0;
-    setEvents([
-      ...otherDateEvents,
-      {
-        date: expense.paidAt,
-        extendProps: {
-          type: "expense",
-          totalAmount: newTotalAmount + expense.amount,
+      // NOTE: 選択月の支出に反映する
+      const otherDateEvents = events.filter((event) => String(event.date) !== selectedDate || event.extendProps.type !== "expense");
+      const currentDateEvent = events.find((event) => String(event.date) === selectedDate && event.extendProps.type === "expense");
+      const newTotalAmount = currentDateEvent?.extendProps.totalAmount ?? 0;
+      setEvents([
+        ...otherDateEvents,
+        {
+          date: result.expense.paidAt,
+          extendProps: {
+            type: "expense",
+            totalAmount: newTotalAmount + result.expense.amount,
+          },
         },
-      },
-    ]);
-    setInView(false);
-    setStoreExpenseInput(INITIAL_STORE_EXPENSE_INPUT);
-    setStoreIncomeInput(INITIAL_STORE_INCOME_INPUT);
-  };
+      ]);
+      setInView(false);
+      setStoreExpenseInput(INITIAL_STORE_EXPENSE_INPUT);
+      setStoreIncomeInput(INITIAL_STORE_INCOME_INPUT);
+    },
+    [events, selectedDate, setEvents, setInView, setStoreExpenseInput, setStoreIncomeInput],
+  );
 
   const handleCreateIncome = async () => {
     setIncomeValidationErrors(INITIAL_INCOME_VALIDATION_ERRORS);
@@ -203,11 +205,11 @@ export const useMonthlyBudgetCalender = () => {
       inView,
       setInView,
       selectedDate,
-      selectedDateExpenses,
       selectedDateIncomes,
       store: {
         // 支出登録
-        handleCreateExpense,
+        initExpenseValidationErrors,
+        onSuccessPostCreateExpense,
         storeExpenseInput,
         expenseValidationErrors,
         setStoreExpenseTextInput,

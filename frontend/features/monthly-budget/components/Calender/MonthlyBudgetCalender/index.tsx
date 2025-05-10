@@ -37,11 +37,11 @@ export const MonthlyBudgetCalender: React.FC = () => {
         setInView={dialog.setInView}
         date={dialog.selectedDate}
         incomes={dialog.selectedDateIncomes}
-        expenses={dialog.selectedDateExpenses}
         storeExpenseInput={dialog.store.storeExpenseInput}
         setStoreExpenseTextInput={dialog.store.setStoreExpenseTextInput}
         setStoreExpenseSelectInput={dialog.store.setStoreExpenseSelectInput}
-        handleCreateExpense={dialog.store.handleCreateExpense}
+        onPostCreateExpenseMutate={dialog.store.initExpenseValidationErrors}
+        onPostCreateExpenseSuccess={dialog.store.onSuccessPostCreateExpense}
         expenseValidationErrors={dialog.store.expenseValidationErrors}
         storeIncomeInput={dialog.store.storeIncomeInput}
         setStoreIncomeTextInput={dialog.store.setStoreIncomeTextInput}
