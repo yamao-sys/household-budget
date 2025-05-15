@@ -4,6 +4,7 @@ import (
 	"apps/api"
 	"apps/internal/models"
 	"apps/internal/validators"
+	"fmt"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -92,6 +93,10 @@ func (es *expenseService) Create(userID int, requestParams *api.PostExpensesJSON
 	expense.Amount = requestParams.Amount
 	expense.Category = models.Category(requestParams.Category)
 	expense.Description = requestParams.Description
+
+	if requestParams.Amount == 0 {
+		fmt.Println("amount is zero")
+	}
 
 	es.db.Create(&expense)
 
