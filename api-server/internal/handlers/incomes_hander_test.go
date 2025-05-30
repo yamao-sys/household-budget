@@ -39,9 +39,9 @@ func (s *TestIncomesHandlerSuite) TestGetIncomes_WithFromDateAndToDate_Same_Stat
 
 	minOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
 	DBCon.Create(&minOutOfRangeReceivedAtIncome)
-	inRangeReceivedAtIncome1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	inRangeReceivedAtIncome1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local), "Amount": 10000}).(*models.Income)
 	DBCon.Create(&inRangeReceivedAtIncome1)
-	inRangeReceivedAtIncome2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
+	inRangeReceivedAtIncome2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local), "Amount": 10001}).(*models.Income)
 	DBCon.Create(&inRangeReceivedAtIncome2)
 	maxOutOfRangeReceivedAtIncome := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Income)
 	DBCon.Create(&maxOutOfRangeReceivedAtIncome)
@@ -184,9 +184,9 @@ func (s *TestIncomesHandlerSuite) TestGetIncomes_WithoutFromDateAndWithToDate_St
 func (s *TestIncomesHandlerSuite) TestGetIncomes_WithoutFromDateAndToDate_StatusOk() {
 	user, cookieString := s.signIn()
 
-	income1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
+	income1 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Income)
 	DBCon.Create(&income1)
-	income2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Income)
+	income2 := factories.IncomeFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "ReceivedAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Income)
 	DBCon.Create(&income2)
 
 	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
