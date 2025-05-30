@@ -35,9 +35,9 @@ func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithFromDateAndToDate_Sa
 
 	minOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local)}).(*models.Expense)
 	DBCon.Create(&minOutOfRangePaidAtExpense)
-	inRangePaidAtExpense1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	inRangePaidAtExpense1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local), "Amount": 10000}).(*models.Expense)
 	DBCon.Create(&inRangePaidAtExpense1)
-	inRangePaidAtExpense2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local)}).(*models.Expense)
+	inRangePaidAtExpense2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 1, 0, 0, 0, 0, time.Local), "Amount": 10001}).(*models.Expense)
 	DBCon.Create(&inRangePaidAtExpense2)
 	maxOutOfRangePaidAtExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 4, 2, 0, 0, 0, 0, time.Local)}).(*models.Expense)
 	DBCon.Create(&maxOutOfRangePaidAtExpense)
@@ -141,9 +141,9 @@ func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithoutFromDateAndWithTo
 func (s *TestExpenseServiceSuite) TestExpenseFetchLists_WithoutFromDateAndToDate() {
 	user := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test@example.com"}).(*models.User)
 	DBCon.Create(&user)
-	expense1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Expense)
+	expense1 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local), "Amount": 10000}).(*models.Expense)
 	DBCon.Create(&expense1)
-	expense2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user}).(*models.Expense)
+	expense2 := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local), "Amount": 10001}).(*models.Expense)
 	DBCon.Create(&expense2)
 
 	otherUser := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_other@example.com"}).(*models.User)
