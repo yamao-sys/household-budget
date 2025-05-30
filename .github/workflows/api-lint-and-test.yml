@@ -6,6 +6,7 @@ on:
       - 'api-server/**/*.go'
       - 'api-server/go.mod'
       - '.github/workflows/api-lint-and-test.yml'
+      - 'migrations/**/*.sql'
   push:
     branches:
       - main
