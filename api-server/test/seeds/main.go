@@ -33,12 +33,15 @@ func main() {
 	user2 := factories.UserFactory.MustCreateWithOption(map[string]interface{}{"Email": "test_sign_in_2@example.com"}).(*models.User)
 	dbCon.Create(&user2)
 
-	// NOTE: それぞれのユーザに対して、10日と20日の支出レコードを作成
-	tenth := time.Date(2025, 5, 10, 0, 0, 0, 0, time.FixedZone("Asia/Tokyo", 9*60*60))
-	twentieth := time.Date(2025, 5, 20, 0, 0, 0, 0, time.FixedZone("Asia/Tokyo", 9*60*60))
+	now := time.Now()
 
-	tenthOfLastMonth := time.Date(2025, 4, 10, 0, 0, 0, 0, time.FixedZone("Asia/Tokyo", 9*60*60))
-	twentiethOfLastMonth := time.Date(2025, 4, 20, 0, 0, 0, 0, time.FixedZone("Asia/Tokyo", 9*60*60))
+	// NOTE: それぞれのユーザに対して、10日と20日の支出レコードを作成
+	tenth := time.Date(now.Year(), now.Month(), 10, 0, 0, 0, 0, time.FixedZone("Asia/Tokyo", 9*60*60))
+	twentieth := time.Date(now.Year(), now.Month(), 20, 0, 0, 0, 0, time.FixedZone("Asia/Tokyo", 9*60*60))
+
+	lastMonth := now.AddDate(0, -1, 0)
+	tenthOfLastMonth := time.Date(lastMonth.Year(), lastMonth.Month(), 10, 0, 0, 0, 0, time.FixedZone("Asia/Tokyo", 9*60*60))
+	twentiethOfLastMonth := time.Date(lastMonth.Year(), lastMonth.Month(), 20, 0, 0, 0, 0, time.FixedZone("Asia/Tokyo", 9*60*60))
 	
 	tenthExpense := factories.ExpenseFactory.MustCreateWithOption(map[string]interface{}{"User": *user, "PaidAt": tenth, "Amount": 10000, "Category": models.CategoryFood}).(*models.Expense)
 	dbCon.Create(&tenthExpense)
