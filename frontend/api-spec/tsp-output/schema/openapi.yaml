@@ -3,9 +3,47 @@ info:
   title: Household Budget Service
   version: '1.0'
   description: household budget
-tags: []
-paths: {}
-components: {}
+tags:
+  - name: csrf
+paths:
+  /csrf:
+    get:
+      operationId: get-csrf
+      summary: Get Csrf
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CsrfResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+      tags:
+        - csrf
+components:
+  schemas:
+    CsrfResponse:
+      type: object
+      required:
+        - csrfToken
+      properties:
+        csrfToken:
+          type: string
+      title: CsrfResponse
 servers:
   - url: https://localhost:8080
     variables: {}
