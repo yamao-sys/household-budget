@@ -6,6 +6,7 @@ info:
 tags:
   - name: csrf
   - name: users
+  - name: expenses
 paths:
   /csrf:
     get:
@@ -35,6 +36,125 @@ paths:
                   - message
       tags:
         - csrf
+  /expenses:
+    get:
+      operationId: get-expenses
+      summary: Get Expenses
+      parameters:
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseLists'
+      tags:
+        - expenses
+      security:
+        - ApiKeyAuth: []
+    post:
+      operationId: post-expenses
+      summary: Post Expense
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreExpenseResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+      tags:
+        - expenses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreExpenseInput'
+      security:
+        - ApiKeyAuth: []
+  /expenses/category-total-amounts:
+    get:
+      operationId: get-expenses-category-total-amounts
+      summary: Get Expenses Category TotalAmounts
+      parameters:
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryTotalAmountListsResponse'
+      tags:
+        - expenses
+      security:
+        - ApiKeyAuth: []
+  /expenses/total-amounts:
+    get:
+      operationId: get-expenses-total-amounts
+      summary: Get Expense Total Amounts
+      parameters:
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalAmountListsResponse'
+      tags:
+        - expenses
+      security:
+        - ApiKeyAuth: []
   /users/check-signed-in:
     get:
       operationId: post-users-check-signed-in
@@ -183,6 +303,27 @@ paths:
               $ref: '#/components/schemas/UserSignUpInput'
 components:
   schemas:
+    CategoryTotalAmountLists:
+      type: object
+      required:
+        - category
+        - totalAmount
+      properties:
+        category:
+          type: integer
+        totalAmount:
+          type: integer
+      title: Category Total Amount Lists
+    CategoryTotalAmountListsResponse:
+      type: object
+      required:
+        - totalAmounts
+      properties:
+        totalAmounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryTotalAmountLists'
+      title: Category Total Amount Lists Response
     CsrfResponse:
       type: object
       required:
@@ -191,6 +332,116 @@ components:
         csrfToken:
           type: string
       title: CsrfResponse
+    Expense:
+      type: object
+      required:
+        - id
+        - paidAt
+        - amount
+        - category
+        - description
+      properties:
+        id:
+          type: string
+        paidAt:
+          type: string
+          format: date
+        amount:
+          type: integer
+        category:
+          type: integer
+        description:
+          type: string
+      title: Expense
+    ExpenseLists:
+      type: object
+      required:
+        - expenses
+      properties:
+        expenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+      title: Expense Lists
+    StoreExpenseInput:
+      type: object
+      required:
+        - paidAt
+        - amount
+        - category
+        - description
+      properties:
+        paidAt:
+          type: string
+          format: date
+        amount:
+          type: integer
+        category:
+          type: integer
+        description:
+          type: string
+      title: Store Expense Input
+    StoreExpenseResponse:
+      type: object
+      required:
+        - expense
+        - errors
+      properties:
+        expense:
+          $ref: '#/components/schemas/Expense'
+        errors:
+          $ref: '#/components/schemas/StoreExpenseValidationError'
+      title: Store Expense Response
+    StoreExpenseValidationError:
+      type: object
+      properties:
+        paidAt:
+          type: array
+          items:
+            type: string
+        amount:
+          type: array
+          items:
+            type: string
+        category:
+          type: array
+          items:
+            type: string
+        description:
+          type: array
+          items:
+            type: string
+      title: Store Expense Validation Error
+    TotalAmountLists:
+      type: object
+      required:
+        - date
+        - extendProps
+      properties:
+        date:
+          type: string
+          format: date
+        extendProps:
+          type: object
+          properties:
+            type:
+              type: string
+            totalAmount:
+              type: integer
+          required:
+            - type
+            - totalAmount
+      title: Total Amount Lists
+    TotalAmountListsResponse:
+      type: object
+      required:
+        - totalAmounts
+      properties:
+        totalAmounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/TotalAmountLists'
+      title: Total Amount Lists Response
     UserSignInBadRequestResponse:
       type: object
       required:
