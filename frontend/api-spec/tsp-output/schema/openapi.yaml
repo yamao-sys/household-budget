@@ -1,0 +1,11 @@
+openapi: 3.1.0
+info:
+  title: Household Budget Service
+  version: '1.0'
+  description: household budget
+tags: []
+paths: {}
+components: {}
+servers:
+  - url: https://localhost:8080
+    variables: {}
