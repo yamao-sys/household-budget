@@ -26,15 +26,6 @@ model StoreExpenseValidationError{
 	description?: string[];
 }
 
-@summary("Total Amount Lists")
-model TotalAmountLists {
-	date: plainDate;
-	extendProps: {
-		type: string;
-		totalAmount: integer;
-	};
-}
-
 @summary("Category Total Amount Lists")
 model CategoryTotalAmountLists {
 	category: integer;
