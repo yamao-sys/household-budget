@@ -6,6 +6,7 @@ import "./request.tsp";
 import "./response.tsp";
 
 import "../common";
+import "../util";
 
 using Http;
 using OpenAPI;

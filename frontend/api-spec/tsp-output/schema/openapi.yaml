@@ -7,6 +7,7 @@ tags:
   - name: csrf
   - name: users
   - name: expenses
+  - name: incomes
 paths:
   /csrf:
     get:
@@ -153,6 +154,125 @@ paths:
                 $ref: '#/components/schemas/TotalAmountListsResponse'
       tags:
         - expenses
+      security:
+        - ApiKeyAuth: []
+  /incomes:
+    get:
+      operationId: get-incomes
+      summary: Get Incomes
+      parameters:
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeLists'
+      tags:
+        - incomes
+      security:
+        - ApiKeyAuth: []
+    post:
+      operationId: post-incomes
+      summary: Post Income
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreIncomeResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+      tags:
+        - incomes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreIncomeInput'
+      security:
+        - ApiKeyAuth: []
+  /incomes/client-total-amounts:
+    get:
+      operationId: get-expenses-client-total-amounts
+      summary: Get Income Client TotalAmounts
+      parameters:
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientTotalAmountListsResponse'
+      tags:
+        - incomes
+      security:
+        - ApiKeyAuth: []
+  /incomes/total-amounts:
+    get:
+      operationId: get-incomes-total-amounts
+      summary: Get Income Total Amounts
+      parameters:
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalAmountListsResponse'
+      tags:
+        - incomes
       security:
         - ApiKeyAuth: []
   /users/check-signed-in:
@@ -324,6 +444,27 @@ components:
           items:
             $ref: '#/components/schemas/CategoryTotalAmountLists'
       title: Category Total Amount Lists Response
+    ClientTotalAmountLists:
+      type: object
+      required:
+        - clientName
+        - totalAmount
+      properties:
+        clientName:
+          type: string
+        totalAmount:
+          type: integer
+      title: Client Total Amount Lists
+    ClientTotalAmountListsResponse:
+      type: object
+      required:
+        - totalAmounts
+      properties:
+        totalAmounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientTotalAmountLists'
+      title: Client Total Amount Lists Response
     CsrfResponse:
       type: object
       required:
@@ -363,6 +504,34 @@ components:
           items:
             $ref: '#/components/schemas/Expense'
       title: Expense Lists
+    Income:
+      type: object
+      required:
+        - id
+        - receivedAt
+        - amount
+        - clientName
+      properties:
+        id:
+          type: integer
+        receivedAt:
+          type: string
+          format: date
+        amount:
+          type: integer
+        clientName:
+          type: string
+      title: Income
+    IncomeLists:
+      type: object
+      required:
+        - incomes
+      properties:
+        incomes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Income'
+      title: Income Lists
     StoreExpenseInput:
       type: object
       required:
@@ -412,6 +581,48 @@ components:
           items:
             type: string
       title: Store Expense Validation Error
+    StoreIncomeInput:
+      type: object
+      required:
+        - receivedAt
+        - amount
+        - clientName
+      properties:
+        receivedAt:
+          type: string
+          format: date
+        amount:
+          type: integer
+        clientName:
+          type: string
+      title: Store Income Input
+    StoreIncomeResponse:
+      type: object
+      required:
+        - income
+        - errors
+      properties:
+        income:
+          $ref: '#/components/schemas/Income'
+        errors:
+          $ref: '#/components/schemas/StoreIncomeValidationError'
+      title: Store Income Response
+    StoreIncomeValidationError:
+      type: object
+      properties:
+        receivedAt:
+          type: array
+          items:
+            type: string
+        amount:
+          type: array
+          items:
+            type: string
+        clientName:
+          type: array
+          items:
+            type: string
+      title: Store Income Validation Error
     TotalAmountLists:
       type: object
       required:
