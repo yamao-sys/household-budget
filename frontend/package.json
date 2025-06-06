@@ -15,7 +15,8 @@
     "test:e2e": "playwright test",
     "gen:schema": "pnpx tsx /app/generate-api-types.ts /app/openapi/reference.yaml /app/types/ && pnpm format:fix",
     "gen:api-spec": "cd api-spec && npx tsp compile . && node patch.mjs && cd ..",
-    "gen:api-spec:watch": "SHELL=/usr/bin/sh chokidar 'api-spec/**/*.tsp' -c 'pnpm gen:api-spec'"
+    "gen:api-spec:watch": "SHELL=/usr/bin/sh chokidar 'api-spec/**/*.tsp' -c 'pnpm gen:api-spec'",
+    "diff:api-spec:check": "pnpm gen:api-spec && git add api-spec/tsp-output/schema/openapi.yaml && git diff --staged --quiet || (echo 'tspとyamlの変更が同期されていません' && exit 1)"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
