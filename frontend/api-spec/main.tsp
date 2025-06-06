@@ -1,3 +1,3 @@
 import "./namespace.tsp";
-// import "./routes";
+import "./routes";
 // import "./models";

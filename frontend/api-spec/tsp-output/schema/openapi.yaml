@@ -3,9 +3,264 @@ info:
   title: Household Budget Service
   version: '1.0'
   description: household budget
-tags: []
-paths: {}
-components: {}
+tags:
+  - name: csrf
+  - name: users
+paths:
+  /csrf:
+    get:
+      operationId: get-csrf
+      summary: Get Csrf
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CsrfResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+      tags:
+        - csrf
+  /users/check-signed-in:
+    get:
+      operationId: post-users-check-signed-in
+      summary: User Check Signed In
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isSignedIn:
+                    type: boolean
+                required:
+                  - isSignedIn
+      tags:
+        - users
+      security:
+        - ApiKeyAuth: []
+  /users/sign-in:
+    post:
+      operationId: post-users-sign-in
+      summary: User Sign In
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          headers:
+            Set-Cookie:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSignInOkResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSignInBadRequestResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignInInput'
+  /users/sign-up:
+    post:
+      operationId: post-users-sign-up
+      summary: User Sign Up
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSignUpResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSignUpResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignUpInput'
+  /users/validate-sign-up:
+    post:
+      operationId: post-users-validate-sign-up
+      summary: User Validate Sign Up
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSignUpResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSignUpResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                required:
+                  - code
+                  - message
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignUpInput'
+components:
+  schemas:
+    CsrfResponse:
+      type: object
+      required:
+        - csrfToken
+      properties:
+        csrfToken:
+          type: string
+      title: CsrfResponse
+    UserSignInBadRequestResponse:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+      title: User Sign In Bad Request Response
+    UserSignInInput:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      title: User Sign In Input
+    UserSignInOkResponse:
+      type: object
+      title: User Sign In Ok Response
+    UserSignUpInput:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      title: User Sign Up Input
+    UserSignUpResponse:
+      type: object
+      required:
+        - code
+        - errors
+      properties:
+        code:
+          type: integer
+        errors:
+          $ref: '#/components/schemas/UserSignUpValidationError'
+      title: User Sign In Response
+    UserSignUpValidationError:
+      type: object
+      properties:
+        name:
+          type: array
+          items:
+            type: string
+        email:
+          type: array
+          items:
+            type: string
+        password:
+          type: array
+          items:
+            type: string
+      title: User Sign Up Validation Error
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: cookie
+      name: token
 servers:
   - url: https://localhost:8080
     variables: {}
