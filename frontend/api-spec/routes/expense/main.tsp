@@ -1,0 +1,56 @@
+import "@typespec/http";
+import "@typespec/openapi";
+import "@typespec/openapi3";
+
+import "./request.tsp";
+import "./response.tsp";
+
+import "../common";
+
+using Http;
+using OpenAPI;
+
+@tag("expenses")
+@route("/expenses")
+@useAuth([SecuritySchema])
+namespace HouseholdBudgetService.Expense {
+  interface Root {
+    @operationId("get-expenses")
+    @summary("Get Expenses")
+    @get
+    get(
+			@query fromDate?: string,
+			@query toDate?: string,
+		): SuccessResponse<FetchExpenseListsResponse>;
+
+		@operationId("post-expenses")
+		@summary("Post Expense")
+		@post
+		post(
+			@body body: StoreExpenseInput,
+		): SuccessResponse<StoreExpenseResponse>
+			| InternalServerErrorResponse;
+  }
+
+	@route("/total-amounts")
+	interface TotalAmounts {
+		@operationId("get-expenses-total-amounts")
+		@summary("Get Expense Total Amounts")
+		@get
+		get(
+			@query fromDate?: string,
+			@query toDate?: string,
+		): SuccessResponse<TotalAmountListsResponse>;
+	}
+
+	@route("/category-total-amounts")
+	interface CategoryTotalAmounts {
+		@operationId("get-expenses-category-total-amounts")
+		@summary("Get Expenses Category TotalAmounts")
+		@get
+		get(
+			@query fromDate?: string,
+			@query toDate?: string,
+		): SuccessResponse<CategoryTotalAmountListsResponse>;
+	}
+}
