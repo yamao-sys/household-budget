@@ -7,7 +7,7 @@
  */
 
 export interface StoreExpenseInput {
-  paidAt: string;
+  paidAt: Date;
   amount: number;
   category: number;
   description: string;
