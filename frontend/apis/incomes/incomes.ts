@@ -23,7 +23,7 @@ import type {
 
 import type {
   ClientTotalAmountListsResponse,
-  GetExpensesClientTotalAmountsParams,
+  GetIncomesClientTotalAmountsParams,
   GetIncomesParams,
   GetIncomesTotalAmountsParams,
   IncomeLists,
@@ -32,6 +32,10 @@ import type {
   StoreIncomeResponse,
   TotalAmountListsResponse,
 } from ".././model";
+
+import { customFetch } from "../../custom-fetch";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
  * @summary Get Incomes
@@ -62,15 +66,10 @@ export const getGetIncomesUrl = (params?: GetIncomesParams) => {
 };
 
 export const getIncomes = async (params?: GetIncomesParams, options?: RequestInit): Promise<getIncomesResponse> => {
-  const res = await fetch(getGetIncomesUrl(params), {
+  return customFetch<getIncomesResponse>(getGetIncomesUrl(params), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getIncomesResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as getIncomesResponse;
 };
 
 export const getGetIncomesQueryKey = (params?: GetIncomesParams) => {
@@ -79,13 +78,16 @@ export const getGetIncomesQueryKey = (params?: GetIncomesParams) => {
 
 export const getGetIncomesQueryOptions = <TData = Awaited<ReturnType<typeof getIncomes>>, TError = unknown>(
   params?: GetIncomesParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData>>; fetch?: RequestInit },
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetIncomesQueryKey(params);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getIncomes>>> = ({ signal }) => getIncomes(params, { signal, ...fetchOptions });
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getIncomes>>> = ({ signal }) => getIncomes(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -100,7 +102,7 @@ export function useGetIncomes<TData = Awaited<ReturnType<typeof getIncomes>>, TE
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData>> &
       Pick<DefinedInitialDataOptions<Awaited<ReturnType<typeof getIncomes>>, TError, Awaited<ReturnType<typeof getIncomes>>>, "initialData">;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -109,13 +111,16 @@ export function useGetIncomes<TData = Awaited<ReturnType<typeof getIncomes>>, TE
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData>> &
       Pick<UndefinedInitialDataOptions<Awaited<ReturnType<typeof getIncomes>>, TError, Awaited<ReturnType<typeof getIncomes>>>, "initialData">;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetIncomes<TData = Awaited<ReturnType<typeof getIncomes>>, TError = unknown>(
   params?: GetIncomesParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData>>; fetch?: RequestInit },
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 /**
@@ -124,7 +129,10 @@ export function useGetIncomes<TData = Awaited<ReturnType<typeof getIncomes>>, TE
 
 export function useGetIncomes<TData = Awaited<ReturnType<typeof getIncomes>>, TError = unknown>(
   params?: GetIncomesParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData>>; fetch?: RequestInit },
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomes>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getGetIncomesQueryOptions(params, options);
@@ -160,34 +168,29 @@ export const getPostIncomesUrl = () => {
 };
 
 export const postIncomes = async (storeIncomeInput: StoreIncomeInput, options?: RequestInit): Promise<postIncomesResponse> => {
-  const res = await fetch(getPostIncomesUrl(), {
+  return customFetch<postIncomesResponse>(getPostIncomesUrl(), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...options?.headers },
     body: JSON.stringify(storeIncomeInput),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: postIncomesResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as postIncomesResponse;
 };
 
 export const getPostIncomesMutationOptions = <TError = PostIncomes500, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postIncomes>>, TError, { data: StoreIncomeInput }, TContext>;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<Awaited<ReturnType<typeof postIncomes>>, TError, { data: StoreIncomeInput }, TContext> => {
   const mutationKey = ["postIncomes"];
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<Awaited<ReturnType<typeof postIncomes>>, { data: StoreIncomeInput }> = (props) => {
     const { data } = props ?? {};
 
-    return postIncomes(data, fetchOptions);
+    return postIncomes(data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -203,7 +206,7 @@ export type PostIncomesMutationError = PostIncomes500;
 export const usePostIncomes = <TError = PostIncomes500, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<Awaited<ReturnType<typeof postIncomes>>, TError, { data: StoreIncomeInput }, TContext>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<Awaited<ReturnType<typeof postIncomes>>, TError, { data: StoreIncomeInput }, TContext> => {
@@ -214,18 +217,18 @@ export const usePostIncomes = <TError = PostIncomes500, TContext = unknown>(
 /**
  * @summary Get Income Client TotalAmounts
  */
-export type getExpensesClientTotalAmountsResponse200 = {
+export type getIncomesClientTotalAmountsResponse200 = {
   data: ClientTotalAmountListsResponse;
   status: 200;
 };
 
-export type getExpensesClientTotalAmountsResponseComposite = getExpensesClientTotalAmountsResponse200;
+export type getIncomesClientTotalAmountsResponseComposite = getIncomesClientTotalAmountsResponse200;
 
-export type getExpensesClientTotalAmountsResponse = getExpensesClientTotalAmountsResponseComposite & {
+export type getIncomesClientTotalAmountsResponse = getIncomesClientTotalAmountsResponseComposite & {
   headers: Headers;
 };
 
-export const getGetExpensesClientTotalAmountsUrl = (params?: GetExpensesClientTotalAmountsParams) => {
+export const getGetIncomesClientTotalAmountsUrl = (params: GetIncomesClientTotalAmountsParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -236,94 +239,98 @@ export const getGetExpensesClientTotalAmountsUrl = (params?: GetExpensesClientTo
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/incomes/client-total-amounts?${stringifiedParams}` : `/incomes/client-total-amounts`;
+  return stringifiedParams.length > 0 ? `/incomes/clientTotalAmounts?${stringifiedParams}` : `/incomes/clientTotalAmounts`;
 };
 
-export const getExpensesClientTotalAmounts = async (
-  params?: GetExpensesClientTotalAmountsParams,
+export const getIncomesClientTotalAmounts = async (
+  params: GetIncomesClientTotalAmountsParams,
   options?: RequestInit,
-): Promise<getExpensesClientTotalAmountsResponse> => {
-  const res = await fetch(getGetExpensesClientTotalAmountsUrl(params), {
+): Promise<getIncomesClientTotalAmountsResponse> => {
+  return customFetch<getIncomesClientTotalAmountsResponse>(getGetIncomesClientTotalAmountsUrl(params), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getExpensesClientTotalAmountsResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as getExpensesClientTotalAmountsResponse;
 };
 
-export const getGetExpensesClientTotalAmountsQueryKey = (params?: GetExpensesClientTotalAmountsParams) => {
-  return [`/incomes/client-total-amounts`, ...(params ? [params] : [])] as const;
+export const getGetIncomesClientTotalAmountsQueryKey = (params: GetIncomesClientTotalAmountsParams) => {
+  return [`/incomes/clientTotalAmounts`, ...(params ? [params] : [])] as const;
 };
 
-export const getGetExpensesClientTotalAmountsQueryOptions = <TData = Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesClientTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+export const getGetIncomesClientTotalAmountsQueryOptions = <TData = Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError = unknown>(
+  params: GetIncomesClientTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetExpensesClientTotalAmountsQueryKey(params);
+  const queryKey = queryOptions?.queryKey ?? getGetIncomesClientTotalAmountsQueryKey(params);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>> = ({ signal }) =>
-    getExpensesClientTotalAmounts(params, { signal, ...fetchOptions });
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>> = ({ signal }) =>
+    getIncomesClientTotalAmounts(params, { signal, ...requestOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError, TData> & {
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError, TData> & {
     queryKey: DataTag<QueryKey, TData, TError>;
   };
 };
 
-export type GetExpensesClientTotalAmountsQueryResult = NonNullable<Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>>;
-export type GetExpensesClientTotalAmountsQueryError = unknown;
+export type GetIncomesClientTotalAmountsQueryResult = NonNullable<Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>>;
+export type GetIncomesClientTotalAmountsQueryError = unknown;
 
-export function useGetExpensesClientTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError = unknown>(
-  params: undefined | GetExpensesClientTotalAmountsParams,
+export function useGetIncomesClientTotalAmounts<TData = Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError = unknown>(
+  params: GetIncomesClientTotalAmountsParams,
   options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError, TData>> &
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError, TData>> &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>,
+          Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>,
           TError,
-          Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>
+          Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGetExpensesClientTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesClientTotalAmountsParams,
+export function useGetIncomesClientTotalAmounts<TData = Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError = unknown>(
+  params: GetIncomesClientTotalAmountsParams,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError, TData>> &
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError, TData>> &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>,
+          Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>,
           TError,
-          Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>
+          Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGetExpensesClientTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesClientTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+export function useGetIncomesClientTotalAmounts<TData = Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError = unknown>(
+  params: GetIncomesClientTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 /**
  * @summary Get Income Client TotalAmounts
  */
 
-export function useGetExpensesClientTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesClientTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesClientTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+export function useGetIncomesClientTotalAmounts<TData = Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError = unknown>(
+  params: GetIncomesClientTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesClientTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getGetExpensesClientTotalAmountsQueryOptions(params, options);
+  const queryOptions = getGetIncomesClientTotalAmountsQueryOptions(params, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -346,7 +353,7 @@ export type getIncomesTotalAmountsResponse = getIncomesTotalAmountsResponseCompo
   headers: Headers;
 };
 
-export const getGetIncomesTotalAmountsUrl = (params?: GetIncomesTotalAmountsParams) => {
+export const getGetIncomesTotalAmountsUrl = (params: GetIncomesTotalAmountsParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -357,38 +364,36 @@ export const getGetIncomesTotalAmountsUrl = (params?: GetIncomesTotalAmountsPara
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/incomes/total-amounts?${stringifiedParams}` : `/incomes/total-amounts`;
+  return stringifiedParams.length > 0 ? `/incomes/totalAmounts?${stringifiedParams}` : `/incomes/totalAmounts`;
 };
 
 export const getIncomesTotalAmounts = async (
-  params?: GetIncomesTotalAmountsParams,
+  params: GetIncomesTotalAmountsParams,
   options?: RequestInit,
 ): Promise<getIncomesTotalAmountsResponse> => {
-  const res = await fetch(getGetIncomesTotalAmountsUrl(params), {
+  return customFetch<getIncomesTotalAmountsResponse>(getGetIncomesTotalAmountsUrl(params), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getIncomesTotalAmountsResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as getIncomesTotalAmountsResponse;
 };
 
-export const getGetIncomesTotalAmountsQueryKey = (params?: GetIncomesTotalAmountsParams) => {
-  return [`/incomes/total-amounts`, ...(params ? [params] : [])] as const;
+export const getGetIncomesTotalAmountsQueryKey = (params: GetIncomesTotalAmountsParams) => {
+  return [`/incomes/totalAmounts`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetIncomesTotalAmountsQueryOptions = <TData = Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError = unknown>(
-  params?: GetIncomesTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetIncomesTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetIncomesTotalAmountsQueryKey(params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getIncomesTotalAmounts>>> = ({ signal }) =>
-    getIncomesTotalAmounts(params, { signal, ...fetchOptions });
+    getIncomesTotalAmounts(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -399,32 +404,35 @@ export type GetIncomesTotalAmountsQueryResult = NonNullable<Awaited<ReturnType<t
 export type GetIncomesTotalAmountsQueryError = unknown;
 
 export function useGetIncomesTotalAmounts<TData = Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError = unknown>(
-  params: undefined | GetIncomesTotalAmountsParams,
+  params: GetIncomesTotalAmountsParams,
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData>> &
       Pick<
         DefinedInitialDataOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, Awaited<ReturnType<typeof getIncomesTotalAmounts>>>,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetIncomesTotalAmounts<TData = Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError = unknown>(
-  params?: GetIncomesTotalAmountsParams,
+  params: GetIncomesTotalAmountsParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData>> &
       Pick<
         UndefinedInitialDataOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, Awaited<ReturnType<typeof getIncomesTotalAmounts>>>,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetIncomesTotalAmounts<TData = Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError = unknown>(
-  params?: GetIncomesTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetIncomesTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 /**
@@ -432,8 +440,11 @@ export function useGetIncomesTotalAmounts<TData = Awaited<ReturnType<typeof getI
  */
 
 export function useGetIncomesTotalAmounts<TData = Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError = unknown>(
-  params?: GetIncomesTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetIncomesTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getIncomesTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getGetIncomesTotalAmountsQueryOptions(params, options);

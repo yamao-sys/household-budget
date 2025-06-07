@@ -20,6 +20,10 @@ import type {
 
 import type { CsrfResponse, GetCsrf500 } from ".././model";
 
+import { customFetch } from "../../custom-fetch";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 /**
  * @summary Get Csrf
  */
@@ -44,15 +48,10 @@ export const getGetCsrfUrl = () => {
 };
 
 export const getCsrf = async (options?: RequestInit): Promise<getCsrfResponse> => {
-  const res = await fetch(getGetCsrfUrl(), {
+  return customFetch<getCsrfResponse>(getGetCsrfUrl(), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getCsrfResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as getCsrfResponse;
 };
 
 export const getGetCsrfQueryKey = () => {
@@ -61,13 +60,13 @@ export const getGetCsrfQueryKey = () => {
 
 export const getGetCsrfQueryOptions = <TData = Awaited<ReturnType<typeof getCsrf>>, TError = GetCsrf500>(options?: {
   query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCsrf>>, TError, TData>>;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetCsrfQueryKey();
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getCsrf>>> = ({ signal }) => getCsrf({ signal, ...fetchOptions });
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getCsrf>>> = ({ signal }) => getCsrf({ signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getCsrf>>, TError, TData> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -81,7 +80,7 @@ export function useGetCsrf<TData = Awaited<ReturnType<typeof getCsrf>>, TError =
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCsrf>>, TError, TData>> &
       Pick<DefinedInitialDataOptions<Awaited<ReturnType<typeof getCsrf>>, TError, Awaited<ReturnType<typeof getCsrf>>>, "initialData">;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -89,12 +88,12 @@ export function useGetCsrf<TData = Awaited<ReturnType<typeof getCsrf>>, TError =
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCsrf>>, TError, TData>> &
       Pick<UndefinedInitialDataOptions<Awaited<ReturnType<typeof getCsrf>>, TError, Awaited<ReturnType<typeof getCsrf>>>, "initialData">;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetCsrf<TData = Awaited<ReturnType<typeof getCsrf>>, TError = GetCsrf500>(
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCsrf>>, TError, TData>>; fetch?: RequestInit },
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCsrf>>, TError, TData>>; request?: SecondParameter<typeof customFetch> },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 /**
@@ -102,7 +101,7 @@ export function useGetCsrf<TData = Awaited<ReturnType<typeof getCsrf>>, TError =
  */
 
 export function useGetCsrf<TData = Awaited<ReturnType<typeof getCsrf>>, TError = GetCsrf500>(
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCsrf>>, TError, TData>>; fetch?: RequestInit },
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getCsrf>>, TError, TData>>; request?: SecondParameter<typeof customFetch> },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getGetCsrfQueryOptions(options);

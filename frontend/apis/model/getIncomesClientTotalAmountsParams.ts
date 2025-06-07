@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export type GetExpensesClientTotalAmountsParams = {
-  fromDate?: string;
-  toDate?: string;
+export type GetIncomesClientTotalAmountsParams = {
+  fromDate: string;
+  toDate: string;
 };

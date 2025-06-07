@@ -7,7 +7,7 @@
  */
 
 export interface Income {
-  id: number;
+  id: string;
   receivedAt: string;
   amount: number;
   clientName: string;

@@ -7,6 +7,6 @@
  */
 
 export type GetIncomesTotalAmountsParams = {
-  fromDate?: string;
-  toDate?: string;
+  fromDate: string;
+  toDate: string;
 };
