@@ -2,13 +2,6 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQueryClient } from "@tanstack/react-query";
 import type React from "react";
-import BaseButton from "~/components/BaseButton";
-import BaseFormInput from "~/components/BaseFormInput";
-import BaseFormSelect from "~/components/BaseFormSelect";
-import { EXPENSE_CATEGORY } from "~/const/expense";
-import { useAuthContext } from "~/contexts/useAuthContext";
-import { useGetExpenses, usePostCreateExpense } from "~/services/expenses";
-import { useGetIncomes, usePostCreateIncome } from "~/services/incomes";
 import type {
   StoreExpenseInput,
   StoreExpenseResponse,
@@ -16,7 +9,14 @@ import type {
   StoreIncomeInput,
   StoreIncomeResponse,
   StoreIncomeValidationError,
-} from "~/types";
+} from "~/apis/model";
+import BaseButton from "~/components/BaseButton";
+import BaseFormInput from "~/components/BaseFormInput";
+import BaseFormSelect from "~/components/BaseFormSelect";
+import { EXPENSE_CATEGORY } from "~/const/expense";
+import { useAuthContext } from "~/contexts/useAuthContext";
+import { useGetExpenses, usePostCreateExpense } from "~/services/expenses";
+import { useGetIncomes, usePostCreateIncome } from "~/services/incomes";
 
 type Props = {
   inView: boolean;
