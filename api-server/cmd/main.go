@@ -1,7 +1,7 @@
 package main
 
 import (
-	"apps/api"
+	api "apps/apis"
 	"apps/database"
 	"apps/internal/handlers"
 	"apps/internal/middlewares"

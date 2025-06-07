@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	api "apps/api"
+	api "apps/apis"
 	"apps/internal/models"
 	"apps/test/factories"
 	"encoding/json"
@@ -42,7 +42,7 @@ func (s *TestUsersHandlerSuite) TestPostUserValidateSignUp_SuccessRequiredFields
 	result := testutil.NewRequest().Post("/users/validateSignUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res api.UserSignUpResponseJSONResponse
+	var res api.UserSignUpResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 
@@ -60,7 +60,7 @@ func (s *TestUsersHandlerSuite) TestPostUserValidateSignUp_ValidationErrorRequir
 	result := testutil.NewRequest().Post("/users/validateSignUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res api.UserSignUpResponseJSONResponse
+	var res api.UserSignUpResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 
@@ -95,7 +95,7 @@ func (s *TestUsersHandlerSuite) TestPostUserSignUp_SuccessRequiredFields() {
 	result := testutil.NewRequest().Post("/users/signUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res api.UserSignUpResponseJSONResponse
+	var res api.UserSignUpResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 
@@ -121,7 +121,7 @@ func (s *TestUsersHandlerSuite) TestPostUserSignUp_ValidationErrorRequiredFields
 	result := testutil.NewRequest().Post("/users/signUp").WithHeader("Cookie", csrfTokenCookie).WithHeader(echo.HeaderXCSRFToken, csrfToken).WithJsonBody(reqBody).GoWithHTTPHandler(s.T(), e)
 	assert.Equal(s.T(), http.StatusOK, result.Code())
 
-	var res api.UserSignUpResponseJSONResponse
+	var res api.UserSignUpResponse
 	err := result.UnmarshalBodyToObject(&res)
 	assert.NoError(s.T(), err, "error unmarshaling response")
 

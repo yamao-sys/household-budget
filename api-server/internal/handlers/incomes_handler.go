@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"apps/api"
+	api "apps/apis"
 	"apps/internal/helpers"
 	"apps/internal/models"
 	"apps/internal/services"
@@ -56,12 +56,12 @@ func (ih *incomesHandler) GetIncomes(ctx context.Context, request api.GetIncomes
 		incomes = append(incomes, api.Income{
 			Amount: income.Amount,
 			ClientName: income.ClientName,
-			Id: strconv.Itoa(int(income.ID)),
+			Id: strconv.Itoa(income.ID),
 			ReceivedAt: openapi_types.Date{Time: income.ReceivedAt},
 		})
 	}
 
-	return api.GetIncomes200JSONResponse{FetchIncomeListsResponseJSONResponse: api.FetchIncomeListsResponseJSONResponse{Incomes: incomes}}, nil
+	return api.GetIncomes200JSONResponse(api.IncomeLists{Incomes: incomes}), nil
 }
 
 func (ih *incomesHandler) GetIncomesTotalAmounts(ctx context.Context, request api.GetIncomesTotalAmountsRequestObject) (api.GetIncomesTotalAmountsResponseObject, error) {
@@ -81,7 +81,7 @@ func (ih *incomesHandler) GetIncomesTotalAmounts(ctx context.Context, request ap
 			},
 		})
 	}
-	return api.GetIncomesTotalAmounts200JSONResponse{TotalAmountListsResponseJSONResponse: api.TotalAmountListsResponseJSONResponse{TotalAmounts: resTotalAmounts}}, nil
+	return api.GetIncomesTotalAmounts200JSONResponse(api.TotalAmountListsResponse{TotalAmounts: resTotalAmounts}), nil
 }
 
 func (ih *incomesHandler) GetIncomesClientTotalAmounts(ctx context.Context, request api.GetIncomesClientTotalAmountsRequestObject) (api.GetIncomesClientTotalAmountsResponseObject, error) {
@@ -98,7 +98,7 @@ func (ih *incomesHandler) GetIncomesClientTotalAmounts(ctx context.Context, requ
 			TotalAmount: categoryTotalAmount.TotalAmount,
 		})
 	}
-	return api.GetIncomesClientTotalAmounts200JSONResponse{ClientTotalAmountListsResponseJSONResponse: api.ClientTotalAmountListsResponseJSONResponse{TotalAmounts: resClientTotalAmounts}}, nil
+	return api.GetIncomesClientTotalAmounts200JSONResponse(api.ClientTotalAmountListsResponse{TotalAmounts: resClientTotalAmounts}), nil
 }
 
 func (ih *incomesHandler) PostIncomes(ctx context.Context, request api.PostIncomesRequestObject) (api.PostIncomesResponseObject, error) {
@@ -107,7 +107,7 @@ func (ih *incomesHandler) PostIncomes(ctx context.Context, request api.PostIncom
 
 	resValidationError := ih.incomeService.MappingValidationErrorStruct(validationErr)
 
-	return api.PostIncomes200JSONResponse{StoreIncomeResponseJSONResponse: api.StoreIncomeResponseJSONResponse{
+	return api.PostIncomes200JSONResponse(api.StoreIncomeResponse{
 		Errors: resValidationError,
 		Income: api.Income{
 			Id: strconv.Itoa(createdIncome.ID),
@@ -115,5 +115,5 @@ func (ih *incomesHandler) PostIncomes(ctx context.Context, request api.PostIncom
 			Amount: createdIncome.Amount,
 			ClientName: createdIncome.ClientName,
 		},
-	}}, nil
+	}), nil
 }

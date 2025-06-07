@@ -1,7 +1,7 @@
 package services
 
 import (
-	"apps/api"
+	api "apps/apis"
 	"apps/internal/models"
 	"apps/internal/validators"
 	"context"

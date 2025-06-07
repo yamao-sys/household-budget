@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	api "apps/api"
+	api "apps/apis"
 	"apps/internal/models"
 	"apps/test/factories"
 	"net/http"
