@@ -15,17 +15,18 @@ const getBody = <T>(c: Response | Request): Promise<T> => {
 
 // NOTE: Update just base url
 const getUrl = (contextUrl: string): string => {
-  const url = new URL(contextUrl);
-  const pathname = url.pathname;
-  const search = url.search;
   const baseUrl = process.env.VITE_API_ENDPOINT_URI;
 
-  const requestUrl = new URL(`${baseUrl}${pathname}${search}`);
+  if (!baseUrl) {
+    throw new Error("baseUrl is not defined");
+  }
 
+  // NOTE: 相対パスを処理できるようにする
+  const requestUrl = new URL(contextUrl, baseUrl);
   return requestUrl.toString();
 };
 
-// NOTE: Add headers
+// NOTE: headers
 const getHeaders = (headers?: HeadersInit): HeadersInit => {
   return {
     ...headers,
