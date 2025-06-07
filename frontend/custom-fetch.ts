@@ -40,6 +40,7 @@ export const customFetch = async <T>(url: string, options: RequestInit): Promise
   const requestInit: RequestInit = {
     ...options,
     headers: requestHeaders,
+    credentials: "include",
   };
 
   const response = await fetch(requestUrl, requestInit);
