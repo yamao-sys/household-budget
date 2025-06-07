@@ -8,6 +8,6 @@
 import type { TotalAmountListsExtendProps } from "./totalAmountListsExtendProps";
 
 export interface TotalAmountLists {
-  date: string;
+  date: Date;
   extendProps: TotalAmountListsExtendProps;
 }

@@ -1,7 +1,6 @@
 import type { DatesSetArg } from "@fullcalendar/core/index.js";
 import type { DateClickArg } from "@fullcalendar/interaction/index.js";
 import { useCallback, useMemo, useState } from "react";
-import { getDateString } from "~/lib/date";
 import type {
   StoreExpenseInput,
   StoreExpenseResponse,
@@ -10,7 +9,8 @@ import type {
   StoreIncomeResponse,
   StoreIncomeValidationError,
   TotalAmountLists,
-} from "~/types";
+} from "~/apis/model";
+import { getDateString } from "~/lib/date";
 
 const INITIAL_STORE_EXPENSE_INPUT = {
   paidAt: new Date(),
@@ -35,7 +35,7 @@ const INITIAL_INCOME_VALIDATION_ERRORS = {
 };
 
 export const useMonthlyBudgetCalender = () => {
-  const [events, setEvents] = useState<TotalAmountLists>([]);
+  const [events, setEvents] = useState<TotalAmountLists[]>([]);
   const [inView, setInView] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
 

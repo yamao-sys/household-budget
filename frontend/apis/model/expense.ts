@@ -8,7 +8,7 @@
 
 export interface Expense {
   id: string;
-  paidAt: string;
+  paidAt: Date;
   amount: number;
   category: number;
   description: string;

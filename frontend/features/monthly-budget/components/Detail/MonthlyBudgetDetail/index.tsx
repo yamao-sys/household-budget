@@ -26,12 +26,11 @@ export const MonthlyBudgetDetail: React.FC<Props> = ({ monthDate, csrfToken }: P
   } = useGetIncomeClientTotalAmounts(getDateString(monthBeginningDate), getDateString(monthEndDate), csrfToken);
 
   const expenseTotalAmounts = useMemo(
-    () =>
-      expenseCategoryTotalAmounts !== undefined ? expenseCategoryTotalAmounts.reduce((acc, totalAmounts) => acc + totalAmounts.totalAmount, 0) : 0,
+    () => (!!expenseCategoryTotalAmounts ? expenseCategoryTotalAmounts.reduce((acc, totalAmounts) => acc + totalAmounts.totalAmount, 0) : 0),
     [expenseCategoryTotalAmounts],
   );
   const incomeTotalAmounts = useMemo(
-    () => (incomeClientTotalAmounts !== undefined ? incomeClientTotalAmounts.reduce((acc, totalAmounts) => acc + totalAmounts.totalAmount, 0) : 0),
+    () => (!!incomeClientTotalAmounts ? incomeClientTotalAmounts.reduce((acc, totalAmounts) => acc + totalAmounts.totalAmount, 0) : 0),
     [incomeClientTotalAmounts],
   );
   const balance = useMemo(() => incomeTotalAmounts - expenseTotalAmounts, [incomeTotalAmounts, expenseTotalAmounts]);

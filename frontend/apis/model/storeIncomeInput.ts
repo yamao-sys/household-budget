@@ -7,7 +7,7 @@
  */
 
 export interface StoreIncomeInput {
-  receivedAt: string;
+  receivedAt: Date;
   amount: number;
   clientName: string;
 }

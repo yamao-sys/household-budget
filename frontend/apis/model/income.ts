@@ -8,7 +8,7 @@
 
 export interface Income {
   id: string;
-  receivedAt: string;
+  receivedAt: Date;
   amount: number;
   clientName: string;
 }

@@ -1,8 +1,8 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { expenseKeys } from "./key";
 import { getExpenseCategoryTotalAmounts, getExpenses, getExpenseTotalAmounts, postCreateExpense } from "./api";
-import type { StoreExpenseInput, StoreExpenseResponse } from "~/types";
 import { getDateString } from "~/lib/date";
+import type { StoreExpenseInput, StoreExpenseResponse } from "~/apis/model";
 
 export const useGetExpenses = (fromDate: string, toDate: string, csrfToken: string) => {
   const { data, isPending, isError } = useQuery({

@@ -15,6 +15,7 @@ const config = {
           path: "./custom-fetch.ts",
           name: "customFetch",
         },
+        useDates: true,
       },
     },
     hooks: {
