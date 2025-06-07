@@ -1,8 +1,8 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { incomeKeys } from "./key";
 import { getIncomeClientTotalAmounts, getIncomes, getIncomeTotalAmounts, postCreateIncome } from "./api";
-import type { StoreIncomeInput, StoreIncomeResponse } from "~/types";
 import { getDateString } from "~/lib/date";
+import type { StoreIncomeInput, StoreIncomeResponse } from "~/apis/model";
 
 export const useGetIncomes = (fromDate: string, toDate: string, csrfToken: string) => {
   const { data, isPending, isError } = useQuery({
