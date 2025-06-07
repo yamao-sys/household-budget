@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - ./api-server:/app
+      - ./frontend/api-spec/tsp-output/schema:/app/apis/schema
     ports:
       - 8080:8080
       - 8083:8083 # テスト用のポート
