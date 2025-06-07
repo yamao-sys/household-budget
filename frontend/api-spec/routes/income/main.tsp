@@ -33,7 +33,7 @@ namespace HouseholdBudgetService.Income {
 			| InternalServerErrorResponse;
   }
 
-	@route("/total-amounts")
+	@route("/totalAmounts")
 	interface TotalAmounts {
 		@operationId("get-incomes-total-amounts")
 		@summary("Get Income Total Amounts")
@@ -44,7 +44,7 @@ namespace HouseholdBudgetService.Income {
 		): SuccessResponse<TotalAmountListsResponse>;
 	}
 
-	@route("/client-total-amounts")
+	@route("/clientTotalAmounts")
 	interface ClientTotalAmounts {
 		@operationId("get-expenses-client-total-amounts")
 		@summary("Get Income Client TotalAmounts")
