@@ -14,7 +14,7 @@ using OpenAPI;
 @route("/users")
 namespace HouseholdBudgetService.Auth {
   interface ValidateSignUp {
-    @route("/validate-sign-up")
+    @route("/validateSignUp")
     @operationId("post-users-validate-sign-up")
     @summary("User Validate Sign Up")
     @post
@@ -26,7 +26,7 @@ namespace HouseholdBudgetService.Auth {
   }
 
   interface SignUp {
-    @route("/sign-up")
+    @route("/signUp")
     @operationId("post-users-sign-up")
     @summary("User Sign Up")
     @post
@@ -38,7 +38,7 @@ namespace HouseholdBudgetService.Auth {
   }
 
   interface SignIn {
-    @route("/sign-in")
+    @route("/signIn")
     @operationId("post-users-sign-in")
     @summary("User Sign In")
     @post
@@ -51,7 +51,7 @@ namespace HouseholdBudgetService.Auth {
 
   interface CheckSignedIn {
     @useAuth([SecuritySchema])
-    @route("/check-signed-in")
+    @route("/checkSignedIn")
     @operationId("post-users-check-signed-in")
     @summary("User Check Signed In")
     @get

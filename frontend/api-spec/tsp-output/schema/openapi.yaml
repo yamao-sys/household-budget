@@ -100,7 +100,7 @@ paths:
               $ref: '#/components/schemas/StoreExpenseInput'
       security:
         - ApiKeyAuth: []
-  /expenses/category-total-amounts:
+  /expenses/categoryTotalAmounts:
     get:
       operationId: get-expenses-category-total-amounts
       summary: Get Expenses Category TotalAmounts
@@ -128,7 +128,7 @@ paths:
         - expenses
       security:
         - ApiKeyAuth: []
-  /expenses/total-amounts:
+  /expenses/totalAmounts:
     get:
       operationId: get-expenses-total-amounts
       summary: Get Expense Total Amounts
@@ -219,7 +219,7 @@ paths:
               $ref: '#/components/schemas/StoreIncomeInput'
       security:
         - ApiKeyAuth: []
-  /incomes/client-total-amounts:
+  /incomes/clientTotalAmounts:
     get:
       operationId: get-expenses-client-total-amounts
       summary: Get Income Client TotalAmounts
@@ -247,7 +247,7 @@ paths:
         - incomes
       security:
         - ApiKeyAuth: []
-  /incomes/total-amounts:
+  /incomes/totalAmounts:
     get:
       operationId: get-incomes-total-amounts
       summary: Get Income Total Amounts
@@ -275,7 +275,7 @@ paths:
         - incomes
       security:
         - ApiKeyAuth: []
-  /users/check-signed-in:
+  /users/checkSignedIn:
     get:
       operationId: post-users-check-signed-in
       summary: User Check Signed In
@@ -296,7 +296,7 @@ paths:
         - users
       security:
         - ApiKeyAuth: []
-  /users/sign-in:
+  /users/signIn:
     post:
       operationId: post-users-sign-in
       summary: User Sign In
@@ -341,7 +341,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserSignInInput'
-  /users/sign-up:
+  /users/signUp:
     post:
       operationId: post-users-sign-up
       summary: User Sign Up
@@ -381,7 +381,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserSignUpInput'
-  /users/validate-sign-up:
+  /users/validateSignUp:
     post:
       operationId: post-users-validate-sign-up
       summary: User Validate Sign Up

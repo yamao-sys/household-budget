@@ -33,7 +33,7 @@ namespace HouseholdBudgetService.Expense {
 			| InternalServerErrorResponse;
   }
 
-	@route("/total-amounts")
+	@route("/totalAmounts")
 	interface TotalAmounts {
 		@operationId("get-expenses-total-amounts")
 		@summary("Get Expense Total Amounts")
@@ -44,7 +44,7 @@ namespace HouseholdBudgetService.Expense {
 		): SuccessResponse<TotalAmountListsResponse>;
 	}
 
-	@route("/category-total-amounts")
+	@route("/categoryTotalAmounts")
 	interface CategoryTotalAmounts {
 		@operationId("get-expenses-category-total-amounts")
 		@summary("Get Expenses Category TotalAmounts")
