@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
+import type { UserSignUpInput, UserSignUpValidationError } from "~/apis/model";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
 import { usePostSignUp } from "~/services/users";
-import type { UserSignUpInput, UserSignUpValidationError } from "~/types";
 
 const INITIAL_VALIDATION_ERRORS = {
   name: [],

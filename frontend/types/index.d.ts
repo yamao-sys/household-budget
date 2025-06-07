@@ -1,11 +1,5 @@
 import type { components } from "~/types/apiSchema";
 
-export type UserSignUpInput = components["requestBodies"]["UserSignUpInput"]["content"]["application/json"];
-
-export type UserSignUpValidationError = components["responses"]["UserSignUpResponse"]["content"]["application/json"]["errors"];
-
-export type UserSignInInput = components["requestBodies"]["UserSignInInput"]["content"]["application/json"];
-
 export type Expense = components["schemas"]["Expense"];
 
 export type TotalAmountLists = components["responses"]["TotalAmountListsResponse"]["content"]["application/json"]["totalAmounts"];

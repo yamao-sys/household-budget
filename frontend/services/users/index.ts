@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import type { UserSignInInput, UserSignUpInput, UserSignUpValidationError } from "~/types";
 import { postUserSignIn, postUserSignUp } from "./api";
+import type { UserSignInInput, UserSignUpInput, UserSignUpValidationError } from "~/apis/model";
 
 export const usePostSignUp = (
   onMutate: () => void,

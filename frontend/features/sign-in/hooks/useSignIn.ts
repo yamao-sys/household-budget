@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
+import type { UserSignInInput } from "~/apis/model";
 import { NAVIGATION_PAGE_LIST } from "~/app/routes";
 import { usePostSignIn } from "~/services/users";
-import type { UserSignInInput } from "~/types";
 
 export const useSignIn = (csrfToken: string) => {
   const [userSignInInputs, setUserSignInInputs] = useState<UserSignInInput>({
