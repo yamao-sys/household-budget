@@ -33,14 +33,49 @@ const getHeaders = (headers?: HeadersInit): HeadersInit => {
   };
 };
 
+const convertDatesToDateOnly = (input: any): any => {
+  if (typeof input === "string" && /^\d{4}-\d{2}-\d{2}T/.test(input)) {
+    return input.split("T")[0];
+  }
+
+  if (Array.isArray(input)) {
+    return input.map(convertDatesToDateOnly);
+  }
+
+  if (input && typeof input === "object") {
+    return Object.entries(input).reduce((acc, [key, value]) => {
+      acc[key] = convertDatesToDateOnly(value);
+      return acc;
+    }, {} as any);
+  }
+
+  return input;
+};
+
 export const customFetch = async <T>(url: string, options: RequestInit): Promise<T> => {
   const requestUrl = getUrl(url);
   const requestHeaders = getHeaders(options.headers);
+
+  const normalizedHeaders = new Headers(requestHeaders);
+
+  let body = options.body;
+
+  if (typeof body === "string" && normalizedHeaders.get("Content-Type")?.includes("application/json")) {
+    try {
+      const parsed = JSON.parse(body);
+      const converted = convertDatesToDateOnly(parsed);
+      body = JSON.stringify(converted);
+      console.log("Converted body:", body);
+    } catch (err) {
+      console.warn("Failed to parse or convert body:", err);
+    }
+  }
 
   const requestInit: RequestInit = {
     ...options,
     headers: requestHeaders,
     credentials: "include",
+    body,
   };
 
   const response = await fetch(requestUrl, requestInit);
