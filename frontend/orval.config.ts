@@ -10,6 +10,12 @@ const config = {
       schemas: "./apis/model",
       clean: true,
       target: "./apis",
+      override: {
+        mutator: {
+          path: "./custom-fetch.ts",
+          name: "customFetch",
+        },
+      },
     },
     hooks: {
       afterAllFilesWrite: "prettier --write './apis/**/*.{ts,tsx}'",

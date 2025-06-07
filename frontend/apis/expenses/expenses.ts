@@ -33,6 +33,10 @@ import type {
   TotalAmountListsResponse,
 } from ".././model";
 
+import { customFetch } from "../../custom-fetch";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 /**
  * @summary Get Expenses
  */
@@ -62,15 +66,10 @@ export const getGetExpensesUrl = (params?: GetExpensesParams) => {
 };
 
 export const getExpenses = async (params?: GetExpensesParams, options?: RequestInit): Promise<getExpensesResponse> => {
-  const res = await fetch(getGetExpensesUrl(params), {
+  return customFetch<getExpensesResponse>(getGetExpensesUrl(params), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getExpensesResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as getExpensesResponse;
 };
 
 export const getGetExpensesQueryKey = (params?: GetExpensesParams) => {
@@ -79,13 +78,16 @@ export const getGetExpensesQueryKey = (params?: GetExpensesParams) => {
 
 export const getGetExpensesQueryOptions = <TData = Awaited<ReturnType<typeof getExpenses>>, TError = unknown>(
   params?: GetExpensesParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData>>; fetch?: RequestInit },
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetExpensesQueryKey(params);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getExpenses>>> = ({ signal }) => getExpenses(params, { signal, ...fetchOptions });
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getExpenses>>> = ({ signal }) => getExpenses(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -100,7 +102,7 @@ export function useGetExpenses<TData = Awaited<ReturnType<typeof getExpenses>>, 
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData>> &
       Pick<DefinedInitialDataOptions<Awaited<ReturnType<typeof getExpenses>>, TError, Awaited<ReturnType<typeof getExpenses>>>, "initialData">;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
@@ -109,13 +111,16 @@ export function useGetExpenses<TData = Awaited<ReturnType<typeof getExpenses>>, 
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData>> &
       Pick<UndefinedInitialDataOptions<Awaited<ReturnType<typeof getExpenses>>, TError, Awaited<ReturnType<typeof getExpenses>>>, "initialData">;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetExpenses<TData = Awaited<ReturnType<typeof getExpenses>>, TError = unknown>(
   params?: GetExpensesParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData>>; fetch?: RequestInit },
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 /**
@@ -124,7 +129,10 @@ export function useGetExpenses<TData = Awaited<ReturnType<typeof getExpenses>>, 
 
 export function useGetExpenses<TData = Awaited<ReturnType<typeof getExpenses>>, TError = unknown>(
   params?: GetExpensesParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData>>; fetch?: RequestInit },
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpenses>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getGetExpensesQueryOptions(params, options);
@@ -160,34 +168,29 @@ export const getPostExpensesUrl = () => {
 };
 
 export const postExpenses = async (storeExpenseInput: StoreExpenseInput, options?: RequestInit): Promise<postExpensesResponse> => {
-  const res = await fetch(getPostExpensesUrl(), {
+  return customFetch<postExpensesResponse>(getPostExpensesUrl(), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...options?.headers },
     body: JSON.stringify(storeExpenseInput),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: postExpensesResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as postExpensesResponse;
 };
 
 export const getPostExpensesMutationOptions = <TError = PostExpenses500, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postExpenses>>, TError, { data: StoreExpenseInput }, TContext>;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<Awaited<ReturnType<typeof postExpenses>>, TError, { data: StoreExpenseInput }, TContext> => {
   const mutationKey = ["postExpenses"];
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<Awaited<ReturnType<typeof postExpenses>>, { data: StoreExpenseInput }> = (props) => {
     const { data } = props ?? {};
 
-    return postExpenses(data, fetchOptions);
+    return postExpenses(data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -203,7 +206,7 @@ export type PostExpensesMutationError = PostExpenses500;
 export const usePostExpenses = <TError = PostExpenses500, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<Awaited<ReturnType<typeof postExpenses>>, TError, { data: StoreExpenseInput }, TContext>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<Awaited<ReturnType<typeof postExpenses>>, TError, { data: StoreExpenseInput }, TContext> => {
@@ -225,7 +228,7 @@ export type getExpensesCategoryTotalAmountsResponse = getExpensesCategoryTotalAm
   headers: Headers;
 };
 
-export const getGetExpensesCategoryTotalAmountsUrl = (params?: GetExpensesCategoryTotalAmountsParams) => {
+export const getGetExpensesCategoryTotalAmountsUrl = (params: GetExpensesCategoryTotalAmountsParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -236,38 +239,36 @@ export const getGetExpensesCategoryTotalAmountsUrl = (params?: GetExpensesCatego
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/expenses/category-total-amounts?${stringifiedParams}` : `/expenses/category-total-amounts`;
+  return stringifiedParams.length > 0 ? `/expenses/categoryTotalAmounts?${stringifiedParams}` : `/expenses/categoryTotalAmounts`;
 };
 
 export const getExpensesCategoryTotalAmounts = async (
-  params?: GetExpensesCategoryTotalAmountsParams,
+  params: GetExpensesCategoryTotalAmountsParams,
   options?: RequestInit,
 ): Promise<getExpensesCategoryTotalAmountsResponse> => {
-  const res = await fetch(getGetExpensesCategoryTotalAmountsUrl(params), {
+  return customFetch<getExpensesCategoryTotalAmountsResponse>(getGetExpensesCategoryTotalAmountsUrl(params), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getExpensesCategoryTotalAmountsResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as getExpensesCategoryTotalAmountsResponse;
 };
 
-export const getGetExpensesCategoryTotalAmountsQueryKey = (params?: GetExpensesCategoryTotalAmountsParams) => {
-  return [`/expenses/category-total-amounts`, ...(params ? [params] : [])] as const;
+export const getGetExpensesCategoryTotalAmountsQueryKey = (params: GetExpensesCategoryTotalAmountsParams) => {
+  return [`/expenses/categoryTotalAmounts`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetExpensesCategoryTotalAmountsQueryOptions = <TData = Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesCategoryTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetExpensesCategoryTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetExpensesCategoryTotalAmountsQueryKey(params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>> = ({ signal }) =>
-    getExpensesCategoryTotalAmounts(params, { signal, ...fetchOptions });
+    getExpensesCategoryTotalAmounts(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -278,7 +279,7 @@ export type GetExpensesCategoryTotalAmountsQueryResult = NonNullable<Awaited<Ret
 export type GetExpensesCategoryTotalAmountsQueryError = unknown;
 
 export function useGetExpensesCategoryTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError = unknown>(
-  params: undefined | GetExpensesCategoryTotalAmountsParams,
+  params: GetExpensesCategoryTotalAmountsParams,
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData>> &
       Pick<
@@ -289,12 +290,12 @@ export function useGetExpensesCategoryTotalAmounts<TData = Awaited<ReturnType<ty
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetExpensesCategoryTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesCategoryTotalAmountsParams,
+  params: GetExpensesCategoryTotalAmountsParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData>> &
       Pick<
@@ -305,13 +306,16 @@ export function useGetExpensesCategoryTotalAmounts<TData = Awaited<ReturnType<ty
         >,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetExpensesCategoryTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesCategoryTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetExpensesCategoryTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 /**
@@ -319,8 +323,11 @@ export function useGetExpensesCategoryTotalAmounts<TData = Awaited<ReturnType<ty
  */
 
 export function useGetExpensesCategoryTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesCategoryTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetExpensesCategoryTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesCategoryTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getGetExpensesCategoryTotalAmountsQueryOptions(params, options);
@@ -346,7 +353,7 @@ export type getExpensesTotalAmountsResponse = getExpensesTotalAmountsResponseCom
   headers: Headers;
 };
 
-export const getGetExpensesTotalAmountsUrl = (params?: GetExpensesTotalAmountsParams) => {
+export const getGetExpensesTotalAmountsUrl = (params: GetExpensesTotalAmountsParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -357,38 +364,36 @@ export const getGetExpensesTotalAmountsUrl = (params?: GetExpensesTotalAmountsPa
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/expenses/total-amounts?${stringifiedParams}` : `/expenses/total-amounts`;
+  return stringifiedParams.length > 0 ? `/expenses/totalAmounts?${stringifiedParams}` : `/expenses/totalAmounts`;
 };
 
 export const getExpensesTotalAmounts = async (
-  params?: GetExpensesTotalAmountsParams,
+  params: GetExpensesTotalAmountsParams,
   options?: RequestInit,
 ): Promise<getExpensesTotalAmountsResponse> => {
-  const res = await fetch(getGetExpensesTotalAmountsUrl(params), {
+  return customFetch<getExpensesTotalAmountsResponse>(getGetExpensesTotalAmountsUrl(params), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getExpensesTotalAmountsResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as getExpensesTotalAmountsResponse;
 };
 
-export const getGetExpensesTotalAmountsQueryKey = (params?: GetExpensesTotalAmountsParams) => {
-  return [`/expenses/total-amounts`, ...(params ? [params] : [])] as const;
+export const getGetExpensesTotalAmountsQueryKey = (params: GetExpensesTotalAmountsParams) => {
+  return [`/expenses/totalAmounts`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetExpensesTotalAmountsQueryOptions = <TData = Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetExpensesTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetExpensesTotalAmountsQueryKey(params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getExpensesTotalAmounts>>> = ({ signal }) =>
-    getExpensesTotalAmounts(params, { signal, ...fetchOptions });
+    getExpensesTotalAmounts(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -399,32 +404,35 @@ export type GetExpensesTotalAmountsQueryResult = NonNullable<Awaited<ReturnType<
 export type GetExpensesTotalAmountsQueryError = unknown;
 
 export function useGetExpensesTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError = unknown>(
-  params: undefined | GetExpensesTotalAmountsParams,
+  params: GetExpensesTotalAmountsParams,
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData>> &
       Pick<
         DefinedInitialDataOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, Awaited<ReturnType<typeof getExpensesTotalAmounts>>>,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetExpensesTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesTotalAmountsParams,
+  params: GetExpensesTotalAmountsParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData>> &
       Pick<
         UndefinedInitialDataOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, Awaited<ReturnType<typeof getExpensesTotalAmounts>>>,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetExpensesTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetExpensesTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 /**
@@ -432,8 +440,11 @@ export function useGetExpensesTotalAmounts<TData = Awaited<ReturnType<typeof get
  */
 
 export function useGetExpensesTotalAmounts<TData = Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError = unknown>(
-  params?: GetExpensesTotalAmountsParams,
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData>>; fetch?: RequestInit },
+  params: GetExpensesTotalAmountsParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getExpensesTotalAmounts>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getGetExpensesTotalAmountsQueryOptions(params, options);

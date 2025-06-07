@@ -22,7 +22,7 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
-  PostUsersCheckSignedIn200,
+  GetUsersCheckSignedIn200,
   PostUsersSignIn500,
   PostUsersSignUp500,
   PostUsersValidateSignUp500,
@@ -33,94 +33,99 @@ import type {
   UserSignUpResponse,
 } from ".././model";
 
+import { customFetch } from "../../custom-fetch";
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 /**
  * @summary User Check Signed In
  */
-export type postUsersCheckSignedInResponse200 = {
-  data: PostUsersCheckSignedIn200;
+export type getUsersCheckSignedInResponse200 = {
+  data: GetUsersCheckSignedIn200;
   status: 200;
 };
 
-export type postUsersCheckSignedInResponseComposite = postUsersCheckSignedInResponse200;
+export type getUsersCheckSignedInResponseComposite = getUsersCheckSignedInResponse200;
 
-export type postUsersCheckSignedInResponse = postUsersCheckSignedInResponseComposite & {
+export type getUsersCheckSignedInResponse = getUsersCheckSignedInResponseComposite & {
   headers: Headers;
 };
 
-export const getPostUsersCheckSignedInUrl = () => {
-  return `/users/check-signed-in`;
+export const getGetUsersCheckSignedInUrl = () => {
+  return `/users/checkSignedIn`;
 };
 
-export const postUsersCheckSignedIn = async (options?: RequestInit): Promise<postUsersCheckSignedInResponse> => {
-  const res = await fetch(getPostUsersCheckSignedInUrl(), {
+export const getUsersCheckSignedIn = async (options?: RequestInit): Promise<getUsersCheckSignedInResponse> => {
+  return customFetch<getUsersCheckSignedInResponse>(getGetUsersCheckSignedInUrl(), {
     ...options,
     method: "GET",
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: postUsersCheckSignedInResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as postUsersCheckSignedInResponse;
 };
 
-export const getPostUsersCheckSignedInQueryKey = () => {
-  return [`/users/check-signed-in`] as const;
+export const getGetUsersCheckSignedInQueryKey = () => {
+  return [`/users/checkSignedIn`] as const;
 };
 
-export const getPostUsersCheckSignedInQueryOptions = <TData = Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError = unknown>(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError, TData>>;
-  fetch?: RequestInit;
+export const getGetUsersCheckSignedInQueryOptions = <TData = Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError = unknown>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError, TData>>;
+  request?: SecondParameter<typeof customFetch>;
 }) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getPostUsersCheckSignedInQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getGetUsersCheckSignedInQueryKey();
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof postUsersCheckSignedIn>>> = ({ signal }) =>
-    postUsersCheckSignedIn({ signal, ...fetchOptions });
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUsersCheckSignedIn>>> = ({ signal }) =>
+    getUsersCheckSignedIn({ signal, ...requestOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError, TData> & {
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError, TData> & {
     queryKey: DataTag<QueryKey, TData, TError>;
   };
 };
 
-export type PostUsersCheckSignedInQueryResult = NonNullable<Awaited<ReturnType<typeof postUsersCheckSignedIn>>>;
-export type PostUsersCheckSignedInQueryError = unknown;
+export type GetUsersCheckSignedInQueryResult = NonNullable<Awaited<ReturnType<typeof getUsersCheckSignedIn>>>;
+export type GetUsersCheckSignedInQueryError = unknown;
 
-export function usePostUsersCheckSignedIn<TData = Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError = unknown>(
+export function useGetUsersCheckSignedIn<TData = Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError = unknown>(
   options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError, TData>> &
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError, TData>> &
       Pick<
-        DefinedInitialDataOptions<Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError, Awaited<ReturnType<typeof postUsersCheckSignedIn>>>,
+        DefinedInitialDataOptions<Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError, Awaited<ReturnType<typeof getUsersCheckSignedIn>>>,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function usePostUsersCheckSignedIn<TData = Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError = unknown>(
+export function useGetUsersCheckSignedIn<TData = Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError = unknown>(
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError, TData>> &
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError, TData>> &
       Pick<
-        UndefinedInitialDataOptions<Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError, Awaited<ReturnType<typeof postUsersCheckSignedIn>>>,
+        UndefinedInitialDataOptions<Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError, Awaited<ReturnType<typeof getUsersCheckSignedIn>>>,
         "initialData"
       >;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function usePostUsersCheckSignedIn<TData = Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError = unknown>(
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError, TData>>; fetch?: RequestInit },
+export function useGetUsersCheckSignedIn<TData = Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError = unknown>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 /**
  * @summary User Check Signed In
  */
 
-export function usePostUsersCheckSignedIn<TData = Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError = unknown>(
-  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof postUsersCheckSignedIn>>, TError, TData>>; fetch?: RequestInit },
+export function useGetUsersCheckSignedIn<TData = Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError = unknown>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getUsersCheckSignedIn>>, TError, TData>>;
+    request?: SecondParameter<typeof customFetch>;
+  },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getPostUsersCheckSignedInQueryOptions(options);
+  const queryOptions = getGetUsersCheckSignedInQueryOptions(options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -154,38 +159,33 @@ export type postUsersSignInResponse = postUsersSignInResponseComposite & {
 };
 
 export const getPostUsersSignInUrl = () => {
-  return `/users/sign-in`;
+  return `/users/signIn`;
 };
 
 export const postUsersSignIn = async (userSignInInput: UserSignInInput, options?: RequestInit): Promise<postUsersSignInResponse> => {
-  const res = await fetch(getPostUsersSignInUrl(), {
+  return customFetch<postUsersSignInResponse>(getPostUsersSignInUrl(), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...options?.headers },
     body: JSON.stringify(userSignInInput),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: postUsersSignInResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as postUsersSignInResponse;
 };
 
 export const getPostUsersSignInMutationOptions = <TError = UserSignInBadRequestResponse | PostUsersSignIn500, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postUsersSignIn>>, TError, { data: UserSignInInput }, TContext>;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<Awaited<ReturnType<typeof postUsersSignIn>>, TError, { data: UserSignInInput }, TContext> => {
   const mutationKey = ["postUsersSignIn"];
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<Awaited<ReturnType<typeof postUsersSignIn>>, { data: UserSignInInput }> = (props) => {
     const { data } = props ?? {};
 
-    return postUsersSignIn(data, fetchOptions);
+    return postUsersSignIn(data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -201,7 +201,7 @@ export type PostUsersSignInMutationError = UserSignInBadRequestResponse | PostUs
 export const usePostUsersSignIn = <TError = UserSignInBadRequestResponse | PostUsersSignIn500, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<Awaited<ReturnType<typeof postUsersSignIn>>, TError, { data: UserSignInInput }, TContext>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<Awaited<ReturnType<typeof postUsersSignIn>>, TError, { data: UserSignInInput }, TContext> => {
@@ -234,38 +234,33 @@ export type postUsersSignUpResponse = postUsersSignUpResponseComposite & {
 };
 
 export const getPostUsersSignUpUrl = () => {
-  return `/users/sign-up`;
+  return `/users/signUp`;
 };
 
 export const postUsersSignUp = async (userSignUpInput: UserSignUpInput, options?: RequestInit): Promise<postUsersSignUpResponse> => {
-  const res = await fetch(getPostUsersSignUpUrl(), {
+  return customFetch<postUsersSignUpResponse>(getPostUsersSignUpUrl(), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...options?.headers },
     body: JSON.stringify(userSignUpInput),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: postUsersSignUpResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as postUsersSignUpResponse;
 };
 
 export const getPostUsersSignUpMutationOptions = <TError = UserSignUpResponse | PostUsersSignUp500, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postUsersSignUp>>, TError, { data: UserSignUpInput }, TContext>;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<Awaited<ReturnType<typeof postUsersSignUp>>, TError, { data: UserSignUpInput }, TContext> => {
   const mutationKey = ["postUsersSignUp"];
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<Awaited<ReturnType<typeof postUsersSignUp>>, { data: UserSignUpInput }> = (props) => {
     const { data } = props ?? {};
 
-    return postUsersSignUp(data, fetchOptions);
+    return postUsersSignUp(data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -281,7 +276,7 @@ export type PostUsersSignUpMutationError = UserSignUpResponse | PostUsersSignUp5
 export const usePostUsersSignUp = <TError = UserSignUpResponse | PostUsersSignUp500, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<Awaited<ReturnType<typeof postUsersSignUp>>, TError, { data: UserSignUpInput }, TContext>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<Awaited<ReturnType<typeof postUsersSignUp>>, TError, { data: UserSignUpInput }, TContext> => {
@@ -317,38 +312,33 @@ export type postUsersValidateSignUpResponse = postUsersValidateSignUpResponseCom
 };
 
 export const getPostUsersValidateSignUpUrl = () => {
-  return `/users/validate-sign-up`;
+  return `/users/validateSignUp`;
 };
 
 export const postUsersValidateSignUp = async (userSignUpInput: UserSignUpInput, options?: RequestInit): Promise<postUsersValidateSignUpResponse> => {
-  const res = await fetch(getPostUsersValidateSignUpUrl(), {
+  return customFetch<postUsersValidateSignUpResponse>(getPostUsersValidateSignUpUrl(), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...options?.headers },
     body: JSON.stringify(userSignUpInput),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: postUsersValidateSignUpResponse["data"] = body ? JSON.parse(body) : {};
-
-  return { data, status: res.status, headers: res.headers } as postUsersValidateSignUpResponse;
 };
 
 export const getPostUsersValidateSignUpMutationOptions = <TError = UserSignUpResponse | PostUsersValidateSignUp500, TContext = unknown>(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postUsersValidateSignUp>>, TError, { data: UserSignUpInput }, TContext>;
-  fetch?: RequestInit;
+  request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<Awaited<ReturnType<typeof postUsersValidateSignUp>>, TError, { data: UserSignUpInput }, TContext> => {
   const mutationKey = ["postUsersValidateSignUp"];
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
+    : { mutation: { mutationKey }, request: undefined };
 
   const mutationFn: MutationFunction<Awaited<ReturnType<typeof postUsersValidateSignUp>>, { data: UserSignUpInput }> = (props) => {
     const { data } = props ?? {};
 
-    return postUsersValidateSignUp(data, fetchOptions);
+    return postUsersValidateSignUp(data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -364,7 +354,7 @@ export type PostUsersValidateSignUpMutationError = UserSignUpResponse | PostUser
 export const usePostUsersValidateSignUp = <TError = UserSignUpResponse | PostUsersValidateSignUp500, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<Awaited<ReturnType<typeof postUsersValidateSignUp>>, TError, { data: UserSignUpInput }, TContext>;
-    fetch?: RequestInit;
+    request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<Awaited<ReturnType<typeof postUsersValidateSignUp>>, TError, { data: UserSignUpInput }, TContext> => {

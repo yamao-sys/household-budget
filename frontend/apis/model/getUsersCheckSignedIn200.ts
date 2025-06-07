@@ -6,6 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-export type PostUsersCheckSignedIn200 = {
+export type GetUsersCheckSignedIn200 = {
   isSignedIn: boolean;
 };

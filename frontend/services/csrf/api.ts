@@ -1,9 +1,15 @@
-import { client } from "../base/api";
+import { getCsrf } from "~/apis/csrf/csrf";
 
 export async function getCsrfToken() {
-  const { data, error } = await client.GET("/csrf");
-  if (error?.code === 500 || data === undefined) {
-    throw Error();
+  try {
+    const res = await getCsrf();
+
+    if (res.status === 500) {
+      throw new Error(`Internal Server Error: ${res.data}`);
+    }
+
+    return res.data.csrfToken;
+  } catch (error) {
+    throw new Error(`Unexpected error: ${error}`);
   }
-  return data.csrfToken;
 }

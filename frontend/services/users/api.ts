@@ -1,46 +1,44 @@
-import type { UserSignInInput, UserSignUpInput, UserSignUpValidationError } from "~/types";
-import { client, getRequestHeaders } from "../base/api";
+import type { UserSignInInput, UserSignUpInput, UserSignUpValidationError } from "~/apis/model";
+import { getRequestHeaders } from "../base/api";
+import { getUsersCheckSignedIn, postUsersSignIn, postUsersSignUp } from "~/apis/users/users";
 
 export async function postUserSignUp(input: UserSignUpInput, csrfToken: string): Promise<UserSignUpValidationError> {
-  const { data, response } = await client.POST("/users/signUp", {
-    ...getRequestHeaders(csrfToken),
-    body: input,
-  });
-  if (response.status === 403) {
-    throw Error("Forbidden");
-  }
-  if (response.status === 500 || data === undefined) {
-    throw Error("Internal Server Error");
-  }
+  try {
+    const res = await postUsersSignUp(input, getRequestHeaders(csrfToken));
 
-  return data.errors;
+    if (res.status === 500) {
+      throw new Error(`Internal Server Error: ${res.data}`);
+    }
+
+    return res.data.errors;
+  } catch (error) {
+    throw new Error(`Unexpected error: ${error}`);
+  }
 }
 
 export async function postUserSignIn(input: UserSignInInput, csrfToken: string): Promise<string> {
-  const { response } = await client.POST("/users/signIn", {
-    ...getRequestHeaders(csrfToken),
-    body: input,
-  });
-  if (response.status === 500) {
-    throw Error("Internal Server Error");
-  }
-  if (response.status === 403) {
-    throw Error("Forbidden");
-  }
-  if (response.status === 400) {
-    return "メールアドレスまたはパスワードが正しくありません";
-  }
+  try {
+    const res = await postUsersSignIn(input, getRequestHeaders(csrfToken));
 
-  return "";
+    switch (res.status) {
+      case 200:
+        return "";
+      case 500:
+        throw new Error(`Internal Server Error: ${res.data}`);
+      case 400:
+        return "メールアドレスまたはパスワードが正しくありません";
+    }
+  } catch (error) {
+    throw new Error(`Unexpected error: ${error}`);
+  }
 }
 
 export async function getCheckSignedIn(csrfToken: string): Promise<boolean> {
-  const { data, response } = await client.GET("/users/checkSignedIn", {
-    ...getRequestHeaders(csrfToken),
-  });
-  if (data === undefined || response.status === 401) {
-    return false;
-  }
+  try {
+    const res = await getUsersCheckSignedIn(getRequestHeaders(csrfToken));
 
-  return data.isSignedIn;
+    return res.data.isSignedIn;
+  } catch (error) {
+    throw new Error(`Unexpected error: ${error}`);
+  }
 }
