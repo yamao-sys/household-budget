@@ -103,7 +103,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
         {isSelectedDateExpensesPending && <div className='text-center'>Loading...</div>}
         {isSelectedDateExpensesError && <div className='text-center'>Error loading expenses</div>}
 
-        {selectedDateExpenses !== undefined && !isSelectedDateExpensesPending && !isSelectedDateExpensesError && (
+        {!!selectedDateExpenses && !isSelectedDateExpensesPending && !isSelectedDateExpensesError && (
           <>
             <h3 className='text-center font-bold mb-4'>支出</h3>
             <div className='overflow-y-auto mb-4 border rounded max-h-50'>
@@ -133,7 +133,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
         {isSelectedDateIncomesPending && <div className='text-center'>Loading...</div>}
         {isSelectedDateIncomesError && <div className='text-center'>Error loading expenses</div>}
 
-        {selectedDateIncomes !== undefined && !isSelectedDateIncomesPending && !isSelectedDateIncomesError && (
+        {!!selectedDateIncomes && !isSelectedDateIncomesPending && !isSelectedDateIncomesError && (
           <>
             <h3 className='text-center font-bold mb-4'>収入</h3>
             <div className='overflow-y-auto mb-4 border rounded max-h-50'>
