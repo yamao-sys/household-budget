@@ -39,19 +39,19 @@ namespace HouseholdBudgetService.Income {
 		@summary("Get Income Total Amounts")
 		@get
 		get(
-			@query fromDate?: string,
-			@query toDate?: string,
+			@query fromDate: string,
+			@query toDate: string,
 		): SuccessResponse<TotalAmountListsResponse>;
 	}
 
 	@route("/clientTotalAmounts")
 	interface ClientTotalAmounts {
-		@operationId("get-expenses-client-total-amounts")
+		@operationId("get-incomes-client-total-amounts")
 		@summary("Get Income Client TotalAmounts")
 		@get
 		get(
-			@query fromDate?: string,
-			@query toDate?: string,
+			@query fromDate: string,
+			@query toDate: string,
 		): SuccessResponse<ClientTotalAmountListsResponse>;
 	}
 }

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	api "apps/api"
+	api "apps/apis"
 	"context"
 	"net/http"
 
@@ -21,11 +21,11 @@ func NewCsrfHandler() CsrfHandler {
 func (ch *csrfHandler) GetCsrf(ctx context.Context, request api.GetCsrfRequestObject) (api.GetCsrfResponseObject, error) {
 	csrfToken, ok := ctx.Value(middleware.DefaultCSRFConfig.ContextKey).(string)
 	if !ok {
-		return api.GetCsrf500JSONResponse{InternalServerErrorResponseJSONResponse: api.InternalServerErrorResponseJSONResponse{
+		return api.GetCsrf500JSONResponse{
 			Code: http.StatusInternalServerError,
 			Message: "failed to retrieval token",
-		}}, nil
+		}, nil
 	}
 	
-	return api.GetCsrf200JSONResponse{CsrfResponseJSONResponse: api.CsrfResponseJSONResponse{ CsrfToken: csrfToken }}, nil
+	return api.GetCsrf200JSONResponse(api.CsrfResponse{ CsrfToken: csrfToken }), nil
 }

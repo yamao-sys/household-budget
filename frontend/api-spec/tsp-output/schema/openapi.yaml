@@ -107,13 +107,13 @@ paths:
       parameters:
         - name: fromDate
           in: query
-          required: false
+          required: true
           schema:
             type: string
           explode: false
         - name: toDate
           in: query
-          required: false
+          required: true
           schema:
             type: string
           explode: false
@@ -135,13 +135,13 @@ paths:
       parameters:
         - name: fromDate
           in: query
-          required: false
+          required: true
           schema:
             type: string
           explode: false
         - name: toDate
           in: query
-          required: false
+          required: true
           schema:
             type: string
           explode: false
@@ -221,18 +221,18 @@ paths:
         - ApiKeyAuth: []
   /incomes/clientTotalAmounts:
     get:
-      operationId: get-expenses-client-total-amounts
+      operationId: get-incomes-client-total-amounts
       summary: Get Income Client TotalAmounts
       parameters:
         - name: fromDate
           in: query
-          required: false
+          required: true
           schema:
             type: string
           explode: false
         - name: toDate
           in: query
-          required: false
+          required: true
           schema:
             type: string
           explode: false
@@ -254,13 +254,13 @@ paths:
       parameters:
         - name: fromDate
           in: query
-          required: false
+          required: true
           schema:
             type: string
           explode: false
         - name: toDate
           in: query
-          required: false
+          required: true
           schema:
             type: string
           explode: false
@@ -277,7 +277,7 @@ paths:
         - ApiKeyAuth: []
   /users/checkSignedIn:
     get:
-      operationId: post-users-check-signed-in
+      operationId: get-users-check-signed-in
       summary: User Check Signed In
       parameters: []
       responses:
@@ -513,7 +513,7 @@ components:
         - clientName
       properties:
         id:
-          type: integer
+          type: string
         receivedAt:
           type: string
           format: date

@@ -13,4 +13,4 @@ test-seed-local:
 	godotenv -f .env.test.local go run test/seeds/main.go
 
 gen-schema:
-	@oapi-codegen -config oapi_codegen_config.yaml -package api api/reference.yaml > api/reference.go
+	@oapi-codegen -config oapi_codegen_config.yaml -package api apis/schema/openapi.yaml > apis/openapi.go

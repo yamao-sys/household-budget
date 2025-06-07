@@ -1,6 +1,6 @@
 @summary("Income")
 model Income {
-	id: integer;
+	id: string;
 	receivedAt: plainDate;
 	amount: integer;
 	clientName: string;

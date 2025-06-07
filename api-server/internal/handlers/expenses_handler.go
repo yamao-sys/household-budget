@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"apps/api"
+	api "apps/apis"
 	"apps/internal/helpers"
 	"apps/internal/models"
 	"apps/internal/services"
@@ -62,7 +62,7 @@ func (eh *expensesHandler) GetExpenses(ctx context.Context, request api.GetExpen
 		})
 	}
 
-	return api.GetExpenses200JSONResponse{FetchExpenseListsResponseJSONResponse: api.FetchExpenseListsResponseJSONResponse{Expenses: expenses}}, nil
+	return api.GetExpenses200JSONResponse(api.ExpenseLists{Expenses: expenses}), nil
 }
 
 func (eh *expensesHandler) GetExpensesTotalAmounts(ctx context.Context, request api.GetExpensesTotalAmountsRequestObject) (api.GetExpensesTotalAmountsResponseObject, error) {
@@ -82,7 +82,7 @@ func (eh *expensesHandler) GetExpensesTotalAmounts(ctx context.Context, request 
 			},
 		})
 	}
-	return api.GetExpensesTotalAmounts200JSONResponse{TotalAmountListsResponseJSONResponse: api.TotalAmountListsResponseJSONResponse{TotalAmounts: resTotalAmounts}}, nil
+	return api.GetExpensesTotalAmounts200JSONResponse(api.TotalAmountListsResponse{TotalAmounts: resTotalAmounts}), nil
 }
 
 func (eh *expensesHandler) GetExpensesCategoryTotalAmounts(ctx context.Context, request api.GetExpensesCategoryTotalAmountsRequestObject) (api.GetExpensesCategoryTotalAmountsResponseObject, error) {
@@ -99,7 +99,7 @@ func (eh *expensesHandler) GetExpensesCategoryTotalAmounts(ctx context.Context, 
 			TotalAmount: categoryTotalAmount.TotalAmount,
 		})
 	}
-	return api.GetExpensesCategoryTotalAmounts200JSONResponse{CategoryTotalAmountListsResponseJSONResponse: api.CategoryTotalAmountListsResponseJSONResponse{TotalAmounts: resCategoryTotalAmounts}}, nil
+	return api.GetExpensesCategoryTotalAmounts200JSONResponse(api.CategoryTotalAmountListsResponse{TotalAmounts: resCategoryTotalAmounts}), nil
 }
 
 func (eh *expensesHandler) PostExpenses(ctx context.Context, request api.PostExpensesRequestObject) (api.PostExpensesResponseObject, error) {
@@ -108,7 +108,7 @@ func (eh *expensesHandler) PostExpenses(ctx context.Context, request api.PostExp
 
 	resValidationError := eh.expenseService.MappingValidationErrorStruct(validationErr)
 
-	return api.PostExpenses200JSONResponse{StoreExpenseResponseJSONResponse: api.StoreExpenseResponseJSONResponse{
+	return api.PostExpenses200JSONResponse(api.StoreExpenseResponse{
 		Errors: resValidationError,
 		Expense: api.Expense{
 			Id: strconv.Itoa(createdExpense.ID),
@@ -117,5 +117,5 @@ func (eh *expensesHandler) PostExpenses(ctx context.Context, request api.PostExp
 			Category: int(createdExpense.Category),
 			Description: createdExpense.Description,
 		},
-	}}, nil
+	}), nil
 }

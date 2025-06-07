@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"apps/api"
+	api "apps/apis"
 	"apps/internal/helpers"
 	"apps/internal/services"
 	"context"
@@ -47,7 +47,7 @@ func (uh *usersHandler) PostUsersValidateSignUp(ctx context.Context, request api
 		Code: http.StatusOK,
 		Errors: validationError,
 	}
-	return api.PostUsersValidateSignUp200JSONResponse{UserSignUpResponseJSONResponse: api.UserSignUpResponseJSONResponse{Code: res.Code, Errors: res.Errors}}, nil
+	return api.PostUsersValidateSignUp200JSONResponse(api.UserSignUpResponse{Code: res.Code, Errors: res.Errors}), nil
 }
 
 func (uh *usersHandler) PostUsersSignUp(ctx context.Context, request api.PostUsersSignUpRequestObject) (api.PostUsersSignUpResponseObject, error) {
@@ -59,33 +59,28 @@ func (uh *usersHandler) PostUsersSignUp(ctx context.Context, request api.PostUse
 			Code: http.StatusOK,
 			Errors: validationError,
 		}
-		return api.PostUsersSignUp200JSONResponse{UserSignUpResponseJSONResponse: api.UserSignUpResponseJSONResponse{Code: res.Code, Errors: res.Errors}}, nil
+		return api.PostUsersSignUp200JSONResponse(api.UserSignUpResponse{Code: res.Code, Errors: res.Errors}), nil
 	}
 
 	signUpErr := uh.userService.SignUp(ctx, *request.Body)
 	if signUpErr != nil {
-		return api.PostUsersSignUp500JSONResponse{InternalServerErrorResponseJSONResponse: api.InternalServerErrorResponseJSONResponse{Code: http.StatusInternalServerError, Message: signUpErr.Error()}}, nil
+		return api.PostUsersSignUp500JSONResponse{Code: http.StatusInternalServerError, Message: signUpErr.Error()}, nil
 	}
 
 	res := &api.UserSignUpResponse{
 		Code: http.StatusOK,
 		Errors: api.UserSignUpValidationError{},
 	}
-	return api.PostUsersSignUp200JSONResponse{UserSignUpResponseJSONResponse: api.UserSignUpResponseJSONResponse{Code: res.Code, Errors: res.Errors}}, nil
+	return api.PostUsersSignUp200JSONResponse(api.UserSignUpResponse{Code: res.Code, Errors: res.Errors}), nil
 }
 
 func (uh *usersHandler) PostUsersSignIn(ctx context.Context, request api.PostUsersSignInRequestObject) (api.PostUsersSignInResponseObject, error) {
 	statusCode, tokenString, err := uh.userService.SignIn(ctx, *request.Body)
 	switch (statusCode) {
 	case http.StatusInternalServerError:
-		return api.PostUsersSignIn500JSONResponse{InternalServerErrorResponseJSONResponse: api.InternalServerErrorResponseJSONResponse{
-			Code: http.StatusInternalServerError,
-			Message: err.Error(),
-		}}, nil
+		return api.PostUsersSignIn500JSONResponse{Code: http.StatusInternalServerError, Message: err.Error()}, nil
 	case http.StatusBadRequest:
-		return api.PostUsersSignIn400JSONResponse{UserSignInBadRequestResponseJSONResponse: api.UserSignInBadRequestResponseJSONResponse{
-			Errors: []string{err.Error()},
-		}}, nil
+		return api.PostUsersSignIn400JSONResponse{Errors: []string{err.Error()}}, nil
 	}
 	
 	var sameSite http.SameSite
@@ -105,11 +100,12 @@ func (uh *usersHandler) PostUsersSignIn(ctx context.Context, request api.PostUse
 		Secure:   os.Getenv("APP_ENV") == "production",
 		HttpOnly: true,
 	}
-	return api.PostUsersSignIn200JSONResponse{UserSignInOkResponseJSONResponse: api.UserSignInOkResponseJSONResponse{
-		Headers: api.UserSignInOkResponseResponseHeaders{
+	return api.PostUsersSignIn200JSONResponse(api.PostUsersSignIn200JSONResponse{
+		Body: api.UserSignInOkResponse{},
+		Headers: api.PostUsersSignIn200ResponseHeaders{
 			SetCookie: cookie.String(),
 		},
-	}}, nil
+	}), nil
 }
 
 func (uh *usersHandler) GetUsersCheckSignedIn(ctx context.Context, request api.GetUsersCheckSignedInRequestObject) (api.GetUsersCheckSignedInResponseObject, error) {

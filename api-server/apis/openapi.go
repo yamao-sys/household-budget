@@ -23,82 +23,24 @@ import (
 )
 
 const (
-	AuthenticationScopes = "authentication.Scopes"
+	ApiKeyAuthScopes = "ApiKeyAuth.Scopes"
 )
 
-// CategoryTotalAmountLists Total Amount Lists
+// CategoryTotalAmountLists defines model for CategoryTotalAmountLists.
 type CategoryTotalAmountLists struct {
 	Category    int `json:"category"`
 	TotalAmount int `json:"totalAmount"`
 }
 
-// ClientTotalAmountLists Total Amount Lists
-type ClientTotalAmountLists struct {
-	ClientName  string `json:"clientName"`
-	TotalAmount int    `json:"totalAmount"`
-}
-
-// Expense Expense
-type Expense struct {
-	Amount      int                `json:"amount"`
-	Category    int                `json:"category"`
-	Description string             `json:"description"`
-	Id          string             `json:"id"`
-	PaidAt      openapi_types.Date `json:"paidAt"`
-}
-
-// ExpenseLists Monthly Calender Expense
-type ExpenseLists struct {
-	Expenses []Expense `json:"expenses"`
-}
-
-// Income Income
-type Income struct {
-	Amount     int                `json:"amount"`
-	ClientName string             `json:"clientName"`
-	Id         string             `json:"id"`
-	ReceivedAt openapi_types.Date `json:"receivedAt"`
-}
-
-// IncomeLists defines model for IncomeLists.
-type IncomeLists struct {
-	Incomes []Income `json:"incomes"`
-}
-
-// StoreExpenseValidationError defines model for StoreExpenseValidationError.
-type StoreExpenseValidationError struct {
-	Amount      *[]string `json:"amount,omitempty"`
-	Category    *[]string `json:"category,omitempty"`
-	Description *[]string `json:"description,omitempty"`
-	PaidAt      *[]string `json:"paidAt,omitempty"`
-}
-
-// StoreIncomeValidationError Store Income Validation Error
-type StoreIncomeValidationError struct {
-	Amount     *[]string `json:"amount,omitempty"`
-	ClientName *[]string `json:"clientName,omitempty"`
-	ReceivedAt *[]string `json:"receivedAt,omitempty"`
-}
-
-// TotalAmountLists Total Amount Lists
-type TotalAmountLists struct {
-	Date        openapi_types.Date `json:"date"`
-	ExtendProps struct {
-		TotalAmount int    `json:"totalAmount"`
-		Type        string `json:"type"`
-	} `json:"extendProps"`
-}
-
-// UserSignUpValidationError defines model for UserSignUpValidationError.
-type UserSignUpValidationError struct {
-	Email    *[]string `json:"email,omitempty"`
-	Name     *[]string `json:"name,omitempty"`
-	Password *[]string `json:"password,omitempty"`
-}
-
 // CategoryTotalAmountListsResponse defines model for CategoryTotalAmountListsResponse.
 type CategoryTotalAmountListsResponse struct {
 	TotalAmounts []CategoryTotalAmountLists `json:"totalAmounts"`
+}
+
+// ClientTotalAmountLists defines model for ClientTotalAmountLists.
+type ClientTotalAmountLists struct {
+	ClientName  string `json:"clientName"`
+	TotalAmount int    `json:"totalAmount"`
 }
 
 // ClientTotalAmountListsResponse defines model for ClientTotalAmountListsResponse.
@@ -111,33 +53,82 @@ type CsrfResponse struct {
 	CsrfToken string `json:"csrfToken"`
 }
 
-// FetchExpenseListsResponse Monthly Calender Expense
-type FetchExpenseListsResponse = ExpenseLists
+// Expense defines model for Expense.
+type Expense struct {
+	Amount      int                `json:"amount"`
+	Category    int                `json:"category"`
+	Description string             `json:"description"`
+	Id          string             `json:"id"`
+	PaidAt      openapi_types.Date `json:"paidAt"`
+}
 
-// FetchIncomeListsResponse defines model for FetchIncomeListsResponse.
-type FetchIncomeListsResponse = IncomeLists
+// ExpenseLists defines model for ExpenseLists.
+type ExpenseLists struct {
+	Expenses []Expense `json:"expenses"`
+}
 
-// InternalServerErrorResponse defines model for InternalServerErrorResponse.
-type InternalServerErrorResponse struct {
-	Code    int64  `json:"code"`
-	Message string `json:"message"`
+// Income defines model for Income.
+type Income struct {
+	Amount     int                `json:"amount"`
+	ClientName string             `json:"clientName"`
+	Id         string             `json:"id"`
+	ReceivedAt openapi_types.Date `json:"receivedAt"`
+}
+
+// IncomeLists defines model for IncomeLists.
+type IncomeLists struct {
+	Incomes []Income `json:"incomes"`
+}
+
+// StoreExpenseInput defines model for StoreExpenseInput.
+type StoreExpenseInput struct {
+	Amount      int                `json:"amount"`
+	Category    int                `json:"category"`
+	Description string             `json:"description"`
+	PaidAt      openapi_types.Date `json:"paidAt"`
 }
 
 // StoreExpenseResponse defines model for StoreExpenseResponse.
 type StoreExpenseResponse struct {
-	Errors StoreExpenseValidationError `json:"errors"`
+	Errors  StoreExpenseValidationError `json:"errors"`
+	Expense Expense                     `json:"expense"`
+}
 
-	// Expense Expense
-	Expense Expense `json:"expense"`
+// StoreExpenseValidationError defines model for StoreExpenseValidationError.
+type StoreExpenseValidationError struct {
+	Amount      *[]string `json:"amount,omitempty"`
+	Category    *[]string `json:"category,omitempty"`
+	Description *[]string `json:"description,omitempty"`
+	PaidAt      *[]string `json:"paidAt,omitempty"`
+}
+
+// StoreIncomeInput defines model for StoreIncomeInput.
+type StoreIncomeInput struct {
+	Amount     int                `json:"amount"`
+	ClientName string             `json:"clientName"`
+	ReceivedAt openapi_types.Date `json:"receivedAt"`
 }
 
 // StoreIncomeResponse defines model for StoreIncomeResponse.
 type StoreIncomeResponse struct {
-	// Errors Store Income Validation Error
 	Errors StoreIncomeValidationError `json:"errors"`
+	Income Income                     `json:"income"`
+}
 
-	// Income Income
-	Income Income `json:"income"`
+// StoreIncomeValidationError defines model for StoreIncomeValidationError.
+type StoreIncomeValidationError struct {
+	Amount     *[]string `json:"amount,omitempty"`
+	ClientName *[]string `json:"clientName,omitempty"`
+	ReceivedAt *[]string `json:"receivedAt,omitempty"`
+}
+
+// TotalAmountLists defines model for TotalAmountLists.
+type TotalAmountLists struct {
+	Date        openapi_types.Date `json:"date"`
+	ExtendProps struct {
+		TotalAmount int    `json:"totalAmount"`
+		Type        string `json:"type"`
+	} `json:"extendProps"`
 }
 
 // TotalAmountListsResponse defines model for TotalAmountListsResponse.
@@ -150,35 +141,14 @@ type UserSignInBadRequestResponse struct {
 	Errors []string `json:"errors"`
 }
 
-// UserSignInOkResponse defines model for UserSignInOkResponse.
-type UserSignInOkResponse = map[string]interface{}
-
-// UserSignUpResponse defines model for UserSignUpResponse.
-type UserSignUpResponse struct {
-	Code   int                       `json:"code"`
-	Errors UserSignUpValidationError `json:"errors"`
-}
-
-// StoreExpenseInput defines model for StoreExpenseInput.
-type StoreExpenseInput struct {
-	Amount      int                `json:"amount"`
-	Category    int                `json:"category"`
-	Description string             `json:"description"`
-	PaidAt      openapi_types.Date `json:"paidAt"`
-}
-
-// StoreIncomeInput defines model for StoreIncomeInput.
-type StoreIncomeInput struct {
-	Amount     int                `json:"amount"`
-	ClientName string             `json:"clientName"`
-	ReceivedAt openapi_types.Date `json:"receivedAt"`
-}
-
 // UserSignInInput defines model for UserSignInInput.
 type UserSignInInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+// UserSignInOkResponse defines model for UserSignInOkResponse.
+type UserSignInOkResponse = map[string]interface{}
 
 // UserSignUpInput defines model for UserSignUpInput.
 type UserSignUpInput struct {
@@ -187,109 +157,69 @@ type UserSignUpInput struct {
 	Password string `json:"password"`
 }
 
-// GetExpensesParams defines parameters for GetExpenses.
-type GetExpensesParams struct {
-	// FromDate 取得対象の日付FROM
-	FromDate *string `form:"fromDate,omitempty" json:"fromDate,omitempty"`
-
-	// ToDate 取得対象の日付TO
-	ToDate *string `form:"toDate,omitempty" json:"toDate,omitempty"`
+// UserSignUpResponse defines model for UserSignUpResponse.
+type UserSignUpResponse struct {
+	Code   int                       `json:"code"`
+	Errors UserSignUpValidationError `json:"errors"`
 }
 
-// PostExpensesJSONBody defines parameters for PostExpenses.
-type PostExpensesJSONBody struct {
-	Amount      int                `json:"amount"`
-	Category    int                `json:"category"`
-	Description string             `json:"description"`
-	PaidAt      openapi_types.Date `json:"paidAt"`
+// UserSignUpValidationError defines model for UserSignUpValidationError.
+type UserSignUpValidationError struct {
+	Email    *[]string `json:"email,omitempty"`
+	Name     *[]string `json:"name,omitempty"`
+	Password *[]string `json:"password,omitempty"`
+}
+
+// GetExpensesParams defines parameters for GetExpenses.
+type GetExpensesParams struct {
+	FromDate *string `form:"fromDate,omitempty" json:"fromDate,omitempty"`
+	ToDate   *string `form:"toDate,omitempty" json:"toDate,omitempty"`
 }
 
 // GetExpensesCategoryTotalAmountsParams defines parameters for GetExpensesCategoryTotalAmounts.
 type GetExpensesCategoryTotalAmountsParams struct {
-	// FromDate 取得対象の日付FROM
 	FromDate string `form:"fromDate" json:"fromDate"`
-
-	// ToDate 取得対象の日付TO
-	ToDate string `form:"toDate" json:"toDate"`
+	ToDate   string `form:"toDate" json:"toDate"`
 }
 
 // GetExpensesTotalAmountsParams defines parameters for GetExpensesTotalAmounts.
 type GetExpensesTotalAmountsParams struct {
-	// FromDate 取得対象の日付FROM
 	FromDate string `form:"fromDate" json:"fromDate"`
-
-	// ToDate 取得対象の日付TO
-	ToDate string `form:"toDate" json:"toDate"`
+	ToDate   string `form:"toDate" json:"toDate"`
 }
 
 // GetIncomesParams defines parameters for GetIncomes.
 type GetIncomesParams struct {
-	// FromDate 取得対象の日付FROM
 	FromDate *string `form:"fromDate,omitempty" json:"fromDate,omitempty"`
-
-	// ToDate 取得対象の日付TO
-	ToDate *string `form:"toDate,omitempty" json:"toDate,omitempty"`
-}
-
-// PostIncomesJSONBody defines parameters for PostIncomes.
-type PostIncomesJSONBody struct {
-	Amount     int                `json:"amount"`
-	ClientName string             `json:"clientName"`
-	ReceivedAt openapi_types.Date `json:"receivedAt"`
+	ToDate   *string `form:"toDate,omitempty" json:"toDate,omitempty"`
 }
 
 // GetIncomesClientTotalAmountsParams defines parameters for GetIncomesClientTotalAmounts.
 type GetIncomesClientTotalAmountsParams struct {
-	// FromDate 取得対象の日付FROM
 	FromDate string `form:"fromDate" json:"fromDate"`
-
-	// ToDate 取得対象の日付TO
-	ToDate string `form:"toDate" json:"toDate"`
+	ToDate   string `form:"toDate" json:"toDate"`
 }
 
 // GetIncomesTotalAmountsParams defines parameters for GetIncomesTotalAmounts.
 type GetIncomesTotalAmountsParams struct {
-	// FromDate 取得対象の日付FROM
 	FromDate string `form:"fromDate" json:"fromDate"`
-
-	// ToDate 取得対象の日付TO
-	ToDate string `form:"toDate" json:"toDate"`
-}
-
-// PostUsersSignInJSONBody defines parameters for PostUsersSignIn.
-type PostUsersSignInJSONBody struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-// PostUsersSignUpJSONBody defines parameters for PostUsersSignUp.
-type PostUsersSignUpJSONBody struct {
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
-}
-
-// PostUsersValidateSignUpJSONBody defines parameters for PostUsersValidateSignUp.
-type PostUsersValidateSignUpJSONBody struct {
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	ToDate   string `form:"toDate" json:"toDate"`
 }
 
 // PostExpensesJSONRequestBody defines body for PostExpenses for application/json ContentType.
-type PostExpensesJSONRequestBody PostExpensesJSONBody
+type PostExpensesJSONRequestBody = StoreExpenseInput
 
 // PostIncomesJSONRequestBody defines body for PostIncomes for application/json ContentType.
-type PostIncomesJSONRequestBody PostIncomesJSONBody
+type PostIncomesJSONRequestBody = StoreIncomeInput
 
 // PostUsersSignInJSONRequestBody defines body for PostUsersSignIn for application/json ContentType.
-type PostUsersSignInJSONRequestBody PostUsersSignInJSONBody
+type PostUsersSignInJSONRequestBody = UserSignInInput
 
 // PostUsersSignUpJSONRequestBody defines body for PostUsersSignUp for application/json ContentType.
-type PostUsersSignUpJSONRequestBody PostUsersSignUpJSONBody
+type PostUsersSignUpJSONRequestBody = UserSignUpInput
 
 // PostUsersValidateSignUpJSONRequestBody defines body for PostUsersValidateSignUp for application/json ContentType.
-type PostUsersValidateSignUpJSONRequestBody PostUsersValidateSignUpJSONBody
+type PostUsersValidateSignUpJSONRequestBody = UserSignUpInput
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -305,31 +235,31 @@ type ServerInterface interface {
 	// Get Expenses Category TotalAmounts
 	// (GET /expenses/categoryTotalAmounts)
 	GetExpensesCategoryTotalAmounts(ctx echo.Context, params GetExpensesCategoryTotalAmountsParams) error
-	// Get Expenses TotalAmounts
+	// Get Expense Total Amounts
 	// (GET /expenses/totalAmounts)
 	GetExpensesTotalAmounts(ctx echo.Context, params GetExpensesTotalAmountsParams) error
 	// Get Incomes
 	// (GET /incomes)
 	GetIncomes(ctx echo.Context, params GetIncomesParams) error
-	// POST Income
+	// Post Income
 	// (POST /incomes)
 	PostIncomes(ctx echo.Context) error
-	// Get Incomes Client TotalAmounts
+	// Get Income Client TotalAmounts
 	// (GET /incomes/clientTotalAmounts)
 	GetIncomesClientTotalAmounts(ctx echo.Context, params GetIncomesClientTotalAmountsParams) error
-	// GET Incomes TotalAmounts
+	// Get Income Total Amounts
 	// (GET /incomes/totalAmounts)
 	GetIncomesTotalAmounts(ctx echo.Context, params GetIncomesTotalAmountsParams) error
-	// User CheckSignedIn
+	// User Check Signed In
 	// (GET /users/checkSignedIn)
 	GetUsersCheckSignedIn(ctx echo.Context) error
-	// User SignIn
+	// User Sign In
 	// (POST /users/signIn)
 	PostUsersSignIn(ctx echo.Context) error
-	// User SignUp
+	// User Sign Up
 	// (POST /users/signUp)
 	PostUsersSignUp(ctx echo.Context) error
-	// User Validate SignUp
+	// User Validate Sign Up
 	// (POST /users/validateSignUp)
 	PostUsersValidateSignUp(ctx echo.Context) error
 }
@@ -352,20 +282,20 @@ func (w *ServerInterfaceWrapper) GetCsrf(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) GetExpenses(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetExpensesParams
 	// ------------- Optional query parameter "fromDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "fromDate", ctx.QueryParams(), &params.FromDate)
+	err = runtime.BindQueryParameter("form", false, false, "fromDate", ctx.QueryParams(), &params.FromDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
 	}
 
 	// ------------- Optional query parameter "toDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "toDate", ctx.QueryParams(), &params.ToDate)
+	err = runtime.BindQueryParameter("form", false, false, "toDate", ctx.QueryParams(), &params.ToDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
 	}
@@ -379,7 +309,7 @@ func (w *ServerInterfaceWrapper) GetExpenses(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) PostExpenses(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.PostExpenses(ctx)
@@ -390,20 +320,20 @@ func (w *ServerInterfaceWrapper) PostExpenses(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) GetExpensesCategoryTotalAmounts(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetExpensesCategoryTotalAmountsParams
 	// ------------- Required query parameter "fromDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, true, "fromDate", ctx.QueryParams(), &params.FromDate)
+	err = runtime.BindQueryParameter("form", false, true, "fromDate", ctx.QueryParams(), &params.FromDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
 	}
 
 	// ------------- Required query parameter "toDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, true, "toDate", ctx.QueryParams(), &params.ToDate)
+	err = runtime.BindQueryParameter("form", false, true, "toDate", ctx.QueryParams(), &params.ToDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
 	}
@@ -417,20 +347,20 @@ func (w *ServerInterfaceWrapper) GetExpensesCategoryTotalAmounts(ctx echo.Contex
 func (w *ServerInterfaceWrapper) GetExpensesTotalAmounts(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetExpensesTotalAmountsParams
 	// ------------- Required query parameter "fromDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, true, "fromDate", ctx.QueryParams(), &params.FromDate)
+	err = runtime.BindQueryParameter("form", false, true, "fromDate", ctx.QueryParams(), &params.FromDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
 	}
 
 	// ------------- Required query parameter "toDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, true, "toDate", ctx.QueryParams(), &params.ToDate)
+	err = runtime.BindQueryParameter("form", false, true, "toDate", ctx.QueryParams(), &params.ToDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
 	}
@@ -444,20 +374,20 @@ func (w *ServerInterfaceWrapper) GetExpensesTotalAmounts(ctx echo.Context) error
 func (w *ServerInterfaceWrapper) GetIncomes(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetIncomesParams
 	// ------------- Optional query parameter "fromDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "fromDate", ctx.QueryParams(), &params.FromDate)
+	err = runtime.BindQueryParameter("form", false, false, "fromDate", ctx.QueryParams(), &params.FromDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
 	}
 
 	// ------------- Optional query parameter "toDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "toDate", ctx.QueryParams(), &params.ToDate)
+	err = runtime.BindQueryParameter("form", false, false, "toDate", ctx.QueryParams(), &params.ToDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
 	}
@@ -471,7 +401,7 @@ func (w *ServerInterfaceWrapper) GetIncomes(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) PostIncomes(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.PostIncomes(ctx)
@@ -482,20 +412,20 @@ func (w *ServerInterfaceWrapper) PostIncomes(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) GetIncomesClientTotalAmounts(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetIncomesClientTotalAmountsParams
 	// ------------- Required query parameter "fromDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, true, "fromDate", ctx.QueryParams(), &params.FromDate)
+	err = runtime.BindQueryParameter("form", false, true, "fromDate", ctx.QueryParams(), &params.FromDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
 	}
 
 	// ------------- Required query parameter "toDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, true, "toDate", ctx.QueryParams(), &params.ToDate)
+	err = runtime.BindQueryParameter("form", false, true, "toDate", ctx.QueryParams(), &params.ToDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
 	}
@@ -509,20 +439,20 @@ func (w *ServerInterfaceWrapper) GetIncomesClientTotalAmounts(ctx echo.Context) 
 func (w *ServerInterfaceWrapper) GetIncomesTotalAmounts(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetIncomesTotalAmountsParams
 	// ------------- Required query parameter "fromDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, true, "fromDate", ctx.QueryParams(), &params.FromDate)
+	err = runtime.BindQueryParameter("form", false, true, "fromDate", ctx.QueryParams(), &params.FromDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fromDate: %s", err))
 	}
 
 	// ------------- Required query parameter "toDate" -------------
 
-	err = runtime.BindQueryParameter("form", true, true, "toDate", ctx.QueryParams(), &params.ToDate)
+	err = runtime.BindQueryParameter("form", false, true, "toDate", ctx.QueryParams(), &params.ToDate)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter toDate: %s", err))
 	}
@@ -536,7 +466,7 @@ func (w *ServerInterfaceWrapper) GetIncomesTotalAmounts(ctx echo.Context) error 
 func (w *ServerInterfaceWrapper) GetUsersCheckSignedIn(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(AuthenticationScopes, []string{})
+	ctx.Set(ApiKeyAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GetUsersCheckSignedIn(ctx)
@@ -614,64 +544,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 }
 
-type CategoryTotalAmountListsResponseJSONResponse struct {
-	TotalAmounts []CategoryTotalAmountLists `json:"totalAmounts"`
-}
-
-type ClientTotalAmountListsResponseJSONResponse struct {
-	TotalAmounts []ClientTotalAmountLists `json:"totalAmounts"`
-}
-
-type CsrfResponseJSONResponse struct {
-	CsrfToken string `json:"csrfToken"`
-}
-
-type FetchExpenseListsResponseJSONResponse ExpenseLists
-
-type FetchIncomeListsResponseJSONResponse IncomeLists
-
-type InternalServerErrorResponseJSONResponse struct {
-	Code    int64  `json:"code"`
-	Message string `json:"message"`
-}
-
-type StoreExpenseResponseJSONResponse struct {
-	Errors StoreExpenseValidationError `json:"errors"`
-
-	// Expense Expense
-	Expense Expense `json:"expense"`
-}
-
-type StoreIncomeResponseJSONResponse struct {
-	// Errors Store Income Validation Error
-	Errors StoreIncomeValidationError `json:"errors"`
-
-	// Income Income
-	Income Income `json:"income"`
-}
-
-type TotalAmountListsResponseJSONResponse struct {
-	TotalAmounts []TotalAmountLists `json:"totalAmounts"`
-}
-
-type UserSignInBadRequestResponseJSONResponse struct {
-	Errors []string `json:"errors"`
-}
-
-type UserSignInOkResponseResponseHeaders struct {
-	SetCookie string
-}
-type UserSignInOkResponseJSONResponse struct {
-	Body map[string]interface{}
-
-	Headers UserSignInOkResponseResponseHeaders
-}
-
-type UserSignUpResponseJSONResponse struct {
-	Code   int                       `json:"code"`
-	Errors UserSignUpValidationError `json:"errors"`
-}
-
 type GetCsrfRequestObject struct {
 }
 
@@ -679,7 +551,7 @@ type GetCsrfResponseObject interface {
 	VisitGetCsrfResponse(w http.ResponseWriter) error
 }
 
-type GetCsrf200JSONResponse struct{ CsrfResponseJSONResponse }
+type GetCsrf200JSONResponse CsrfResponse
 
 func (response GetCsrf200JSONResponse) VisitGetCsrfResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -689,7 +561,8 @@ func (response GetCsrf200JSONResponse) VisitGetCsrfResponse(w http.ResponseWrite
 }
 
 type GetCsrf500JSONResponse struct {
-	InternalServerErrorResponseJSONResponse
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func (response GetCsrf500JSONResponse) VisitGetCsrfResponse(w http.ResponseWriter) error {
@@ -707,9 +580,7 @@ type GetExpensesResponseObject interface {
 	VisitGetExpensesResponse(w http.ResponseWriter) error
 }
 
-type GetExpenses200JSONResponse struct {
-	FetchExpenseListsResponseJSONResponse
-}
+type GetExpenses200JSONResponse ExpenseLists
 
 func (response GetExpenses200JSONResponse) VisitGetExpensesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -726,13 +597,23 @@ type PostExpensesResponseObject interface {
 	VisitPostExpensesResponse(w http.ResponseWriter) error
 }
 
-type PostExpenses200JSONResponse struct {
-	StoreExpenseResponseJSONResponse
-}
+type PostExpenses200JSONResponse StoreExpenseResponse
 
 func (response PostExpenses200JSONResponse) VisitPostExpensesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostExpenses500JSONResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (response PostExpenses500JSONResponse) VisitPostExpensesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -745,9 +626,7 @@ type GetExpensesCategoryTotalAmountsResponseObject interface {
 	VisitGetExpensesCategoryTotalAmountsResponse(w http.ResponseWriter) error
 }
 
-type GetExpensesCategoryTotalAmounts200JSONResponse struct {
-	CategoryTotalAmountListsResponseJSONResponse
-}
+type GetExpensesCategoryTotalAmounts200JSONResponse CategoryTotalAmountListsResponse
 
 func (response GetExpensesCategoryTotalAmounts200JSONResponse) VisitGetExpensesCategoryTotalAmountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -764,9 +643,7 @@ type GetExpensesTotalAmountsResponseObject interface {
 	VisitGetExpensesTotalAmountsResponse(w http.ResponseWriter) error
 }
 
-type GetExpensesTotalAmounts200JSONResponse struct {
-	TotalAmountListsResponseJSONResponse
-}
+type GetExpensesTotalAmounts200JSONResponse TotalAmountListsResponse
 
 func (response GetExpensesTotalAmounts200JSONResponse) VisitGetExpensesTotalAmountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -783,9 +660,7 @@ type GetIncomesResponseObject interface {
 	VisitGetIncomesResponse(w http.ResponseWriter) error
 }
 
-type GetIncomes200JSONResponse struct {
-	FetchIncomeListsResponseJSONResponse
-}
+type GetIncomes200JSONResponse IncomeLists
 
 func (response GetIncomes200JSONResponse) VisitGetIncomesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -802,13 +677,23 @@ type PostIncomesResponseObject interface {
 	VisitPostIncomesResponse(w http.ResponseWriter) error
 }
 
-type PostIncomes200JSONResponse struct {
-	StoreIncomeResponseJSONResponse
-}
+type PostIncomes200JSONResponse StoreIncomeResponse
 
 func (response PostIncomes200JSONResponse) VisitPostIncomesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostIncomes500JSONResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (response PostIncomes500JSONResponse) VisitPostIncomesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -821,9 +706,7 @@ type GetIncomesClientTotalAmountsResponseObject interface {
 	VisitGetIncomesClientTotalAmountsResponse(w http.ResponseWriter) error
 }
 
-type GetIncomesClientTotalAmounts200JSONResponse struct {
-	ClientTotalAmountListsResponseJSONResponse
-}
+type GetIncomesClientTotalAmounts200JSONResponse ClientTotalAmountListsResponse
 
 func (response GetIncomesClientTotalAmounts200JSONResponse) VisitGetIncomesClientTotalAmountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -840,9 +723,7 @@ type GetIncomesTotalAmountsResponseObject interface {
 	VisitGetIncomesTotalAmountsResponse(w http.ResponseWriter) error
 }
 
-type GetIncomesTotalAmounts200JSONResponse struct {
-	TotalAmountListsResponseJSONResponse
-}
+type GetIncomesTotalAmounts200JSONResponse TotalAmountListsResponse
 
 func (response GetIncomesTotalAmounts200JSONResponse) VisitGetIncomesTotalAmountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -877,8 +758,13 @@ type PostUsersSignInResponseObject interface {
 	VisitPostUsersSignInResponse(w http.ResponseWriter) error
 }
 
+type PostUsersSignIn200ResponseHeaders struct {
+	SetCookie string
+}
+
 type PostUsersSignIn200JSONResponse struct {
-	UserSignInOkResponseJSONResponse
+	Body    UserSignInOkResponse
+	Headers PostUsersSignIn200ResponseHeaders
 }
 
 func (response PostUsersSignIn200JSONResponse) VisitPostUsersSignInResponse(w http.ResponseWriter) error {
@@ -889,9 +775,7 @@ func (response PostUsersSignIn200JSONResponse) VisitPostUsersSignInResponse(w ht
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
-type PostUsersSignIn400JSONResponse struct {
-	UserSignInBadRequestResponseJSONResponse
-}
+type PostUsersSignIn400JSONResponse UserSignInBadRequestResponse
 
 func (response PostUsersSignIn400JSONResponse) VisitPostUsersSignInResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -901,7 +785,8 @@ func (response PostUsersSignIn400JSONResponse) VisitPostUsersSignInResponse(w ht
 }
 
 type PostUsersSignIn500JSONResponse struct {
-	InternalServerErrorResponseJSONResponse
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func (response PostUsersSignIn500JSONResponse) VisitPostUsersSignInResponse(w http.ResponseWriter) error {
@@ -919,7 +804,7 @@ type PostUsersSignUpResponseObject interface {
 	VisitPostUsersSignUpResponse(w http.ResponseWriter) error
 }
 
-type PostUsersSignUp200JSONResponse struct{ UserSignUpResponseJSONResponse }
+type PostUsersSignUp200JSONResponse UserSignUpResponse
 
 func (response PostUsersSignUp200JSONResponse) VisitPostUsersSignUpResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -928,10 +813,7 @@ func (response PostUsersSignUp200JSONResponse) VisitPostUsersSignUpResponse(w ht
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostUsersSignUp400JSONResponse struct {
-	Code   int                       `json:"code"`
-	Errors UserSignUpValidationError `json:"errors"`
-}
+type PostUsersSignUp400JSONResponse UserSignUpResponse
 
 func (response PostUsersSignUp400JSONResponse) VisitPostUsersSignUpResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -941,7 +823,8 @@ func (response PostUsersSignUp400JSONResponse) VisitPostUsersSignUpResponse(w ht
 }
 
 type PostUsersSignUp500JSONResponse struct {
-	InternalServerErrorResponseJSONResponse
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func (response PostUsersSignUp500JSONResponse) VisitPostUsersSignUpResponse(w http.ResponseWriter) error {
@@ -959,7 +842,7 @@ type PostUsersValidateSignUpResponseObject interface {
 	VisitPostUsersValidateSignUpResponse(w http.ResponseWriter) error
 }
 
-type PostUsersValidateSignUp200JSONResponse struct{ UserSignUpResponseJSONResponse }
+type PostUsersValidateSignUp200JSONResponse UserSignUpResponse
 
 func (response PostUsersValidateSignUp200JSONResponse) VisitPostUsersValidateSignUpResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -968,10 +851,7 @@ func (response PostUsersValidateSignUp200JSONResponse) VisitPostUsersValidateSig
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostUsersValidateSignUp400JSONResponse struct {
-	Code   int                       `json:"code"`
-	Errors UserSignUpValidationError `json:"errors"`
-}
+type PostUsersValidateSignUp400JSONResponse UserSignUpResponse
 
 func (response PostUsersValidateSignUp400JSONResponse) VisitPostUsersValidateSignUpResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -981,7 +861,8 @@ func (response PostUsersValidateSignUp400JSONResponse) VisitPostUsersValidateSig
 }
 
 type PostUsersValidateSignUp500JSONResponse struct {
-	InternalServerErrorResponseJSONResponse
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func (response PostUsersValidateSignUp500JSONResponse) VisitPostUsersValidateSignUpResponse(w http.ResponseWriter) error {
@@ -1005,31 +886,31 @@ type StrictServerInterface interface {
 	// Get Expenses Category TotalAmounts
 	// (GET /expenses/categoryTotalAmounts)
 	GetExpensesCategoryTotalAmounts(ctx context.Context, request GetExpensesCategoryTotalAmountsRequestObject) (GetExpensesCategoryTotalAmountsResponseObject, error)
-	// Get Expenses TotalAmounts
+	// Get Expense Total Amounts
 	// (GET /expenses/totalAmounts)
 	GetExpensesTotalAmounts(ctx context.Context, request GetExpensesTotalAmountsRequestObject) (GetExpensesTotalAmountsResponseObject, error)
 	// Get Incomes
 	// (GET /incomes)
 	GetIncomes(ctx context.Context, request GetIncomesRequestObject) (GetIncomesResponseObject, error)
-	// POST Income
+	// Post Income
 	// (POST /incomes)
 	PostIncomes(ctx context.Context, request PostIncomesRequestObject) (PostIncomesResponseObject, error)
-	// Get Incomes Client TotalAmounts
+	// Get Income Client TotalAmounts
 	// (GET /incomes/clientTotalAmounts)
 	GetIncomesClientTotalAmounts(ctx context.Context, request GetIncomesClientTotalAmountsRequestObject) (GetIncomesClientTotalAmountsResponseObject, error)
-	// GET Incomes TotalAmounts
+	// Get Income Total Amounts
 	// (GET /incomes/totalAmounts)
 	GetIncomesTotalAmounts(ctx context.Context, request GetIncomesTotalAmountsRequestObject) (GetIncomesTotalAmountsResponseObject, error)
-	// User CheckSignedIn
+	// User Check Signed In
 	// (GET /users/checkSignedIn)
 	GetUsersCheckSignedIn(ctx context.Context, request GetUsersCheckSignedInRequestObject) (GetUsersCheckSignedInResponseObject, error)
-	// User SignIn
+	// User Sign In
 	// (POST /users/signIn)
 	PostUsersSignIn(ctx context.Context, request PostUsersSignInRequestObject) (PostUsersSignInResponseObject, error)
-	// User SignUp
+	// User Sign Up
 	// (POST /users/signUp)
 	PostUsersSignUp(ctx context.Context, request PostUsersSignUpRequestObject) (PostUsersSignUpResponseObject, error)
-	// User Validate SignUp
+	// User Validate Sign Up
 	// (POST /users/validateSignUp)
 	PostUsersValidateSignUp(ctx context.Context, request PostUsersValidateSignUpRequestObject) (PostUsersValidateSignUpResponseObject, error)
 }
@@ -1390,35 +1271,33 @@ func (sh *strictHandler) PostUsersValidateSignUp(ctx echo.Context) error {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"d/8EAAD//99BWpfSMQAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
