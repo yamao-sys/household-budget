@@ -191,6 +191,7 @@ export const DailyBudgetDialog: React.FC<Props> = ({
               value={storeExpenseInput.category}
               onChange={setStoreExpenseSelectInput}
               validationErrorMessages={expenseValidationErrors.category ?? []}
+              castNumber={true}
             />
           </div>
 

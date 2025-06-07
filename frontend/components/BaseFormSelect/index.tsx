@@ -6,9 +6,29 @@ type Props = {
   id: string;
   options: [string, string][];
   validationErrorMessages: string[];
+  castNumber?: boolean;
 } & JSX.IntrinsicElements["select"];
 
-const BaseFormSelect = memo(function BaseFormSelect({ label, id, options, validationErrorMessages, ...props }: Props) {
+const BaseFormSelect = memo(function BaseFormSelect({ label, id, options, validationErrorMessages, castNumber, ...props }: Props) {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (props.onChange === undefined) {
+      return;
+    }
+
+    let value: string | number = e.target.value;
+    if (castNumber) {
+      value = Number(value);
+    }
+    let name = e.target.name;
+    props.onChange({
+      ...e,
+      target: {
+        ...e.target,
+        value,
+        name,
+      },
+    } as React.ChangeEvent<HTMLSelectElement>);
+  };
   return (
     <>
       <label htmlFor={id} className='block text-sm font-medium text-gray-700 mb-1'>
@@ -18,6 +38,7 @@ const BaseFormSelect = memo(function BaseFormSelect({ label, id, options, valida
         id={id}
         className='block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
         {...props}
+        onChange={handleChange}
       >
         <option value=''>-- 選択してください --</option>
         {options.map(([key, label]) => (
