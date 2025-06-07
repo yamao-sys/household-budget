@@ -8,6 +8,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 COPY cmd/main.go ./
 COPY api /app/api
+COPY apis /app/apis
 COPY database /app/database
 COPY internal /app/internal
 COPY test /app/test
