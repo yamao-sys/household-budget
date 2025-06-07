@@ -1,12 +1,12 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { expenseKeys } from "./key";
 import { getExpenseCategoryTotalAmounts, getExpenses, getExpenseTotalAmounts, postCreateExpense } from "./api";
 import { getDateString } from "~/lib/date";
 import type { StoreExpenseInput, StoreExpenseResponse } from "~/apis/model";
+import { getGetExpensesCategoryTotalAmountsQueryKey, getGetExpensesQueryKey, getGetExpensesTotalAmountsQueryKey } from "~/apis/expenses/expenses";
 
 export const useGetExpenses = (fromDate: string, toDate: string, csrfToken: string) => {
   const { data, isPending, isError } = useQuery({
-    queryKey: expenseKeys.list(fromDate, toDate),
+    queryKey: getGetExpensesQueryKey({ fromDate, toDate }),
     queryFn: () => getExpenses(fromDate, toDate, csrfToken),
   });
 
@@ -15,7 +15,7 @@ export const useGetExpenses = (fromDate: string, toDate: string, csrfToken: stri
 
 export const useGetExpenseTotalAmounts = (fromDate: string, toDate: string, csrfToken: string) => {
   const { data, isPending, isError } = useQuery({
-    queryKey: expenseKeys.totalAmount(fromDate, toDate),
+    queryKey: getGetExpensesTotalAmountsQueryKey({ fromDate, toDate }),
     queryFn: () => getExpenseTotalAmounts(fromDate, toDate, csrfToken),
     staleTime: 1000 * 60 * 10, // NOTE: FullCalenderで月を変更すると、キャッシュクリアされてしまうため設定
   });
@@ -25,7 +25,7 @@ export const useGetExpenseTotalAmounts = (fromDate: string, toDate: string, csrf
 
 export const useGetExpenseCategoryTotalAmounts = (fromDate: string, toDate: string, csrfToken: string) => {
   const { data, isPending, isError } = useQuery({
-    queryKey: expenseKeys.categoryTotalAmount(fromDate, toDate),
+    queryKey: getGetExpensesCategoryTotalAmountsQueryKey({ fromDate, toDate }),
     queryFn: () => getExpenseCategoryTotalAmounts(fromDate, toDate, csrfToken),
     staleTime: 1000 * 60 * 10,
   });
@@ -50,13 +50,13 @@ export const usePostCreateExpense = (
       const endOfMonth = getDateString(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0));
 
       queryClient.invalidateQueries({
-        queryKey: expenseKeys.list(date, date),
+        queryKey: getGetExpensesQueryKey({ fromDate: date, toDate: date }),
       });
       queryClient.invalidateQueries({
-        queryKey: expenseKeys.totalAmount(beginningOfMonth, endOfMonth),
+        queryKey: getGetExpensesTotalAmountsQueryKey({ fromDate: beginningOfMonth, toDate: endOfMonth }),
       });
       queryClient.invalidateQueries({
-        queryKey: expenseKeys.categoryTotalAmount(beginningOfMonth, endOfMonth),
+        queryKey: getGetExpensesCategoryTotalAmountsQueryKey({ fromDate: beginningOfMonth, toDate: endOfMonth }),
       });
 
       onSuccess(data);
