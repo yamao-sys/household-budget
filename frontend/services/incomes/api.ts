@@ -1,91 +1,65 @@
-import type { operations } from "~/types/apiSchema";
-import { client, getRequestHeaders } from "../base/api";
-import type { ClientTotalAmountLists, Income, StoreIncomeInput, StoreIncomeResponse, TotalAmountLists } from "~/types";
+import { getRequestHeaders } from "../base/api";
+import { getIncomes as getIncomesApi, getIncomesClientTotalAmounts, getIncomesTotalAmounts, postIncomes } from "~/apis/incomes/incomes";
+import type {
+  ClientTotalAmountLists,
+  GetIncomesClientTotalAmountsParams,
+  GetIncomesParams,
+  GetIncomesTotalAmountsParams,
+  Income,
+  StoreIncomeInput,
+  StoreIncomeResponse,
+  TotalAmountLists,
+} from "~/apis/model";
 
 export async function getIncomes(fromDate: string, toDate: string, csrfToken: string): Promise<Income[]> {
-  const params: operations["get-incomes"]["parameters"] = { query: {} };
+  const params: GetIncomesParams = {};
   if (!!fromDate) {
-    params.query = { ...params.query, fromDate };
+    params.fromDate = fromDate;
   }
   if (!!toDate) {
-    params.query = { ...params.query, toDate };
+    params.toDate = toDate;
   }
+  try {
+    const res = await getIncomesApi(params, getRequestHeaders(csrfToken));
 
-  const emptyIncomes: Income[] = [];
-
-  if (!fromDate && !toDate) return emptyIncomes;
-
-  const { data } = await client.GET("/incomes", {
-    ...getRequestHeaders(csrfToken),
-    params,
-  });
-
-  return data?.incomes ?? emptyIncomes;
+    return res.data.incomes;
+  } catch (error) {
+    throw new Error(`Unexpected error: ${error}`);
+  }
 }
 
-export async function getIncomeTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<TotalAmountLists> {
-  const params: operations["get-incomes-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
-  if (!!fromDate) {
-    params.query = { ...params.query, fromDate };
-  }
-  if (!!toDate) {
-    params.query = { ...params.query, toDate };
-  }
+export async function getIncomeTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<TotalAmountLists[]> {
+  const params: GetIncomesTotalAmountsParams = { fromDate, toDate };
+  try {
+    const res = await getIncomesTotalAmounts(params, getRequestHeaders(csrfToken));
 
-  const { data } = await client.GET("/incomes/totalAmounts", {
-    ...getRequestHeaders(csrfToken),
-    params,
-  });
-  if (!data) {
-    throw new Error();
+    return res.data.totalAmounts;
+  } catch (error) {
+    throw new Error(`Unexpected error: ${error}`);
   }
-
-  return data.totalAmounts;
 }
 
-export async function getIncomeClientTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<ClientTotalAmountLists> {
-  const params: operations["get-incomes-client-total-amounts"]["parameters"] = { query: { fromDate: "", toDate: "" } };
-  if (!!fromDate) {
-    params.query = { ...params.query, fromDate };
-  }
-  if (!!toDate) {
-    params.query = { ...params.query, toDate };
-  }
+export async function getIncomeClientTotalAmounts(fromDate: string, toDate: string, csrfToken: string): Promise<ClientTotalAmountLists[]> {
+  const params: GetIncomesClientTotalAmountsParams = { fromDate, toDate };
+  try {
+    const res = await getIncomesClientTotalAmounts(params, getRequestHeaders(csrfToken));
 
-  const { data } = await client.GET("/incomes/clientTotalAmounts", {
-    ...getRequestHeaders(csrfToken),
-    params,
-  });
-  if (!data) {
-    throw new Error();
+    return res.data.totalAmounts;
+  } catch (error) {
+    throw new Error(`Unexpected error: ${error}`);
   }
-
-  return data.totalAmounts;
 }
 
 export async function postCreateIncome(input: StoreIncomeInput, csrfToken: string): Promise<StoreIncomeResponse> {
-  const { data } = await client.POST("/incomes", {
-    ...getRequestHeaders(csrfToken),
-    body: input,
-    bodySerializer() {
-      const reqBody: { [key: string]: string | number } = {};
-      for (const [key, value] of Object.entries(input)) {
-        if (value instanceof Date) {
-          reqBody[key] = value.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-");
-        } else if (["amount"].includes(key)) {
-          if (value) {
-            reqBody[key] = Number(value);
-          }
-        } else {
-          reqBody[key] = value;
-        }
-      }
-      return JSON.stringify(reqBody);
-    },
-  });
-  if (!data) {
-    throw new Error();
-  }
+  try {
+    const res = await postIncomes(input, getRequestHeaders(csrfToken));
 
-  return data;
+    if (res.status === 500) {
+      throw new Error(`Internal Server Error: ${res.data}`);
+    }
+
+    return res.data;
+  } catch (error) {
+    throw new Error(`Unexpected error: ${error}`);
+  }
 }
