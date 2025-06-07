@@ -33,9 +33,20 @@ const getHeaders = (headers?: HeadersInit): HeadersInit => {
   };
 };
 
+const formatToJstDate = (isoString: string): string => {
+  const date = new Date(isoString);
+  const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000); // UTC+9
+
+  const year = jst.getFullYear();
+  const month = String(jst.getMonth() + 1).padStart(2, "0");
+  const day = String(jst.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
 const convertDatesToDateOnly = (input: any): any => {
   if (typeof input === "string" && /^\d{4}-\d{2}-\d{2}T/.test(input)) {
-    return input.split("T")[0];
+    return formatToJstDate(input);
   }
 
   if (Array.isArray(input)) {
