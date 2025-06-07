@@ -11,8 +11,7 @@ https://github.com/user-attachments/assets/9fde9fcb-9206-4a7c-bd91-056f04b0dd65
 - vite
 - react(v19)
 - react-router(v7)
-- openapi-typescript
-- openapi-fetch
+- orval
 - tailwindcss
 - tanstack/react-query
 - eslint
@@ -40,6 +39,10 @@ https://github.com/user-attachments/assets/9fde9fcb-9206-4a7c-bd91-056f04b0dd65
 - Artifact Registry
 - Cloud Run
 - Cloud Storage
+
+### OpenAPI のスキーマ管理
+
+- Typespec
 
 ## 機能
 
@@ -77,7 +80,7 @@ https://github.com/user-attachments/assets/9fde9fcb-9206-4a7c-bd91-056f04b0dd65
 
 レイアウトはユーティリティが豊富な Tailwind CSS を活用
 
-OpenAPI からコードを自動生成する仕組みを作るため、openapi-typescript とそれを使用して openapi-fetch による fetch
+OpenAPI からコードを自動生成する仕組みを作る & Tanstack Query との相性を踏まえ、Orval を使用
 
 また、フォームの状態管理はそこまでフォームが多くないため、react-hook-form 等は使用せず、useState で行う
 
@@ -101,7 +104,7 @@ OpenAPI からコードを自動生成する仕組みを作るため、openapi-t
 
 - features に機能ごとの components と hooks を作成
 - 可能な限りロジックは hooks に
-- API クライアント関連はドメインごとに services 配下に作成し、Tanstack Query をキャッシュキーの一意性とともに扱いやすく
+- API クライアント関連はドメインごとに services 配下に作成し、Tanstack Query を Orval によるキャッシュキーの一意性とともに扱いやすく
 - コンポーネントは専属のものは features に、アプリケーション内で共通で使用するものは root の components 配下に作成
 - ページ遷移時の共通処理(認証チェック)はクライアントミドルウェアに
 
@@ -123,6 +126,8 @@ OpenAPI からコードを自動生成する仕組みを作るため、openapi-t
 
 - Vite の本番での環境変数の渡し方が少し煩わしい...
   - Secret Manager に.env.production の元データを作っておき、build 時にそれを.env.production に書き出すことで解決
+- Orval の baseUrl やリクエストパラメータの調整が少し煩わしい...
+  - custom-fetch.ts のようなスクリプトを書く必要があったり、内部的に JSON.stringify されるので、Date 型のパラメータはそのままだと 1 日ずれてしまう
 
 ## 参考
 
