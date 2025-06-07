@@ -52,7 +52,7 @@ namespace HouseholdBudgetService.Auth {
   interface CheckSignedIn {
     @useAuth([SecuritySchema])
     @route("/checkSignedIn")
-    @operationId("post-users-check-signed-in")
+    @operationId("get-users-check-signed-in")
     @summary("User Check Signed In")
     @get
     get(): SuccessResponse<{ isSignedIn: boolean }>;

@@ -39,8 +39,8 @@ namespace HouseholdBudgetService.Expense {
 		@summary("Get Expense Total Amounts")
 		@get
 		get(
-			@query fromDate?: string,
-			@query toDate?: string,
+			@query fromDate: string,
+			@query toDate: string,
 		): SuccessResponse<TotalAmountListsResponse>;
 	}
 
@@ -50,8 +50,8 @@ namespace HouseholdBudgetService.Expense {
 		@summary("Get Expenses Category TotalAmounts")
 		@get
 		get(
-			@query fromDate?: string,
-			@query toDate?: string,
+			@query fromDate: string,
+			@query toDate: string,
 		): SuccessResponse<CategoryTotalAmountListsResponse>;
 	}
 }
